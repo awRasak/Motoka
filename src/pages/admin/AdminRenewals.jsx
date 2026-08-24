@@ -184,7 +184,9 @@ const AdminRenewals = () => {
   useEffect(() => {
     listDeferredRenewals({ page: 1, limit: 1 })
       .then(d => setDeferredCount(d.pagination?.total ?? 0))
-      .catch(() => {});
+      .catch(() => {
+        // badge count is non-critical — leave as-is on failure
+      });
   }, []);
 
   // Keep tab in sync when navigating via dashboard month tile (query param changes)
