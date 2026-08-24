@@ -24,10 +24,16 @@ const TILES = [
 ];
 
 const RenewalsSummary = () => {
+  const isDemo = typeof window !== 'undefined' && (window.location.pathname.startsWith('/admin/demo') || new URLSearchParams(window.location.search).has('demo'));
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (isDemo) {
+      const d = new Date(); const arr = [];
+      for(let i=0;i<12;i++){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const key=`${y}-${m}`;const label=new Date(Date.UTC(y,d.getMonth(),1)).toLocaleDateString('en-GB',{month:'short',year:'numeric'});arr.push({month:key,label,count:[18,7,31,12,24,9,15,22,6,19,11,28][i%12]});d.setMonth(d.getMonth()+1);}
+      setData({ counts:{expired:42,today:3,week:12,month:28,quarter:61}, states:{needs_review:2,in_progress:5}, monthlyBreakdown: arr }); return;
+    }
     let cancelled = false;
     // bucket=expired so `states` describes the expired cohort — the one the
     // "needs review" warning below is about.
@@ -35,7 +41,7 @@ const RenewalsSummary = () => {
       .then(d => { if (!cancelled) setData(d); })
       .catch(err => { if (!cancelled) setError(err.message); });
     return () => { cancelled = true; };
-  }, []);
+  }, [isDemo]);
 
   const counts = data?.counts;
   const states = data?.states;
@@ -71,7 +77,7 @@ const RenewalsSummary = () => {
             <p className="text-xs text-gray-500">Most urgent first — click any number to see who</p>
           </div>
         </div>
-        <Link to="/admin/renewals" className="text-xs font-medium text-blue-600 hover:underline">
+        <Link to={isDemo ? "/admin/demo/renewals" : "/admin/renewals"} className="text-xs font-medium text-blue-600 hover:underline">
           View call list →
         </Link>
       </div>
@@ -105,7 +111,7 @@ const RenewalsSummary = () => {
                 {nextMonths.map(m => (
                   <Link
                     key={m.month}
-                    to={`/admin/renewals?month=${m.month}`}
+                    to={isDemo ? `/admin/demo/renewals?month=${m.month}` : `/admin/renewals?month=${m.month}`}
                     className={`rounded-lg border p-3 text-center transition-colors ${m.count > 0 ? 'border-gray-200 hover:bg-blue-50 hover:border-blue-200' : 'border-gray-100 bg-gray-50/50'}`}
                   >
                     <p className="text-xs font-medium text-gray-600">{m.label}</p>

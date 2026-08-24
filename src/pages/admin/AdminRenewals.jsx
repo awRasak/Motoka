@@ -148,8 +148,38 @@ const AdminRenewals = () => {
   const [loading, setLoading] = useState(true);
 
   const activeMonth = tab.startsWith('month:') ? tab.slice(6) : null;
+  const isDemo = searchParams.has('demo') || window.location.pathname.startsWith('/admin/demo');
+
+  // Mock data so preview is clickable without auth/backend
+  const MOCK_MONTHLY = (() => {
+    const arr = []; const d = new Date();
+    const counts = [18, 7, 31, 12, 24, 9, 15, 22, 6, 19, 11, 28];
+    for (let i=0;i<12;i++){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const key=`${y}-${m}`;const label=new Date(Date.UTC(y,d.getMonth(),1)).toLocaleDateString('en-GB',{month:'short',year:'numeric'});arr.push({month:key,label,count:counts[i%counts.length]});d.setMonth(d.getMonth()+1);}
+    return arr;
+  })();
+  const MOCK_ROWS = [
+    { car_id: 101, registration_no: 'AAA 123 BB', vehicle: '2019 Toyota Corolla', owner: { name: 'Chinedu Okoro', email: 'chinedu.okoro@example.com', phone: '08031234567' }, expiry_date: '2026-08-15', days_left: -9, expiry_message: '9 days overdue', renewal_state: 'chase', car_status: 'approved' },
+    { car_id: 102, registration_no: 'LAG 88 TT', vehicle: '2021 Honda Accord', owner: { name: 'Aisha Bello', email: 'aisha.bello@example.com', phone: '08076543210' }, expiry_date: '2026-08-22', days_left: -2, expiry_message: '2 days overdue', renewal_state: 'chase', car_status: 'approved' },
+    { car_id: 103, registration_no: 'KJA 501 XC', vehicle: '2018 Lexus RX350', owner: { name: 'Tunde Balogun', email: 'tunde@example.com', phone: '09012345678' }, expiry_date: '2026-08-28', days_left: 4, expiry_message: '4 days to expire', renewal_state: 'chase', car_status: 'approved' },
+  ];
 
   const load = useCallback(async () => {
+    if (isDemo) {
+      setBuckets([{key:'expired',label:'Expired',count:42},{key:'today',label:'Expires today',count:3},{key:'week',label:'Next 7 days',count:12},{key:'month',label:'8–30 days',count:28},{key:'quarter',label:'31–90 days',count:61}]);
+      setMonthlyBreakdown(MOCK_MONTHLY);
+      let filtered = MOCK_ROWS;
+      if (activeMonth) {
+        filtered = MOCK_ROWS;
+      } else if (search) {
+        const s=search.toLowerCase();
+        filtered = MOCK_ROWS.filter(r=>[r.registration_no,r.vehicle,r.owner.name,r.owner.email,r.owner.phone].join(' ').toLowerCase().includes(s));
+      }
+      setRows(filtered);
+      setPagination({ total: filtered.length, page: 1, total_pages: 1 });
+      setDeferredCount(3);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       if (tab === DEFERRED_TAB) {
@@ -161,13 +191,13 @@ const AdminRenewals = () => {
         const data = await listRenewals({ month: activeMonth, page, limit: 25, search: search || undefined });
         setRows(data.data || []);
         setBuckets(data.buckets || []);
-        setMonthlyBreakdown(data.monthlyBreakdown || []);
+        setMonthlyBreakdown(data.monthlyBreakdown || MOCK_MONTHLY);
         setPagination(data.pagination || { total: 0, page: 1, total_pages: 1 });
       } else {
         const data = await listRenewals({ bucket: tab, page, limit: 25, search: search || undefined });
         setRows(data.data || []);
         setBuckets(data.buckets || []);
-        setMonthlyBreakdown(data.monthlyBreakdown || []);
+        setMonthlyBreakdown(data.monthlyBreakdown || MOCK_MONTHLY);
         setPagination(data.pagination || { total: 0, page: 1, total_pages: 1 });
       }
     } catch (err) {
@@ -176,18 +206,19 @@ const AdminRenewals = () => {
     } finally {
       setLoading(false);
     }
-  }, [tab, page, search, activeMonth]);
+  }, [tab, page, search, activeMonth, isDemo]);
 
   useEffect(() => { load(); }, [load]);
 
   // Deferred count is needed for its tab badge even while another tab is open
   useEffect(() => {
+    if (isDemo) return;
     listDeferredRenewals({ page: 1, limit: 1 })
       .then(d => setDeferredCount(d.pagination?.total ?? 0))
       .catch(() => {
         // badge count is non-critical — leave as-is on failure
       });
-  }, []);
+  }, [isDemo]);
 
   // Keep tab in sync when navigating via dashboard month tile (query param changes)
   useEffect(() => {
