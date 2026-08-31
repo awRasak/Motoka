@@ -1,6 +1,12 @@
 // Data-driven blog posts — one route (/blog/:slug) + one render component
-// (BlogPostPage.jsx) instead of ten near-identical page files. Each entry is
-// the full content for one post.
+// (BlogPostPage.jsx) instead of a page file per post. Each entry is the full
+// content for one post.
+//
+// A section is { title, body?, bullets?, steps?, note? } — `body` is a
+// paragraph, `bullets` an unordered list, `steps` an ordered one, and `note`
+// a highlighted callout. Any combination may appear in a single section, and
+// they render in that order. Posts written before lists existed use `body`
+// alone and are unaffected.
 export const BLOG_POSTS = [
   {
     slug: 'vehicle-documents-checklist-nigeria',
@@ -297,6 +303,86 @@ export const BLOG_POSTS = [
       "Combined with expiry reminders and encrypted document storage, the save-ahead wallet is designed to make sure a renewal is both remembered and affordable by the time it's due.",
     ctaText: 'See how the wallet works',
     ctaTo: '/wallet',
+  },
+  {
+    slug: 'how-to-register-commercial-vehicle-lagos',
+    eyebrow: 'Fleet Guides',
+    title: 'How to Register a New Commercial Vehicle in Lagos: A Step-by-Step Guide for Fleet Owners',
+    seoTitle: 'How to Register a Commercial Vehicle in Lagos (2026 Step-by-Step Guide) | Motoka',
+    // Deliberately does not promise costs/timelines — the draft's original
+    // meta description did, but the body carries neither, and a snippet that
+    // over-promises just buys a bounce. Add figures to the body first, then
+    // this can advertise them.
+    seoDescription:
+      'Buying vans, buses, or trucks for your Lagos business? A step-by-step guide to registering a new commercial vehicle in 2026 — FRSC plates, VIS roadworthiness, hackney permits, and LASDRI driver certification.',
+    intro:
+      "So you just added another bus, van, or truck to your fleet — congrats, that's growth. But before that vehicle can legally hit Lagos roads carrying goods or passengers, there's paperwork to sort out, and it's far less painful when you know exactly what's coming. Lagos treats commercial vehicles differently from private cars: there's an extra layer of registration, permits, and inspections, because you're moving people or cargo for money and the state wants to know the vehicle and its drivers can be trusted on the road.",
+    sections: [
+      {
+        title: 'Step 1: Get your proof of ownership sorted first',
+        body: 'Before anything else, make sure you have clean documentation for the vehicle itself:',
+        bullets: [
+          'Custom duty certificate (for imported/tokunbo vehicles) or purchase receipt/invoice (for brand-new vehicles bought from a dealership)',
+          'Vehicle Identification Number (VIN) and engine number clearly visible and matching your paperwork',
+          'A valid means of ID for the company or individual registering the vehicle — for businesses, this usually means your CAC certificate too',
+        ],
+        note: 'Skipping this step is one of the biggest reasons registrations get delayed, so double-check everything matches before you move forward.',
+      },
+      {
+        title: 'Step 2: Register the plate number with FRSC',
+        body:
+          "You'll typically need proof of vehicle ownership, a valid means of identification, proof of address, an insurance certificate, and — because it's a commercial vehicle — a roadworthiness certificate and your Tax Identification Number (TIN). Head to your nearest FRSC office or state licensing office, fill out the vehicle registration form, and make sure every detail matches your supporting documents. Mismatched details are a classic cause of rejected applications, so triple-check spellings, chassis numbers, and dates. Once your plate is issued, verify it's genuine through the Nigeria Vehicle Verification Service (NVVS) portal — worth doing for your own records, and handy if a driver or buyer ever needs proof later.",
+      },
+      {
+        title: 'Step 3: Get your Roadworthiness Certificate from VIS',
+        body:
+          'This is where commercial vehicles get extra scrutiny. The Lagos State Vehicle Inspection Service (VIS) — formerly the Vehicle Inspection Unit — issues the roadworthiness certificate, and LASTMA has the power to impound any vehicle caught without one. For a new commercial vehicle, book an inspection slot, take the vehicle in, and be ready for a queue: VIS centres get busy toward month-end when businesses are racing renewal deadlines.',
+        note: "Pro tip: book your slot as soon as you take delivery of the vehicle, not the week you plan to put it on the road.",
+      },
+      {
+        title: 'Step 4: Sort out your Hackney Permit',
+        body:
+          'If the vehicle will carry passengers commercially — staff buses, ride-hailing, shuttle services — you need a Hackney Permit on top of everything else. It\'s issued through the Lagos State Ministry of Transportation and is separate from your regular vehicle licence. It\'s effectively Lagos confirming that this specific vehicle is cleared to carry paying passengers.',
+      },
+      {
+        title: 'Step 5: Make sure every driver has a LASDRI card',
+        body:
+          "Here's one people forget: it's not just the vehicle that needs registering — the driver does too. Commercial vehicle drivers, pick-up owners, and company vehicle drivers in Lagos must be certified by the Lagos State Drivers' Institute (LASDRI), separately from their regular driver's licence. This requirement applies in Lagos specifically, not nationwide. Put your drivers through LASDRI training and certification before they get behind the wheel of a fleet vehicle — it saves everyone unnecessary wahala with enforcement officers.",
+      },
+      {
+        title: 'Step 6: Get third-party or comprehensive insurance',
+        body:
+          "This one's non-negotiable and applies across Nigeria, not just Lagos. Your commercial vehicle needs a valid insurance certificate before it can be registered — and for fleet vehicles carrying goods or people, comprehensive cover is usually worth the extra spend. One accident without it can wipe out months of profit.",
+      },
+      {
+        title: 'Step 7: Keep all documents in the vehicle, always',
+        body:
+          'Once everything is issued, keep physical or digital copies inside the vehicle at all times. Enforcement checks are common on Lagos roads, and having everything on hand keeps things quick:',
+        bullets: [
+          'Vehicle licence',
+          'Roadworthiness certificate',
+          'Insurance certificate',
+          'Hackney permit (if carrying passengers)',
+          "Driver's LASDRI card and driver's licence",
+        ],
+      },
+      {
+        title: 'A quick recap for your checklist',
+        steps: [
+          'Confirm ownership documents and VIN/engine number match',
+          'Register plate number with FRSC (bring ID, insurance, TIN, proof of address)',
+          'Get Roadworthiness Certificate from VIS',
+          'Apply for Hackney Permit (if carrying passengers)',
+          'Ensure drivers have LASDRI certification',
+          'Secure insurance cover',
+          'Keep documents in-vehicle and copies on file',
+        ],
+      },
+    ],
+    closing:
+      'Registering one vehicle is manageable on your own. But scaling a fleet — five, ten, fifty vehicles — multiplies this process across every vehicle and every renewal date until it becomes a job in itself. Motoka tracks each vehicle\'s expiry dates in one place and handles the renewals, so nothing slips through the cracks.',
+    ctaText: 'Renew your fleet documents',
+    ctaTo: '/renew/vehicle-license',
   },
 ]
 

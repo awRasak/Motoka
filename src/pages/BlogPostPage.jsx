@@ -4,6 +4,10 @@ import useSeoHead from '../hooks/useSeoHead'
 import useJsonLd from '../hooks/useJsonLd'
 import { getPostBySlug } from '../data/blogPosts'
 
+// Shared by paragraphs, lists and callouts so body copy stays visually
+// identical whichever shape a section uses.
+const BODY = { color: '#64748b', lineHeight: 1.7, fontSize: 16 }
+
 export default function BlogPostPage() {
   const { slug } = useParams()
   const post = getPostBySlug(slug)
@@ -49,7 +53,40 @@ export default function BlogPostPage() {
           {post.sections.map((s) => (
             <div key={s.title} style={{ marginBottom: 32 }}>
               <h2 style={{ fontWeight: 700, fontSize: 22, color: '#05243f', marginBottom: 8 }}>{s.title}</h2>
-              <p style={{ color: '#64748b', lineHeight: 1.7, fontSize: 16 }}>{s.body}</p>
+              {/* `body` stays a plain string so the original ten posts render
+                  unchanged. `bullets` / `steps` / `note` are optional additions
+                  for list-shaped content (the fleet guides), and any
+                  combination can appear in one section. */}
+              {s.body && <p style={BODY}>{s.body}</p>}
+              {s.bullets && (
+                <ul style={{ ...BODY, marginTop: 12, paddingLeft: 22, listStyleType: 'disc' }}>
+                  {s.bullets.map((item) => (
+                    <li key={item} style={{ marginBottom: 8 }}>{item}</li>
+                  ))}
+                </ul>
+              )}
+              {s.steps && (
+                <ol style={{ ...BODY, marginTop: 12, paddingLeft: 22, listStyleType: 'decimal' }}>
+                  {s.steps.map((item) => (
+                    <li key={item} style={{ marginBottom: 8 }}>{item}</li>
+                  ))}
+                </ol>
+              )}
+              {s.note && (
+                <p
+                  style={{
+                    ...BODY,
+                    marginTop: 16,
+                    padding: '14px 18px',
+                    background: '#f0f9ff',
+                    borderLeft: '3px solid #2389e3',
+                    borderRadius: 8,
+                    color: '#05243f',
+                  }}
+                >
+                  {s.note}
+                </p>
+              )}
             </div>
           ))}
         </section>
