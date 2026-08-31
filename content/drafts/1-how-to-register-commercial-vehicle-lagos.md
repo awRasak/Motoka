@@ -66,9 +66,44 @@ Get the registration right from day one, and you'll spend a lot less time firefi
 
 ## Sources (for review before publishing)
 
-This post describes a general process assembled from secondary/consumer-facing sites, not an official LASG or FRSC step-by-step page:
-- Required documents for FRSC plate registration — [Sentia Healthcare](https://sentiahealthcare.com.au/2025/03/02/how-to-get-a-new-plate-number-in-nigeria/), a non-Nigerian medical company's blog post, not a government or automotive-industry source. Treat the document list as broadly indicative rather than authoritative.
-- VIS as the issuer of Lagos roadworthiness certificates, and LASTMA's impoundment authority — [Businessday NG](https://businessday.ng/features/article/the-paradox-of-vehicle-road-worthiness-certification-and-bad-roads-in-lagos/), a credible mainstream outlet.
-- LASDRI certification requirement specific to Lagos commercial drivers — [Nigerian Queries](https://nigerianqueries.com/vehicle-documents-driving-nigerian-roads/), an independent content site rather than an official LASDRI page.
+**Now verified against primary sources — corrected in the published version:**
 
-Recommend cross-checking the document list and any fees against the current LASDRI (lasdri.org) and FRSC official pages before publishing, since requirements and costs are the kind of detail that changes without much notice.
+- **FRSC registration requirements** — checked against the official
+  [FRSC NVIS registration form](https://nvis.frsc.gov.ng/VehicleManagement/RegisterVehicle).
+  The form accepts **one** owner identification from: Company RC Number,
+  Driver's Licence, International Passport, National ID Card, or Tax
+  Identification Number.
+
+  This **corrected a factual error in the draft**, which listed TIN as an
+  additional mandatory requirement for commercial vehicles. It is one of
+  several alternatives, not an addition — a reader following the original
+  could have gone to obtain a TIN they did not need. Also corrected:
+  insurance is captured as a policy number during registration rather
+  than a certificate handed over, and address is a form field rather than
+  a separate proof-of-address document.
+
+  The draft's original source here was
+  [Sentia Healthcare](https://sentiahealthcare.com.au/2025/03/02/how-to-get-a-new-plate-number-in-nigeria/) —
+  an Australian medical clinic's blog, which currently outranks FRSC's own
+  portal for "how to get a new plate number in Nigeria". Worth knowing as
+  a caution: top search placement is not authority.
+
+- **LASDRI certification** — confirmed and expanded via
+  [Businessday](https://businessday.ng/uncategorized/article/lagos-to-sanction-employers-without-lasdri-certified-drivers/),
+  [Business Post](https://businesspost.ng/auto/yearly-certification-lagos-drivers-compulsory-lasdri-boss/)
+  and [LASDRI](https://www.new.lasdri.org/). The draft was correct that it
+  is Lagos-specific and separate from a driver's licence, but understated
+  it: recertification is **annual**, costs a fixed **₦2,000**, drivers must
+  be 18+ with a valid licence, and **employers can be sanctioned** for
+  using uncertified drivers — the card is a prerequisite for corporate
+  employment in Lagos. All added to the published version.
+
+**Credible secondary source, not primary:**
+
+- VIS as issuer of Lagos roadworthiness certificates, and LASTMA's
+  impoundment authority —
+  [Businessday NG](https://businessday.ng/features/article/the-paradox-of-vehicle-road-worthiness-certification-and-bad-roads-in-lagos/).
+
+**Still unverified:** hackney permit procedure and fees, and the customs
+duty certificate requirement for imported vehicles. Neither was checked
+against a Lagos State Ministry of Transportation or Customs page.
