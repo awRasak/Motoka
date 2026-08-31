@@ -383,6 +383,75 @@ export const BLOG_POSTS = [
       'Registering one vehicle is manageable on your own. But scaling a fleet — five, ten, fifty vehicles — multiplies this process across every vehicle and every renewal date until it becomes a job in itself. Motoka tracks each vehicle\'s expiry dates in one place and handles the renewals, so nothing slips through the cracks.',
     ctaText: 'Renew your fleet documents',
     ctaTo: '/renew/vehicle-license',
+    related: [
+      {
+        label: 'Digital tools for tracking licence expiries — best apps for Lagos fleet operators',
+        to: '/blog/digital-tools-tracking-licence-expiries-lagos',
+      },
+    ],
+  },
+  {
+    slug: 'digital-tools-tracking-licence-expiries-lagos',
+    eyebrow: 'Fleet Guides',
+    title: 'Digital Tools for Tracking Licence Expiries and Compliance: Best Apps for Lagos Fleet Operators',
+    seoTitle: 'Best Tools for Tracking Vehicle Licence Expiries — Lagos Fleet Guide | Motoka',
+    seoDescription:
+      "Tired of finding out a vehicle's papers expired the hard way — at a checkpoint? How Lagos fleet operators use digital tools to stay ahead of every renewal deadline.",
+    intro:
+      "Let's be honest: the moment your fleet grows past a handful of vehicles, keeping every roadworthiness certificate, insurance policy, hackney permit, and driver's licence straight in your head (or a notebook) stops working. Something always slips — and it's usually the one document you didn't think about that month. This is exactly the gap digital compliance tools are built to close.",
+    sections: [
+      {
+        title: 'Why manual tracking breaks down so fast',
+        body:
+          'Most Nigerian fleet operators are still fixing vehicles when they break down rather than before, and the same reactive pattern shows up with paperwork — vehicle papers expire quietly and nobody notices until a driver gets stopped by FRSC or LASTMA. Multiply that risk across ten, twenty, or a hundred vehicles, each with three or four documents on different renewal cycles, and it stops being a "did we forget" problem and becomes a "we don\'t have a system" problem.',
+      },
+      {
+        title: 'What a good compliance tracking system actually needs to do',
+        body: "Before jumping into specific tools, it helps to know what you're actually looking for:",
+        bullets: [
+          "Automatic expiry tracking for every document type — vehicle licence, roadworthiness certificate, insurance, hackney permit, driver's LASDRI card and licence — with alerts sent before the deadline, not on the day.",
+          'Per-vehicle and per-driver records, so you can see at a glance which specific vehicle or driver needs attention.',
+          "Centralised access for your team, so whoever's handling renewals isn't the only person who knows what's due.",
+          "Integration with GPS/telematics data, if you're already tracking vehicle location and usage — compliance and operations data are more useful together than apart.",
+          'Simple reporting, so you can show at a moment\'s notice — to a client, an auditor, or your own management — that your fleet is fully compliant.',
+        ],
+      },
+      {
+        title: 'The types of tools worth looking at',
+        body:
+          'Dedicated fleet management platforms with built-in compliance tracking. A number of platforms serving the Nigerian market — some built specifically for local conditions — now bundle document expiry tracking alongside GPS location, fuel monitoring, and driver behaviour scoring. The advantage is having everything in one dashboard instead of juggling a tracking app, a separate spreadsheet, and WhatsApp reminders. Look for platforms that explicitly mention roadworthiness, insurance, and permit tracking as a feature, not just GPS — some GPS-only tools skip compliance entirely.',
+        bullets: [
+          'GPS and telematics providers with compliance add-ons — if you already use a GPS service for routing, driver monitoring, or fuel management, check whether it offers document expiry alerts as an add-on. Several providers active in Nigeria now build this in, because customers kept asking.',
+          'General-purpose reminder and scheduling apps — if your fleet is still a handful of vehicles, a shared calendar with recurring reminders set well ahead of each expiry can genuinely cover you. The key is discipline: someone has to own it, and it needs checking weekly.',
+          'Spreadsheet-based trackers — plenty of Lagos operators start with a shared sheet of vehicle, document type, issue date and expiry, colour-coded as deadlines approach. It works for a while, but it depends entirely on someone remembering to update it. Treat it as a stepping stone, not a permanent plan.',
+        ],
+      },
+      {
+        title: "What to prioritise if you're choosing your first tool",
+        body: "If you're a small-to-mid-size fleet operator deciding where to start, prioritise in this order:",
+        steps: [
+          'Get expiry tracking working reliably first — even a well-maintained spreadsheet with real reminders beats an expensive platform nobody updates.',
+          'Add GPS/telematics next, once compliance tracking is solid, since it adds operational value (fuel, routing, driver safety) on top of compliance.',
+          "Centralise access so the information isn't trapped on one person's phone or laptop — anyone managing the fleet should be able to check status instantly.",
+          'Review monthly, not just when an alert fires — a quick monthly sweep across the whole fleet catches what a single-document alert might miss.',
+        ],
+      },
+      {
+        title: 'The real payoff',
+        body:
+          "The businesses that get hit hardest by expired documents aren't the ones without money for renewals — they're the ones without a system to know renewals are coming. A solid digital tracking setup, even a modest one, pays for itself the first time it stops a vehicle sitting impounded for a week over a certificate that should have been renewed a fortnight earlier. In a city like Lagos, where enforcement has genuinely tightened, that visibility isn't a nice-to-have — it's basic fleet hygiene.",
+      },
+    ],
+    closing:
+      'Motoka keeps every vehicle\'s licence, roadworthiness certificate and insurance in one encrypted wallet, sends reminders well ahead of each expiry date, and handles the renewal itself — so tracking and fixing happen in the same place rather than two.',
+    ctaText: 'Track your fleet documents',
+    ctaTo: '/renew/vehicle-license',
+    related: [
+      {
+        label: 'How to register a new commercial vehicle in Lagos: a step-by-step guide for fleet owners',
+        to: '/blog/how-to-register-commercial-vehicle-lagos',
+      },
+    ],
   },
 ]
 

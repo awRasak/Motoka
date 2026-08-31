@@ -91,6 +91,24 @@ export default function BlogPostPage() {
           ))}
         </section>
 
+        {/* Related reading — real <Link>s rather than the prose cross-
+            references the drafts used, so they actually pass link equity and
+            can be clicked. Posts opt in via a `related` array. */}
+        {post.related?.length > 0 && (
+          <section style={{ paddingLeft: 'clamp(24px, 7.9vw, 114px)', paddingRight: 'clamp(24px, 7.9vw, 114px)', paddingBottom: 56, maxWidth: 780 }}>
+            <h2 style={{ fontWeight: 700, fontSize: 18, color: '#05243f', marginBottom: 12 }}>Related reading</h2>
+            <ul style={{ paddingLeft: 22, listStyleType: 'disc' }}>
+              {post.related.map((r) => (
+                <li key={r.to} style={{ ...BODY, marginBottom: 8 }}>
+                  <Link to={r.to} style={{ color: '#0e6fc6', textDecoration: 'underline' }}>
+                    {r.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <section className="bg-[#f8fafc]" style={{ paddingLeft: 'clamp(24px, 7.9vw, 114px)', paddingRight: 'clamp(24px, 7.9vw, 114px)', paddingTop: 56, paddingBottom: 56 }}>
           <div style={{ maxWidth: 780 }}>
             <p style={{ color: '#64748b', lineHeight: 1.7, fontSize: 16, marginBottom: 24 }}>{post.closing}</p>

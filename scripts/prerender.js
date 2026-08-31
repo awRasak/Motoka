@@ -43,6 +43,32 @@ const ROUTES = [
   ...BLOG_POSTS.map((p) => `/blog/${p.slug}`),
 ]
 
+const ORIGIN = 'https://www.motokaapp.ng'
+
+// Rough priority by route depth/importance. Only a hint to crawlers, but
+// keeping it derived means a new post can never arrive with no priority.
+function priorityFor(route) {
+  if (route === '/') return '1.0'
+  if (route.startsWith('/renew/')) return '0.9'
+  if (route.startsWith('/states/')) return '0.8'
+  if (route.startsWith('/blog/')) return '0.6'
+  if (route === '/blog') return '0.7'
+  return '0.7'
+}
+
+// The sitemap is written from the same ROUTES array that drives prerendering,
+// so the two can't disagree. It used to be a hand-maintained file in public/,
+// which meant every new blog post or state silently went missing from it —
+// exactly the drift this avoids.
+async function writeSitemap() {
+  const urls = ROUTES.map(
+    (r) => `  <url>\n    <loc>${ORIGIN}${r === '/' ? '/' : r}</loc>\n    <priority>${priorityFor(r)}</priority>\n  </url>`
+  ).join('\n')
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
+  await writeFile(path.join(DIST, 'sitemap.xml'), xml)
+  console.log(`[prerender] wrote sitemap.xml (${ROUTES.length} URLs)`)
+}
+
 async function main() {
   if (!existsSync(DIST)) {
     console.error('[prerender] dist/ not found — run `vite build` first.')
@@ -77,6 +103,7 @@ async function main() {
       await writeFile(path.join(outDir, 'index.html'), html)
       console.log(`[prerender] wrote ${route === '/' ? '/' : route + '/'}index.html`)
     }
+    await writeSitemap()
   } finally {
     await browser.close()
     server.close()
