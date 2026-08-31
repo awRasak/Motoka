@@ -451,6 +451,212 @@ export const BLOG_POSTS = [
         label: 'How to register a new commercial vehicle in Lagos: a step-by-step guide for fleet owners',
         to: '/blog/how-to-register-commercial-vehicle-lagos',
       },
+      {
+        label: 'Common mistakes when renewing vehicle licences in Nigeria',
+        to: '/blog/common-mistakes-renewing-vehicle-licences',
+      },
+    ],
+  },
+  {
+    slug: 'understanding-dealer-plate-numbers',
+    eyebrow: 'Fleet Guides',
+    title: 'Understanding Dealer Plate Numbers: What They Mean for Your Business and How to Obtain One',
+    seoTitle: 'Dealer Plate Numbers in Nigeria: Rules, Uses and How to Get One | Motoka',
+    seoDescription:
+      "Dealer plates aren't just for car sellers — what they actually mean, who may legally use them, and how to obtain one without falling into the misuse Lagos is currently cracking down on.",
+    intro:
+      "If you're in the car sales business, or you run a fleet that regularly moves unregistered vehicles from the port to a showroom, you've come across dealer plates. But a lot of people misunderstand what these plates are actually for — and that misunderstanding is currently getting vehicles impounded in Lagos.",
+    sections: [
+      {
+        title: 'So what exactly is a dealer plate number?',
+        body:
+          "Think of a dealer plate as a temporary, business-linked plate number rather than a personal registration tied to one specific car. Vehicle dealers are allocated their own set of plate numbers for vehicles in transit or waiting to be sold. Instead of registering every car passing through your lot under its own plate, you use dealer plates to legally move and test-drive vehicles that haven't been registered yet. You'll usually spot them by their distinct design — they stand out from regular plates so enforcement officers can immediately tell a vehicle is operating under dealer status.",
+      },
+      {
+        title: 'What dealer plates are actually meant for',
+        body:
+          "This is where businesses get it wrong. Lagos State's Transport Sector Reform Law of 2018 permits dealer number plates only for specific, limited activities — not everyday driving. The approved uses are:",
+        bullets: [
+          'Authorised test drives',
+          'Vehicle inspections',
+          'Delivering or collecting a vehicle',
+          'Transporting an unregistered vehicle from the port or a dealership to a specific destination',
+        ],
+        note: "What they are not for: daily commuting, continuous use on public roads, or driving a vehicle that has already been sold to a customer. Once a car is sold, it needs its own registration.",
+      },
+      {
+        title: 'Why this matters right now',
+        body:
+          "Lagos State has re-issued a firm warning to motorists and car dealers about this exact misuse. The state's Vehicle Inspection Service (VIS) has impounded 175 vehicles for violating dealer plate rules, and offenders face confiscation, impoundment, and possible prosecution. If your business has been quietly using dealer plates as a workaround for full registration, tightening that up now is considerably cheaper than the alternative.",
+      },
+      {
+        title: 'How to actually get a dealer plate number',
+        body:
+          'If your business genuinely needs dealer plates — a dealership, auto importer, or vehicle logistics company — the general path looks like this:',
+        steps: [
+          "Register your business properly. You'll need your CAC certificate showing registered company name and address. Individuals can't apply as though they're a business.",
+          'Apply through the appropriate state licensing office or an accredited agent. In Lagos this typically runs through the vehicle licensing authorities alongside your business registration documents.',
+          'Provide the required documents — generally CAC certificate, valid ID, proof of business address, and sometimes evidence of the nature of your trade (import permits, dealership agreements).',
+          'Expect a processing window. This is rarely instant — allow a few weeks rather than a few days, and budget for official fees plus documentation costs.',
+          'Receive a defined number of plate pairs, not unlimited use. Dealer plates are issued as a limited set meant to rotate across vehicles currently in your inventory.',
+        ],
+      },
+      {
+        title: 'Practical tips for staying compliant',
+        bullets: [
+          'Keep a log. Note which vehicle each dealer plate is on, and why (test drive, delivery, inspection). Being able to explain the approved purpose on the spot makes a real difference if VIS stops you.',
+          "Don't let staff use dealer-plated vehicles for personal errands — that is exactly the misuse currently being clamped down on.",
+          'Move fast on new registrations. The moment a vehicle is sold or ready for permanent use, get it onto its own plate rather than letting it linger on a dealer plate for convenience.',
+          'Train drivers and sales staff on what dealer plates are and are not for. Most violations happen because staff simply do not know the rules.',
+        ],
+      },
+    ],
+    closing:
+      'Dealer plates are genuinely useful for businesses that move unregistered vehicles day to day, but they come with real limits that Lagos is actively enforcing. Get the business properly registered, apply through the right channel, and use the plates strictly as designed — it is a lot cheaper than an impounded vehicle and a court date. When a vehicle is ready for its own registration, Motoka can handle it without a trip to the licensing office.',
+    ctaText: 'Register a vehicle properly',
+    ctaTo: '/renew/vehicle-license',
+    related: [
+      {
+        label: 'How recent Nigerian traffic regulations are changing fleet management costs',
+        to: '/blog/impact-new-traffic-regulations-fleet-costs',
+      },
+      {
+        label: 'How to register a new commercial vehicle in Lagos',
+        to: '/blog/how-to-register-commercial-vehicle-lagos',
+      },
+    ],
+  },
+  {
+    slug: 'common-mistakes-renewing-vehicle-licences',
+    eyebrow: 'Driver Guides',
+    title: 'Common Mistakes When Renewing Vehicle Licences in Nigeria (and How to Avoid Them)',
+    seoTitle: 'Common Mistakes When Renewing Vehicle Licences in Nigeria | Motoka',
+    seoDescription:
+      "Vehicle licence renewal in Nigeria shouldn't be stressful — but these common mistakes turn a simple process into a nightmare. Here's what to watch out for.",
+    intro:
+      'Renewing your vehicle documents in Nigeria sounds simple on paper: pay, submit, collect. In practice it trips up even experienced fleet operators, because the small details are where things go wrong. If you have ever had a vehicle flagged for expired papers when you were sure you renewed it, you already know the feeling. Here are the mistakes that come up again and again — and how to sidestep them.',
+    sections: [
+      {
+        title: 'Mistake #1: Waiting until the last minute',
+        body:
+          'Renewal is not instant. Between inspections, processing, and queues at the licensing office, things take longer than expected. In 2025 the FRSC impounded over 150,000 vehicles nationwide for expired documents, with fines ranging from ₦5,000 to ₦15,000 per offence, and Lagos alone recorded 45,000 of those cases — a 20% jump on the year before. Starting at least a month before expiry gives you enough buffer to absorb any hiccup.',
+      },
+      {
+        title: 'Mistake #2: Assuming "passed inspection" means you have the certificate',
+        body:
+          "Passing your roadworthiness test at a VIS centre and actually holding the certificate are two different things. There are well-documented cases of vehicles passing inspection while the certificate itself takes days or weeks to issue — and if your old certificate's grace period runs out before the new one is in hand, you can still be flagged by enforcement or automated plate-recognition cameras. Follow through until the certificate is genuinely in your possession.",
+      },
+      {
+        title: 'Mistake #3: Letting insurance lapse separately',
+        body:
+          'Vehicle licence, roadworthiness, and insurance often carry different expiry dates because they were issued at different times. It is easy to renew the licence and completely forget third-party insurance expired two months ago. Nigerian law requires valid insurance at all times, and officers check it as often as roadworthiness. Keep one calendar with every expiry date, not just the one currently on your mind.',
+      },
+      {
+        title: 'Mistake #4: Mismatched details across documents',
+        body:
+          'Your licence, roadworthiness certificate, insurance, and proof of ownership all need to line up — same plate number, same owner name, same vehicle details. If your business changed its registered name, or a vehicle changed hands without the paperwork being updated, you will hit delays or outright rejection. A mismatch is the quickest way to turn a same-day renewal into a two-week saga. Compare every document side by side before submitting.',
+      },
+      {
+        title: 'Mistake #5: Not budgeting for the current cost',
+        body:
+          'Renewal costs shift more often than people expect, and arriving short on funds or with the wrong payment method is a common, avoidable delay. Prices vary by vehicle type, state, and whether you are renewing privately or as part of a commercial fleet. Check current rates rather than relying on what you paid last year — most state licensing portals list up-to-date fees.',
+      },
+      {
+        title: 'Mistake #6: Skipping online verification',
+        body:
+          "Once renewed, don't assume everything is fine. Verify your plate number and documents through the FRSC's National Vehicle Identification Scheme (NVIS) portal or the relevant SMS shortcode. It takes two minutes and catches errors — wrong dates, misspelled names — while they are still easy to fix.",
+      },
+      {
+        title: 'Mistake #7: Not keeping proof of every payment',
+        body:
+          'Licensing offices occasionally have record-keeping hiccups. If a dispute ever arises about whether you renewed on time, your own receipts and certificates are the backup. Save digital copies the same day you collect any renewed document rather than filing it away later.',
+      },
+      {
+        title: 'Mistake #8: Treating renewal as a one-person job when you run a fleet',
+        body:
+          'If you manage more than a couple of vehicles, tracking every expiry manually — in your head, a notebook, or a dozen WhatsApp reminders — means something will slip. This is where many Lagos fleet operators start losing money to fines and downtime: not because they do not care about compliance, but because nothing flags the deadline automatically.',
+      },
+      {
+        title: 'The simple fix for most of these',
+        body:
+          'Nearly every mistake here comes down to the same root cause: timing and tracking. Start early, keep documents consistent, and have a system that tells you what is expiring and when — before it becomes a problem on the road.',
+      },
+    ],
+    closing:
+      'Most of these mistakes are avoidable with reminders and a single place to keep every document. Motoka tracks each expiry date, flags it well in advance, and handles the renewal itself — so the timing problem and the paperwork problem get solved together.',
+    ctaText: 'Renew without the hassle',
+    ctaTo: '/renew/vehicle-license',
+    related: [
+      {
+        label: 'Digital tools for tracking licence expiries — best apps for Lagos fleet operators',
+        to: '/blog/digital-tools-tracking-licence-expiries-lagos',
+      },
+      {
+        label: 'What happens if your vehicle license expires in Nigeria?',
+        to: '/blog/what-happens-license-expires',
+      },
+    ],
+  },
+  {
+    slug: 'impact-new-traffic-regulations-fleet-costs',
+    eyebrow: 'Fleet Guides',
+    title: 'The Impact of Recent Nigerian Traffic Regulations on Fleet Management Costs',
+    seoTitle: 'How 2026 Nigerian Traffic Regulations Affect Fleet Costs | Motoka',
+    seoDescription:
+      "New import levies, stricter enforcement, and a fresh Green Tax — how Nigeria's latest regulatory changes are hitting fleet budgets in 2026, and what operators are doing about it.",
+    intro:
+      "If you run a fleet in Nigeria right now, you have probably felt it: the rules keep shifting, and every shift touches your bottom line. Some recent changes are genuinely good news for your budget. Others are quietly adding cost through stricter enforcement. Here is what is actually happening and what it means for your numbers.",
+    sections: [
+      {
+        title: 'The big one: vehicle import levies just got cheaper',
+        body:
+          'Under the 2026 Fiscal Policy Measures that took effect on 1 July 2026, the federal government cut the import levy on new vehicles from 20% to 10%, and on used (tokunbo) vehicles from 15% to 5%. Duties on fully-built passenger vehicles were reduced from 70% to 40% back in April 2026. Industry watchers estimate the changes could cut vehicle clearing costs by as much as 45% for some importers. For fleet owners importing directly, or buying from dealers who import, that is real money — if you held off expanding because the math looked ugly, it is worth re-running your numbers.',
+      },
+      {
+        title: 'The catch: the new Green Tax',
+        body:
+          'Alongside the levy cuts, the government introduced a Green Tax Surcharge on certain vehicle categories based on engine capacity — the bigger the engine, the more it bites. If your fleet leans toward SUVs, pickups, or larger-engine vehicles, this surcharge could offset some of the import savings. Mass transit buses and electric vehicles, by contrast, have been fully exempted from import duties, which is a real incentive if you are weighing EVs or larger passenger buses.',
+        note: 'Practically: engine size now carries a direct financial consequence beyond fuel economy. Factor the Green Tax into total cost of ownership, not just the sticker price.',
+      },
+      {
+        title: 'Stricter enforcement is raising the cost of non-compliance',
+        body:
+          'Enforcement around expired documents has tightened noticeably. Nationwide, the FRSC impounded over 150,000 vehicles for expired documentation in 2025, with Lagos accounting for 45,000 of those — a 20% jump on the year before. For a fleet operator this changes the math on compliance. A lapsed document used to mean a small fine if you were unlucky; now, with automated tools like ANPR (Automatic Number Plate Recognition) cameras feeding enforcement, the odds of being caught are climbing, and every impounded vehicle costs revenue days on top of the fine.',
+      },
+      {
+        title: 'Fuel, naira, and the wider cost pressure',
+        body:
+          'It is not only regulation driving fleet costs. Fuel prices have continued climbing since subsidy removal, naira depreciation has pushed up the cost of imported parts, tyres and lubricants, and persistent inflation is raising driver wages and maintenance. The result is a cost structure under pressure from several directions at once, not one policy change.',
+      },
+      {
+        title: 'Dealer plate crackdowns add another compliance layer',
+        body:
+          'Lagos State has also stepped up enforcement on dealer plate misuse, impounding vehicles using dealer plates for regular daily operations rather than their approved, limited purposes. If your fleet has been using dealer plates as a stop-gap for vehicles awaiting full registration, tightening that now avoids a nasty surprise — release fees, downtime and possible prosecution dwarf whatever was saved by delaying registration.',
+      },
+      {
+        title: 'What fleet managers should actually do with this',
+        steps: [
+          'Re-evaluate your next fleet purchase against the new import rates — get updated quotes rather than relying on last year\'s figures.',
+          'Factor the Green Tax into vehicle selection, especially when choosing between engine sizes or considering mass transit and electric options.',
+          'Treat document renewal as a cost-control issue, not just a legal one. With enforcement tightening, every lapsed document is a bigger financial risk than it used to be.',
+          'Build a buffer into your operating budget for fuel and parts volatility — these move independently of any single regulation.',
+          'Audit how your fleet uses dealer plates, and move vehicles onto proper registration as soon as they are road-ready.',
+        ],
+      },
+    ],
+    closing:
+      '2026 has brought a mixed picture: real savings on the import side, real cost pressure from tighter enforcement and new surcharges. The fleets that come out ahead will be the ones that rework their budgets and compliance processes around the changes. Motoka handles the compliance half — tracking every expiry across your fleet and processing the renewals before they become fines.',
+    ctaText: 'Keep your fleet compliant',
+    ctaTo: '/renew/vehicle-license',
+    related: [
+      {
+        label: 'Understanding dealer plate numbers and how to obtain one',
+        to: '/blog/understanding-dealer-plate-numbers',
+      },
+      {
+        label: 'Digital tools for tracking licence expiries — best apps for Lagos fleet operators',
+        to: '/blog/digital-tools-tracking-licence-expiries-lagos',
+      },
     ],
   },
 ]
