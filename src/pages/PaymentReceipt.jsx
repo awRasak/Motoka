@@ -59,7 +59,7 @@ export default function PaymentReceipt() {
   }
 
   const payment = data?.payment;
-  const monicreditResponse = data?.monicredit_response;
+  const monipayResponse = data?.monipay_response;
 
   if (!payment) {
     return (
@@ -252,7 +252,7 @@ export default function PaymentReceipt() {
           )}
 
           {/* Payment Method Details */}
-          {monicreditResponse && (
+          {monipayResponse && (
             <div className="rounded-lg bg-gray-50 p-5">
               <h3 className="mb-2 text-xs font-semibold text-gray-800">
                 Payment Details:
@@ -261,35 +261,35 @@ export default function PaymentReceipt() {
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-600">Channel:</span>
                   <span className="text-sm font-medium text-gray-800">
-                    {monicreditResponse.data?.channel || "Bank Transfer"}
+                    {monipayResponse.data?.channel || "Bank Transfer"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-600">Date Paid:</span>
                   <span className="text-sm font-medium text-gray-800">
-                    {formatDate(monicreditResponse.data?.date_paid)}
+                    {formatDate(monipayResponse.data?.date_paid)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-600">Order ID:</span>
                   <span className="text-sm font-medium text-gray-800">
-                    {monicreditResponse.orderid || payment.transaction_id}
+                    {monipayResponse.orderid || payment.transaction_id}
                   </span>
                 </div>
-                {monicreditResponse.data?.customer && (
+                {monipayResponse.data?.customer && (
                   <>
                     <div className="flex justify-between">
                       <span className="text-xs text-gray-600">
                         Account Number:
                       </span>
                       <span className="text-sm font-medium text-gray-800">
-                        {monicreditResponse.data.customer.account_number}
+                        {monipayResponse.data.customer.account_number}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-xs text-gray-600">Bank Name:</span>
                       <span className="text-sm font-medium text-gray-800">
-                        {monicreditResponse.data.customer.bank_name}
+                        {monipayResponse.data.customer.bank_name}
                       </span>
                     </div>
                   </>

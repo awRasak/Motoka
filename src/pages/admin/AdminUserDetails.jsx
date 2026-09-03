@@ -15,6 +15,16 @@ const AdminUserDetails = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [showAddCarModal, setShowAddCarModal] = useState(false);
+  const [wallet, setWallet] = useState(null);
+  const [ledger, setLedger] = useState([]);
+  const [walletLoading, setWalletLoading] = useState(true);
+  const [walletAvailable, setWalletAvailable] = useState(true);
+  const [showAdjustModal, setShowAdjustModal] = useState(false);
+  const [adjustDirection, setAdjustDirection] = useState('credit');
+  const [adjustAmount, setAdjustAmount] = useState('');
+  const [adjustReason, setAdjustReason] = useState('');
+  const [adjustLoading, setAdjustLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const getToken = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -64,6 +74,137 @@ const AdminUserDetails = () => {
   useEffect(() => {
     fetchUserDetails();
   }, [fetchUserDetails]);
+
+  // Wallet's own envelope is { success, message, data } (the shared
+  // response.js helper), not the { status, message, data } shape the rest of
+  // this page uses (admin.controller.js predates that helper) — checking
+  // data.status here would silently treat every successful wallet fetch as a
+  // failure, so this stays on data.success deliberately.
+  const fetchWallet = useCallback(async () => {
+    try {
+      setWalletLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch(
+        `${config.getApiBaseUrl()}/admin/wallets/${userId}/ledger`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 404) {
+        // Wallet feature is flagged off in this environment — not an error.
+        setWalletAvailable(false);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setWallet(data.data.wallet);
+        setLedger(data.data.entries || []);
+      } else {
+        toast.error(data.message || 'Failed to fetch wallet');
+      }
+    } catch (error) {
+      console.error('Error fetching wallet:', error);
+      toast.error('Failed to load wallet');
+    } finally {
+      setWalletLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchWallet();
+  }, [fetchWallet]);
+
+  const handleAdjustWallet = async (e) => {
+    e.preventDefault();
+    const amountNum = Number(adjustAmount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      toast.error('Enter a valid amount');
+      return;
+    }
+    if (!adjustReason.trim()) {
+      toast.error('A reason is required');
+      return;
+    }
+
+    try {
+      setAdjustLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch(
+        `${config.getApiBaseUrl()}/admin/wallets/${userId}/adjust`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            direction: adjustDirection,
+            amount: amountNum,
+            reason: adjustReason.trim(),
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(data.message || 'Wallet updated');
+        setShowAdjustModal(false);
+        setAdjustAmount('');
+        setAdjustReason('');
+        fetchWallet();
+      } else {
+        toast.error(data.message || 'Failed to adjust wallet');
+      }
+    } catch (error) {
+      toast.error('Failed to adjust wallet');
+    } finally {
+      setAdjustLoading(false);
+    }
+  };
+
+  const handleToggleFreeze = async () => {
+    if (!wallet) return;
+    const nextStatus = wallet.status === 'frozen' ? 'active' : 'frozen';
+
+    try {
+      setStatusLoading(true);
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch(
+        `${config.getApiBaseUrl()}/admin/wallets/${userId}/status`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: nextStatus }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(data.message || `Wallet ${nextStatus === 'frozen' ? 'frozen' : 'unfrozen'}`);
+        fetchWallet();
+      } else {
+        toast.error(data.message || 'Failed to update wallet status');
+      }
+    } catch (error) {
+      toast.error('Failed to update wallet status');
+    } finally {
+      setStatusLoading(false);
+    }
+  };
 
   const handleBack = () => navigate('/admin/users');
 
@@ -359,6 +500,86 @@ const AdminUserDetails = () => {
         </div>
       </div>
 
+      {/* Wallet */}
+      <div className="rounded-lg bg-white p-4 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold text-gray-900">Wallet</h2>
+          {wallet && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowAdjustModal(true)}
+                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors"
+              >
+                <Icon icon="mdi:cash-plus" className="h-3.5 w-3.5" />
+                Adjust Balance
+              </button>
+              <button
+                onClick={handleToggleFreeze}
+                disabled={statusLoading}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                  wallet.status === 'frozen'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <Icon icon={wallet.status === 'frozen' ? 'mdi:lock-open' : 'mdi:snowflake'} className="h-3.5 w-3.5" />
+                {wallet.status === 'frozen' ? 'Unfreeze' : 'Freeze'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {walletLoading ? (
+          <div className="py-8 text-center text-sm text-gray-500">Loading wallet…</div>
+        ) : !walletAvailable ? (
+          <div className="py-8 text-center">
+            <Icon icon="mdi:wallet-outline" className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">Wallet feature is not enabled in this environment</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Balance</p>
+                <p className="text-2xl font-semibold text-gray-900">{formatCurrency((wallet?.balance_kobo || 0) / 100)}</p>
+              </div>
+              <span
+                className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                  wallet?.status === 'frozen' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                }`}
+              >
+                <Icon icon={wallet?.status === 'frozen' ? 'mdi:snowflake' : 'mdi:check-circle'} className="mr-1 h-3.5 w-3.5" />
+                {wallet?.status === 'frozen' ? 'Frozen' : 'Active'}
+              </span>
+            </div>
+
+            <p className="text-xs font-medium text-gray-500 mb-2">Recent Transactions</p>
+            {ledger.length > 0 ? (
+              <div className="space-y-2">
+                {ledger.slice(0, 5).map((entry) => (
+                  <div key={entry.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900 capitalize">
+                        {entry.reason ? entry.reason.replace(/_/g, ' ') : entry.direction}
+                      </p>
+                      {entry.note && <p className="text-xs text-gray-500 mt-0.5 truncate">{entry.note}</p>}
+                      <p className="text-xs text-gray-400 mt-0.5">{formatDate(entry.created_at)}</p>
+                    </div>
+                    <p className={`ml-3 text-sm font-semibold whitespace-nowrap ${entry.direction === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                      {entry.direction === 'credit' ? '+' : '-'}{formatCurrency(entry.amount_kobo / 100)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-6 text-center">
+                <p className="text-sm text-gray-500">No transactions yet</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Cars */}
@@ -457,6 +678,85 @@ const AdminUserDetails = () => {
             fetchUserDetails();
           }}
         />
+      )}
+
+      {/* Adjust Wallet Modal */}
+      {showAdjustModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="w-full max-w-sm rounded-lg bg-white p-5 shadow-xl">
+            <h3 className="mb-4 text-base font-semibold text-gray-900">Adjust Wallet Balance</h3>
+            <form onSubmit={handleAdjustWallet} className="space-y-4">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAdjustDirection('credit')}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                    adjustDirection === 'credit'
+                      ? 'border-green-600 bg-green-50 text-green-700'
+                      : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Credit (Add)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdjustDirection('debit')}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                    adjustDirection === 'debit'
+                      ? 'border-red-600 bg-red-50 text-red-700'
+                      : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Debit (Remove)
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Amount (NGN)</label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  value={adjustAmount}
+                  onChange={(e) => setAdjustAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Reason (required)</label>
+                <textarea
+                  value={adjustReason}
+                  onChange={(e) => setAdjustReason(e.target.value)}
+                  placeholder="e.g. Manual bank transfer confirmed 02-Sep, ref MTK-2201"
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAdjustModal(false)}
+                  disabled={adjustLoading}
+                  className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={adjustLoading}
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                >
+                  {adjustLoading ? 'Saving…' : 'Confirm'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Delete Confirmation Modal */}

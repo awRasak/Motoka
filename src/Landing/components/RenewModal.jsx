@@ -9,7 +9,6 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { fetchRenewalItems, fetchStates, fetchLGAs, initGuestRenewal } from "../../services/apiGuest";
 import { saveGuestDeferredReminders } from "../../services/apiDeferredReminders";
 import PartialRenewalPromptModal from "../../components/shared/PartialRenewalPromptModal";
-import { useNavigate } from "react-router-dom";
 import SearchableSelect from "../../components/shared/SearchableSelect";
 
 const NIGERIAN_STATES = [
@@ -21,7 +20,6 @@ const NIGERIAN_STATES = [
 ];
 
 export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [plateNumber, setPlateNumber] = useState(initialPlateNumber || "");
   const [formData, setFormData] = useState({
@@ -50,7 +48,7 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
   const [renewalState, setRenewalState] = useState("Ogun");
 
   // Step 3 — gateway selection
-  const [selectedGateway, setSelectedGateway] = useState("monicredit");
+  const [selectedGateway, setSelectedGateway] = useState("monipay");
   const [showPartialPrompt, setShowPartialPrompt] = useState(false);
   const [pendingSkippedDocs, setPendingSkippedDocs] = useState([]);
 
@@ -281,18 +279,10 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
       sessionStorage.setItem("guestOrderId", result.orderId);
 
       if (result.paymentUrl) {
-        // Paystack — redirect to hosted checkout
+        // Both Paystack and Monipay redirect to a hosted checkout — Monipay's
+        // own spec models its API on Paystack's, so there's no separate
+        // bank-transfer-details branch left to handle.
         window.location.href = result.paymentUrl;
-      } else if (result.accountNumber) {
-        // MoniCredit bank transfer — persist bank details to sessionStorage so
-        // the callback page can recover them if the user navigates back
-        sessionStorage.setItem("guestBankDetails", JSON.stringify({
-          accountNumber: result.accountNumber,
-          bankName: result.bankName,
-          accountName: result.accountName,
-          totalAmount: result.totalAmount,
-        }));
-        navigate(`/guest/renewal/callback?orderId=${result.orderId}&gateway=monicredit`);
       } else {
         toast.error("Payment could not be initialized. Please try again.");
       }
@@ -509,7 +499,7 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
                   {/* Left — method selector */}
                   <div className="space-y-3">
                     {[
-                      { id: "monicredit", label: "Pay Via MoniCredit", sub: "Bank transfer — virtual account" },
+                      { id: "monipay", label: "Pay Via Monipay", sub: "Card or bank transfer" },
                       { id: "paystack", label: "Pay Via Paystack", sub: "Card, bank or mobile money" },
                     ].map((m) => (
                       <button
@@ -538,42 +528,32 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
 
                   <div className="hidden h-full w-px bg-[#F4F5FC] md:block" />
 
-                  {/* Right — detail panel */}
+                  {/* Right — detail panel. Both gateways redirect to a hosted
+                      checkout — Monipay's spec models its API on Paystack's —
+                      so this panel is shared, just relabeled per gateway. */}
                   <div className="space-y-4">
-                    {selectedGateway === "monicredit" ? (
-                      <div className="rounded-[20px] border border-[#697B8C]/11 px-6 py-5 space-y-3">
-                        <p className="text-sm text-[#697C8C]">Bank Transfer Details</p>
-                        <p className="text-xs text-[#05243F]/60">
-                          Click confirm below. We'll generate a dedicated virtual account number for this transaction. Transfer the exact amount to complete your renewal.
-                        </p>
-                        <div className="rounded-[10px] bg-[#F4F5FC] p-3">
-                          <p className="text-xs text-[#697C8C]">
-                            <span className="font-medium text-[#05243F]">Note:</span> Account expires in 30 mins. After payment, you'll be redirected to a status page.
-                          </p>
+                    <div className="rounded-[20px] border border-[#697B8C]/11 px-6 py-5 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">💳</span>
+                        <div>
+                          <p className="text-sm font-semibold text-[#05243F]">Secure Payment</p>
+                          <p className="text-xs text-[#697C8C]">Pay with card or bank transfer</p>
                         </div>
                       </div>
-                    ) : (
-                      <div className="rounded-[20px] border border-[#697B8C]/11 px-6 py-5 space-y-3">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">💳</span>
-                          <div>
-                            <p className="text-sm font-semibold text-[#05243F]">Secure Payment</p>
-                            <p className="text-xs text-[#697C8C]">Pay with card, bank transfer, or mobile money</p>
-                          </div>
+                      <div className="rounded-[10px] bg-gray-50 p-3 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-[#697C8C]">Amount:</span>
+                          <span className="font-semibold text-[#05243F]">₦{(totalAmount / 100).toLocaleString()}</span>
                         </div>
-                        <div className="rounded-[10px] bg-gray-50 p-3 space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-[#697C8C]">Amount:</span>
-                            <span className="font-semibold text-[#05243F]">₦{(totalAmount / 100).toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between text-xs">
-                            <span className="text-[#697C8C]">Gateway:</span>
-                            <span className="text-[#05243F]">Paystack</span>
-                          </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-[#697C8C]">Gateway:</span>
+                          <span className="text-[#05243F]">{selectedGateway === "monipay" ? "Monipay" : "Paystack"}</span>
                         </div>
-                        <p className="text-xs text-[#697C8C]">You will be redirected to Paystack's secure checkout page.</p>
                       </div>
-                    )}
+                      <p className="text-xs text-[#697C8C]">
+                        You will be redirected to {selectedGateway === "monipay" ? "Monipay's" : "Paystack's"} secure checkout page.
+                      </p>
+                    </div>
 
                     <button
                       onClick={handleConfirmPayment}

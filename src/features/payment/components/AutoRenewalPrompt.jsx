@@ -6,7 +6,7 @@ import { createSubscription, initiateTokenization } from "../../../services/apiS
 /**
  * AutoRenewalPrompt
  *
- * Shown after a successful bank transfer (Monicredit) payment.
+ * Shown after a successful non-card (e.g. bank transfer) payment.
  * Creates a pending subscription and initiates ₦50 card tokenization via
  * a Paystack popup. On success the webhook activates the subscription and
  * refunds the ₦50 automatically.

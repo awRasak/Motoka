@@ -173,8 +173,8 @@ export default function DriverLicenseOrderSummary() {
           />
           <p className="text-sm text-[#05243F]/70">
             Kindly check your license to proceed with the following request. On the next page you can choose your preferred payment method —{" "}
-            <strong>Monicredit</strong> (bank transfer) or{" "}
-            <strong>Paystack</strong> (card / online).
+            <strong>Monipay</strong> or{" "}
+            <strong>Paystack</strong> (card / bank transfer).
           </p>
         </div>
       </div>

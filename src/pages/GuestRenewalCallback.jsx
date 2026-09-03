@@ -1,7 +1,7 @@
 /**
  * GuestRenewalCallback
  *
- * Landing page after payment provider redirect (both MoniCredit and Paystack).
+ * Landing page after payment provider redirect (both Monipay and Paystack).
  * Polls GET /api/guest/renewals/:orderId/status until payment_status changes
  * from "pending_payment", then routes the user to the receipt page.
  */
@@ -21,7 +21,7 @@ export default function GuestRenewalCallback() {
 
   const orderId =
     searchParams.get("orderId") || sessionStorage.getItem("guestOrderId");
-  const gateway = searchParams.get("gateway") || "monicredit";
+  const gateway = searchParams.get("gateway") || "monipay";
   // Paystack appends reference/trxref to the redirect URL
   const paystackRef =
     searchParams.get("reference") || searchParams.get("trxref") || null;
@@ -32,7 +32,7 @@ export default function GuestRenewalCallback() {
   const [status, setStatus] = useState("polling"); // polling | success | failed | error | expired
   const [pollCount, setPollCount] = useState(0);
   const pollRef = useRef(null);
-  const paymentRefRef = useRef(null); // cached from first status poll for MoniCredit active verify
+  const paymentRefRef = useRef(null); // cached from first status poll for Monipay active verify
 
   // Resend receipt form (shown in expired state)
   const [resendEmail, setResendEmail] = useState("");
@@ -106,14 +106,14 @@ export default function GuestRenewalCallback() {
             paymentRefRef.current = order.paymentReference;
           }
 
-          // For MoniCredit: every 4 polls attempt an active gateway verify as a
+          // For Monipay: every 4 polls attempt an active gateway verify as a
           // webhook fallback (webhook may be delayed or misconfigured in dev).
           setPollCount((c) => {
             const next = c + 1;
             if (next >= MAX_POLLS) {
               clearInterval(pollRef.current);
               setStatus("error");
-            } else if (gateway === "monicredit" && next % 4 === 0 && paymentRefRef.current) {
+            } else if (gateway === "monipay" && next % 4 === 0 && paymentRefRef.current) {
               verifyGuestOrder(orderId, paymentRefRef.current)
                 .then((result) => {
                   if (result.status === "payment_success") handleSuccess(result.receiptToken);
@@ -141,8 +141,8 @@ export default function GuestRenewalCallback() {
     <div className="min-h-screen bg-[#F4F5FC] flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
 
-        {/* MoniCredit bank transfer instructions */}
-        {gateway === "monicredit" && bankDetails?.accountNumber && status === "polling" && (
+        {/* Monipay bank transfer instructions (dead unless a future Monipay response ever includes account details) */}
+        {gateway === "monipay" && bankDetails?.accountNumber && status === "polling" && (
           <div className="mb-6 text-left rounded-xl bg-[#FFFBEB] border border-[#FDB022]/30 p-4">
             <p className="text-sm font-semibold text-[#05243F] mb-3">Transfer to this account</p>
             <div className="space-y-2 text-sm">

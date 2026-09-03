@@ -17,13 +17,13 @@ import { markTransactionPaid, markTransactionFailed } from '../../services/apiAd
 const EMPTY_SUMMARY = {
   counts: { total: 0, successful: 0, pending: 0, failed: 0, abandoned: 0 },
   amounts: { received: 0, received_kobo: 0, pending: 0, pending_kobo: 0 },
-  by_gateway: { paystack: 0, monicredit: 0 },
+  by_gateway: { paystack: 0, monipay: 0 },
 };
 
 const GATEWAY_FILTERS = [
-  { value: 'all',        label: 'All Gateways' },
-  { value: 'monicredit', label: 'Monicredit' },
-  { value: 'paystack',   label: 'Paystack' },
+  { value: 'all',      label: 'All Gateways' },
+  { value: 'monipay',  label: 'Monipay' },
+  { value: 'paystack', label: 'Paystack' },
 ];
 
 const AdminPayments = () => {
@@ -264,8 +264,8 @@ const AdminPayments = () => {
       {/* Gateway sub-tiles */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
-          <p className="text-gray-500">Monicredit</p>
-          <p className="text-lg font-semibold text-gray-900">{summary.by_gateway?.monicredit ?? 0} txns</p>
+          <p className="text-gray-500">Monipay</p>
+          <p className="text-lg font-semibold text-gray-900">{summary.by_gateway?.monipay ?? 0} txns</p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
           <p className="text-gray-500">Paystack</p>
@@ -432,7 +432,7 @@ const AdminPayments = () => {
                     </td>
                     <td className="px-3 py-2.5 whitespace-nowrap">
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                        transaction.payment_gateway === 'monicredit'
+                        transaction.payment_gateway === 'monipay'
                           ? 'bg-purple-100 text-purple-800'
                           : 'bg-indigo-100 text-indigo-800'
                       }`}>

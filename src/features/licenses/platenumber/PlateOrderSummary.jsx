@@ -185,8 +185,8 @@ export default function PlateOrderSummary() {
           />
           <p className="text-sm text-[#05243F]/70">
             On the next page you can choose your preferred payment method —{" "}
-            <strong>Monicredit</strong> (bank transfer) or{" "}
-            <strong>Paystack</strong> (card / online) — and complete your
+            <strong>Monipay</strong> or{" "}
+            <strong>Paystack</strong> (card / bank transfer) — and complete your
             payment.
           </p>
         </div>

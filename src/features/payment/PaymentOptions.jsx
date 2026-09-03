@@ -9,7 +9,7 @@ import {
 } from "./config/paymentTypes";
 import { usePaymentVerification } from "./hooks/usePayment";
 import { initializePaystackPayment } from "../../services/apiPaystack";
-import { initiateMonicreditPayment } from "../../services/apiMonicredit";
+import { initiateMonipayPayment } from "../../services/apiMonipay";
 import { abandonPayment } from "../../services/apiPayment";
 import { getWallet, payFromWallet } from "../../services/apiWallet";
 import { payLadipoOrder, verifyLadipoPayment } from "../../services/apiLadipo";
@@ -21,7 +21,7 @@ import { useProfile } from "../settings/hooks/useProfile";
 
 const paymentMethods = [
   { id: PAYMENT_METHODS.PAYSTACK, label: "Pay Via Paystack", icon: "💳" },
-  { id: PAYMENT_METHODS.MONICREDIT, label: "Pay Via Monicredit" },
+  { id: PAYMENT_METHODS.MONIPAY, label: "Pay Via Monipay", icon: "💳" },
 ];
 
 export default function PaymentOptions() {
@@ -30,12 +30,12 @@ export default function PaymentOptions() {
   const queryClient = useQueryClient();
   const [paymentSession, setPaymentSession] = useState(null);
   const [selectedMethod, setSelectedMethod] = useState(
-    PAYMENT_METHODS.MONICREDIT,
+    PAYMENT_METHODS.MONIPAY,
   );
   const [isProcessing, setIsProcessing] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isPaymentMethodConfirmed, setIsPaymentMethodConfirmed] = useState(false);
-  const [monicreditFallbackError, setMonicreditFallbackError] = useState(null);
+  const [monipayFallbackError, setMonipayFallbackError] = useState(null);
   const clearLadipoCart = useCartStore((s) => s.clearCart);
   const [showAutoRenewal, setShowAutoRenewal] = useState(false);
   const [wallet, setWallet] = useState(null);
@@ -48,26 +48,20 @@ export default function PaymentOptions() {
     return () => { alive = false; };
   }, []);
 
-  // Inline phone capture when Monicredit (bank transfer) needs a phone number
+  // Inline phone capture when a gateway requires a phone number to initialize
   const [showPhonePrompt, setShowPhonePrompt] = useState(false);
   const [phoneSaving, setPhoneSaving] = useState(false);
   const [phoneError, setPhoneError] = useState(null);
   const { updateUserProfile } = useProfile();
 
-  // For Monicredit
-  const customer = paymentSession?.monicredit?.data?.customer;
-  const monicreditData = paymentSession?.monicredit?.data;
-  // Account details may be on the root data object OR nested in customer depending on API version
-  const monicreditAccountNumber = customer?.account_number || monicreditData?.account_number;
-  const monicreditBankName      = customer?.bank_name      || monicreditData?.bank_name;
-  const monicreditAccountName   = customer?.account_name   || monicreditData?.account_name;
-  // Get total_amount in naira (backend now sends both total_amount and amount in naira for Monicredit)
-  // Prefer total_amount, fallback to amount (both should be in naira from backend)
+  // Monipay's own spec models its response on Paystack's (authorization_url +
+  // reference, no bank-transfer account details) — same amount handling as
+  // Paystack below, kept as its own variable for readability at call sites.
   // For Ladipo: amount is stored in kobo at paymentSession.amount — convert to naira as fallback
-  const totalAmount = paymentSession?.monicredit?.data?.total_amount || 
-                      paymentSession?.monicredit?.data?.amount || 
-                      (paymentSession?.amount ? paymentSession.amount / 100 : null);
-  
+  const totalAmount = paymentSession?.monipay?.reference
+    ? Number(paymentSession?.amount || 0) / 100
+    : (paymentSession?.amount ? paymentSession.amount / 100 : null);
+
   // Backend always returns amount in kobo — divide by 100 for display
   const paystackAmount = paymentSession?.paystack?.reference
     ? Number(paymentSession?.amount || 0) / 100
@@ -92,7 +86,7 @@ export default function PaymentOptions() {
     ? [{ id: PAYMENT_METHODS.WALLET, label: `Wallet Balance: ${fmtN(walletBalanceNaira)}` }, ...paymentMethods]
     : paymentMethods;
 
-  const { verifyMonicredit, verifyPaystack } = usePaymentVerification();
+  const { verifyMonipay, verifyPaystack } = usePaymentVerification();
 
   // Invalidate cars + notifications cache so dashboard and bell update immediately
   const navigateAfterPayment = useCallback((state) => {
@@ -117,9 +111,8 @@ export default function PaymentOptions() {
   useEffect(() => {
     return () => {
       const paystackRef = paymentSession?.paystack?.reference;
-      const monicreditRef = paymentSession?.monicredit?.data?.reference ||
-                            paymentSession?.monicredit?.data?.orderid;
-      const ref = paystackRef || monicreditRef;
+      const monipayRef = paymentSession?.monipay?.reference;
+      const ref = paystackRef || monipayRef;
       if (ref && isPaymentMethodConfirmed && !isProcessing && paymentSession?.type !== PAYMENT_TYPES.LADIPO) {
         abandonPayment(ref, 'User left payment page');
       }
@@ -143,18 +136,15 @@ export default function PaymentOptions() {
         }
 
         setPaymentSession(sessionData);
-        const defaultMethod = sessionData.method || PAYMENT_METHODS.MONICREDIT;
+        const defaultMethod = sessionData.method || PAYMENT_METHODS.MONIPAY;
         setSelectedMethod(defaultMethod);
 
-        // FIX 1: If Monicredit account details already exist (e.g. the user
-        // came from RenewLicense which already called /payments/initialize),
-        // skip re-initialization. Showing "Confirm Payment Method" here would
+        // FIX 1: If Monipay was already initialized (e.g. the user came from
+        // RenewLicense which already called /payments/initialize), skip
+        // re-initialization. Showing "Confirm Payment Method" here would
         // create a second transaction and immediately abandon the first one.
-        const monicreditData = sessionData.monicredit?.data;
-        const alreadyInitialized =
-          monicreditData?.account_number ||
-          monicreditData?.customer?.account_number;
-        if (alreadyInitialized && defaultMethod === PAYMENT_METHODS.MONICREDIT) {
+        const alreadyInitialized = !!sessionData.monipay?.authorization_url;
+        if (alreadyInitialized && defaultMethod === PAYMENT_METHODS.MONIPAY) {
           setIsPaymentMethodConfirmed(true);
         }
       } catch (err) {
@@ -181,8 +171,7 @@ export default function PaymentOptions() {
     if (isInitializing) return; // a confirm-button click is in-flight; don't race
 
     const currentRef =
-      paymentSession?.monicredit?.data?.reference ||
-      paymentSession?.monicredit?.data?.orderid ||
+      paymentSession?.monipay?.reference ||
       paymentSession?.paystack?.reference;
     if (isPaymentMethodConfirmed && currentRef) {
       const ok = window.confirm(
@@ -194,21 +183,19 @@ export default function PaymentOptions() {
     }
 
     setSelectedMethod(method);
-    setMonicreditFallbackError(null);
+    setMonipayFallbackError(null);
 
-    // Auto-confirm Monicredit if account details still exist in the session
-    // (e.g. user switches back from Paystack after a prior Monicredit init).
-    const monicreditData = paymentSession?.monicredit?.data;
-    const alreadyInitialized =
-      monicreditData?.account_number || monicreditData?.customer?.account_number;
+    // Auto-confirm Monipay if it's already initialized in the session
+    // (e.g. user switches back from Paystack after a prior Monipay init).
+    const alreadyInitialized = !!paymentSession?.monipay?.authorization_url;
     setIsPaymentMethodConfirmed(
-      method === PAYMENT_METHODS.MONICREDIT && alreadyInitialized
+      method === PAYMENT_METHODS.MONIPAY && alreadyInitialized
     );
   };
 
   // Helper function to build payment payload
   const buildPaymentPayload = () => {
-    const car_slug = paymentSession?.car_slug || paymentSession?.car_id || paymentSession?.monicredit?.data?.car_slug;
+    const car_slug = paymentSession?.car_slug || paymentSession?.car_id;
 
     // ── Driver license payment: no car, no schedules ─────────────────────────
     if (paymentSession?.type === PAYMENT_TYPES.DRIVERS_LICENSE || paymentSession?.type === 'drivers_license') {
@@ -242,15 +229,6 @@ export default function PaymentOptions() {
         payment_schedule_id = paymentSession.payment_schedule_id.filter(id => id !== null && id !== undefined && id !== '');
       } else {
         payment_schedule_id = [paymentSession.payment_schedule_id].filter(id => id !== null && id !== undefined && id !== '');
-      }
-    } else {
-      const monicreditScheduleId = paymentSession?.monicredit?.data?.payment_schedule_id;
-      if (monicreditScheduleId) {
-        if (Array.isArray(monicreditScheduleId)) {
-          payment_schedule_id = monicreditScheduleId.filter(id => id !== null && id !== undefined && id !== '');
-        } else {
-          payment_schedule_id = [monicreditScheduleId].filter(id => id !== null && id !== undefined && id !== '');
-        }
       }
     }
 
@@ -321,52 +299,29 @@ export default function PaymentOptions() {
           payment_gateway: selectedMethod,
         });
 
-        if (selectedMethod === PAYMENT_METHODS.PAYSTACK) {
-          if (result?.authorization_url) {
-            setPaymentSession(prev => {
-              const updated = {
-                ...prev,
-                paystack: {
-                  authorization_url: result.authorization_url,
-                  reference: result.reference,
-                },
-                amount: result.amount || prev?.amount,
-              };
-              try { sessionStorage.setItem("paymentData", JSON.stringify(updated)); } catch {}
-              return updated;
-            });
-            setIsPaymentMethodConfirmed(true);
-            toast.success('Paystack payment initialized successfully');
-          } else {
-            toast.error('Failed to initialize Paystack payment');
-          }
+        // Both gateways now return the same shape from the Ladipo backend flow
+        // (authorization_url + reference) — Monipay's spec models its API on
+        // Paystack's, so there's no separate bank-transfer unwrapping needed.
+        const gatewayKey = selectedMethod === PAYMENT_METHODS.PAYSTACK ? 'paystack' : 'monipay';
+        const gatewayLabel = selectedMethod === PAYMENT_METHODS.PAYSTACK ? 'Paystack' : 'Monipay';
+
+        if (result?.authorization_url) {
+          setPaymentSession(prev => {
+            const updated = {
+              ...prev,
+              [gatewayKey]: {
+                authorization_url: result.authorization_url,
+                reference: result.reference,
+              },
+              amount: result.amount || prev?.amount,
+            };
+            try { sessionStorage.setItem("paymentData", JSON.stringify(updated)); } catch {}
+            return updated;
+          });
+          setIsPaymentMethodConfirmed(true);
+          toast.success(`${gatewayLabel} payment initialized successfully`);
         } else {
-          // Monicredit — result already unwrapped by apiLadipo
-          if (result) {
-            setPaymentSession(prev => {
-              const updated = {
-                ...prev,
-                monicredit: {
-                  data: {
-                    ...result,
-                    // Normalize: ensure customer object exists for PaymentOptions UI
-                    customer: result.customer || {
-                      account_number: result.account_number || result.accountNumber,
-                      bank_name: result.bank_name || result.bankName,
-                      account_name: result.account_name || result.accountName,
-                    },
-                    reference: result.reference || result.orderid || orderNumber,
-                  },
-                },
-              };
-              try { sessionStorage.setItem("paymentData", JSON.stringify(updated)); } catch {}
-              return updated;
-            });
-            setIsPaymentMethodConfirmed(true);
-            toast.success('Monicredit payment initialized successfully');
-          } else {
-            toast.error('Failed to initialize Monicredit payment');
-          }
+          toast.error(`Failed to initialize ${gatewayLabel} payment`);
         }
         return; // Skip standard flow below
       }
@@ -426,22 +381,28 @@ export default function PaymentOptions() {
         } else {
           toast.error('Failed to initialize Paystack payment');
         }
-      } else if (selectedMethod === PAYMENT_METHODS.MONICREDIT) {
-        // Initialize Monicredit
-        payload.payment_gateway = 'monicredit';
-        setMonicreditFallbackError(null);
+      } else if (selectedMethod === PAYMENT_METHODS.MONIPAY) {
+        // Initialize Monipay — same normalized shape as Paystack
+        // (authorization_url + access_code), per Monipay's own spec.
+        payload.payment_gateway = 'monipay';
+        setMonipayFallbackError(null);
 
-        const initRes = await initiateMonicreditPayment(payload);
+        const initRes = await initiateMonipayPayment(payload);
         const responseData = initRes?.data || initRes;
+        const monipayUrl = responseData?.authorization_url || responseData?.data?.authorization_url;
+        const monipayRef = responseData?.reference || responseData?.data?.reference || responseData?.transaction_id;
+        const monipayAmount = responseData?.amount || responseData?.data?.amount;
 
-        if (initRes?.status && responseData) {
+        if (monipayUrl && monipayRef) {
           setPaymentSession(prev => {
             const updated = {
               ...prev,
-              monicredit: {
-                ...(prev?.monicredit || {}),
-                data: responseData
-              }
+              monipay: {
+                ...(prev?.monipay || {}),
+                authorization_url: monipayUrl,
+                reference: monipayRef,
+              },
+              amount: monipayAmount || prev?.amount
             };
             try {
               sessionStorage.setItem("paymentData", JSON.stringify(updated));
@@ -451,25 +412,24 @@ export default function PaymentOptions() {
             return updated;
           });
           setIsPaymentMethodConfirmed(true);
-          toast.success('Monicredit payment initialized successfully');
+          toast.success('Monipay payment initialized successfully');
         } else {
-          toast.error(initRes?.message || 'Failed to initialize Monicredit payment');
+          toast.error(initRes?.message || 'Failed to initialize Monipay payment');
         }
       }
     } catch (err) {
       console.error("Payment initialization error:", err);
       const errMsg = err.response?.data?.message || err.message || 'Failed to initialize payment';
 
-      // Monicredit (bank transfer) requires a phone number to generate the
-      // virtual account. If that's the reason it failed, prompt for the phone
+      // If a gateway requires a phone number to initialize, prompt for it
       // inline and retry — rather than dumping the user out to Settings.
       const needsPhone = /phone number is required/i.test(errMsg);
-      if (selectedMethod === PAYMENT_METHODS.MONICREDIT && needsPhone) {
+      if (selectedMethod === PAYMENT_METHODS.MONIPAY && needsPhone) {
         setPhoneError(null);
         setShowPhonePrompt(true);
-      } else if (selectedMethod === PAYMENT_METHODS.MONICREDIT) {
-        // Any other Monicredit failure: offer a clear path to switch to card
-        setMonicreditFallbackError(errMsg);
+      } else if (selectedMethod === PAYMENT_METHODS.MONIPAY) {
+        // Any other Monipay failure: offer a clear path to switch to Paystack
+        setMonipayFallbackError(errMsg);
       } else {
         toast.error(errMsg);
       }
@@ -478,18 +438,16 @@ export default function PaymentOptions() {
     }
   };
 
-  // Switch to Paystack after Monicredit init failure. Abandon any prior
-  // Monicredit reference explicitly so the row gets a clean reason rather
-  // than the implicit "abandoned because re-init landed" cleanup the backend
-  // does. Makes admin Payments noise filterable.
+  // Switch to Paystack after Monipay init failure. Abandon any prior Monipay
+  // reference explicitly so the row gets a clean reason rather than the
+  // implicit "abandoned because re-init landed" cleanup the backend does.
+  // Makes admin Payments noise filterable.
   const handleSwitchToPaystack = () => {
-    const monicreditRef =
-      paymentSession?.monicredit?.data?.reference ||
-      paymentSession?.monicredit?.data?.orderid;
-    if (monicreditRef) {
-      abandonPayment(monicreditRef, 'Monicredit init failed, user switched to Paystack');
+    const monipayRef = paymentSession?.monipay?.reference;
+    if (monipayRef) {
+      abandonPayment(monipayRef, 'Monipay init failed, user switched to Paystack');
     }
-    setMonicreditFallbackError(null);
+    setMonipayFallbackError(null);
     setSelectedMethod(PAYMENT_METHODS.PAYSTACK);
     setIsPaymentMethodConfirmed(false);
   };
@@ -520,7 +478,7 @@ export default function PaymentOptions() {
     }
   };
 
-  // Save the phone number the user entered, then retry the Monicredit init so
+  // Save the phone number the user entered, then retry the Monipay init so
   // they stay in the checkout flow instead of being sent off to Settings.
   const handleSavePhoneAndRetry = async (phone) => {
     setPhoneSaving(true);
@@ -541,9 +499,6 @@ export default function PaymentOptions() {
       setPhoneSaving(false);
     }
   };
-
-  // Note: Monicredit doesn't require a separate payment initiation step
-  // Users just see bank details and verify after making the transfer
 
   // Helper function to get receipt URL based on payment type
   const getReceiptUrl = useCallback((paymentType, verificationResponse = null) => {
@@ -715,26 +670,64 @@ export default function PaymentOptions() {
     }
   };
 
-  // Handle Monicredit verification
-  const handleVerifyMonicredit = async () => {
-    const isLadipo = paymentSession?.type === PAYMENT_TYPES.LADIPO;
-    const orderId = paymentSession?.monicredit?.data?.reference ||
-                    paymentSession?.monicredit?.data?.orderid ||
-                    paymentSession?.monicredit?.data?.order_id ||
-                    paymentSession?.order_number;
-    if (!orderId) {
-      toast.error("No payment reference found. Please contact support.");
-      return;
+  // Handle Monipay payment — redirects to Monipay's payment page, same
+  // popup + poll-on-close pattern as Paystack (Monipay's spec models its
+  // checkout flow on Paystack's).
+  const handleMonipayPayment = async () => {
+    try {
+      const monipayUrl = paymentSession?.monipay?.authorization_url;
+      const reference = paymentSession?.monipay?.reference;
+
+      if (!monipayUrl) {
+        toast.error('Payment not initialized. Please confirm your payment method first.');
+        return;
+      }
+
+      if (reference) {
+        storePaymentReference(reference, PAYMENT_METHODS.MONIPAY);
+      }
+
+      if (paymentSession?.type === PAYMENT_TYPES.LADIPO) {
+        clearLadipoCart();
+        window.location.href = monipayUrl;
+        return;
+      }
+
+      const newWindow = window.open(monipayUrl, '_blank');
+      if (!newWindow) {
+        toast.success('Redirecting to Monipay...');
+        window.location.href = monipayUrl;
+        return;
+      } else {
+        toast.success("Redirecting to Monipay...");
+      }
+
+      const checkPopup = setInterval(() => {
+        if (newWindow.closed) {
+          clearInterval(checkPopup);
+          setTimeout(checkMonipayStatus, 3000);
+        }
+      }, 1000);
+    } catch (err) {
+      console.error("Monipay payment error:", err);
+      throw new Error(err.message || "Failed to process Monipay payment");
     }
+  };
+
+  const checkMonipayStatus = async () => {
+    const reference = paymentSession?.monipay?.reference;
+    if (!reference) return;
+
+    const isLadipo = paymentSession?.type === PAYMENT_TYPES.LADIPO;
 
     setIsProcessing(true);
     try {
       if (isLadipo) {
         useLadipoPaymentModalStore.getState().openProcessing(paymentSession?.amount || 0);
-        const result = await verifyLadipoPayment(orderId);
+        const result = await verifyLadipoPayment(reference);
         if (result?.status === "success" || result?.status === "paid") {
           clearLadipoCart();
-          toast.success('Payment verified successfully!');
+          toast.success('Payment successful!');
           const merged = { ...paymentSession?.orderData, ...result };
           useLadipoPaymentModalStore.getState().openSuccess({
             order: merged,
@@ -745,38 +738,35 @@ export default function PaymentOptions() {
           return;
         } else {
           useLadipoPaymentModalStore.getState().close();
-          toast.error("Payment not yet confirmed. Please complete the transfer and try again.");
+          toast.error('Payment verification failed. Please try again.');
           setIsProcessing(false);
           return;
         }
       }
 
-      const result = await verifyMonicredit.mutateAsync(orderId);
-      if (result.data.status === "APPROVED") {
-        toast.success('Payment successful! Your renewal is being processed.');
-        setIsProcessing(false);
-        // Show auto-renewal prompt for bank transfer payments (no card on file)
-        if (paymentSession?.car_slug) {
-          setShowAutoRenewal(true);
-        } else {
-          navigateAfterPayment({
-            paymentSuccess: true,
-            orderId,
-            amount: paymentSession.amount,
-            paymentMethod: "monicredit"
-          });
-        }
+      const result = await verifyMonipay.mutateAsync(reference);
+      const responseData = result?.data || result;
+      const status = responseData?.status || responseData?.data?.status;
+      const isSuccess = status === 'success' || status === true ||
+                       result?.data?.status === 'success' ||
+                       responseData?.status === 'success';
+
+      if (isSuccess) {
+        navigateAfterPayment({
+          paymentSuccess: true,
+          reference,
+          amount: paymentSession.amount,
+          paymentMethod: "monipay"
+        });
       } else {
-        // FIX 3: Bank transfers can take a few minutes to clear. "failed" is
-        // misleading — tell the user to wait and try again instead.
-        toast.error("Transfer not yet confirmed. Please allow a few minutes and try again.");
+        toast.error('Payment verification failed. Please try again.');
         setIsProcessing(false);
       }
-    } catch (err) {
-      if (isLadipo) {
+    } catch (error) {
+      if (paymentSession?.type === PAYMENT_TYPES.LADIPO) {
         useLadipoPaymentModalStore.getState().close();
       }
-      toast.error(err?.response?.data?.message || err?.message || "Verification failed. Please try again.");
+      toast.error(error.message || 'Failed to verify payment');
       setIsProcessing(false);
     }
   };
@@ -882,7 +872,7 @@ export default function PaymentOptions() {
             setShowAutoRenewal(false);
             navigateAfterPayment({
               paymentSuccess: true,
-              paymentMethod: "monicredit"
+              paymentMethod: "monipay"
             });
           }}
         />
@@ -995,17 +985,17 @@ export default function PaymentOptions() {
             </div>
           )}
 
-          {selectedMethod === PAYMENT_METHODS.MONICREDIT && (
+          {selectedMethod === PAYMENT_METHODS.MONIPAY && (
             <div>
               <h2 className="mb-5 text-sm font-normal text-[#697C8C]">
-                Bank Transfer Details
+                Monipay Payment
               </h2>
 
-              {/* Monicredit fallback banner — shown when initialization fails */}
-              {monicreditFallbackError && (
+              {/* Monipay fallback banner — shown when initialization fails */}
+              {monipayFallbackError && (
                 <div className="mb-4 rounded-[12px] border border-amber-200 bg-amber-50 p-4">
-                  <p className="text-sm font-medium text-amber-800 mb-1">Bank transfer unavailable</p>
-                  <p className="text-xs text-amber-700 mb-3">{monicreditFallbackError}</p>
+                  <p className="text-sm font-medium text-amber-800 mb-1">Monipay unavailable</p>
+                  <p className="text-xs text-amber-700 mb-3">{monipayFallbackError}</p>
                   <button
                     onClick={handleSwitchToPaystack}
                     className="w-full rounded-full bg-[#2284DB] py-2 text-sm font-semibold text-white hover:bg-[#1a6fc2] transition-colors"
@@ -1017,9 +1007,22 @@ export default function PaymentOptions() {
 
               {!isPaymentMethodConfirmed ? (
                 <div className="space-y-4 rounded-[20px] border border-[#697B8C]/11 px-6 py-6">
+                  <div className="rounded-lg border border-gray-200 p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-2xl">💳</div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Secure Payment
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Pay securely with your card or bank transfer
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="text-center">
                     <p className="text-sm text-[#05243F]/60 mb-4">
-                      Click the button below to confirm your payment method and view bank transfer details.
+                      Click the button below to confirm your payment method and proceed with payment.
                     </p>
                     <button
                       onClick={handleConfirmPaymentMethod}
@@ -1037,102 +1040,71 @@ export default function PaymentOptions() {
                     </button>
                   </div>
                 </div>
-              ) : (paymentSession?.monicredit?.data?.customer || monicreditAccountNumber) ? (
-                <div className="space-y-3 rounded-[20px] border border-[#697B8C]/11 px-6 py-4">
-                  <div className="text-center">
-                    <h3 className="text-sm font-normal text-[#05243F]/40">
-                      Transfer
-                    </h3>
-                    <p className="mt-2 text-4xl font-semibold text-[#2284DB]">
-                      ₦{Number(totalAmount || 0).toLocaleString()}
-                    </p>
-                    <p className="mt-3 text-[15px] text-[#05243F]/40">
-                      Account No. Expires in
-                      <span className="ml-1 font-semibold text-[#EBB850]">
-                        30
-                      </span>
-                      mins
-                    </p>
-                  </div>
-                  <div className="mt-5 space-y-4">
-                    <div className="flex justify-between border-b border-[#697B8C]/11 pb-3">
-                      <span className="text-[15px] font-light text-[#05243F]/60">
-                        Account Number:
-                      </span>
-                      <span className="text-base font-semibold text-[#05243F]">
-                        {monicreditAccountNumber}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#697B8C]/11 pb-3">
-                      <span className="text-[15px] font-light text-[#05243F]/60">
-                        Bank Name:
-                      </span>
-                      <span className="text-base font-semibold text-[#05243F]">
-                        {monicreditBankName}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#697B8C]/11 pb-3">
-                      <span className="text-[15px] font-light text-[#05243F]/60">
-                        Account Name:
-                      </span>
-                      <span className="text-right text-base font-semibold text-[#05243F]">
-                        {monicreditAccountName}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#697B8C]/11 pb-3">
-                      <span className="text-[15px] font-light text-[#05243F]/60">
-                        Amount:
-                      </span>
-                      <span className="text-base font-semibold text-[#05243F]">
-                        ₦{Number(totalAmount || 0).toLocaleString()}
-                      </span>
+              ) : (
+                <div className="space-y-4">
+                  <div className="rounded-lg border border-gray-200 p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-2xl">💳</div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Secure Payment
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Pay securely with your card or bank transfer
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-[10px] bg-[#F4F5FC] p-4 drop-shadow-xs">
-                    <div className="flex gap-3">
-                      <span className="text-base font-medium text-[#05243F]">
-                        Note:
-                      </span>
-                      <p className="text-sm font-normal text-[#05243F]/60">
-                        Kindly transfer the exact amount to the account details
-                        above. After payment, click the button below to confirm.
-                      </p>
+                  <div className="rounded-lg bg-gray-50 p-1">
+                    <h4 className="mb-2 text-sm font-medium text-gray-900">
+                      Payment Summary
+                    </h4>
+                    <div className="space-y-1 text-xs text-[#697C8C]">
+                      <div className="flex justify-between">
+                        <span>Amount:</span>
+                        <span className="font-semibold">
+                          ₦{Number(totalAmount || 0).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Reference:</span>
+                        <span className="font-mono text-xs">
+                          {paymentSession?.monipay?.reference || "Not initialized"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Payment Method:</span>
+                        <span>Monipay</span>
+                      </div>
+                      {paymentSession?.items?.length > 1 && (
+                        <div className="flex justify-between">
+                          <span>Documents:</span>
+                          <span className="font-semibold text-blue-600">
+                            {paymentSession.items.length} items
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
+
                   <button
-                    className="mt-5 w-full rounded-full bg-[#2284DB] py-3 text-center text-base font-semibold text-white transition-all hover:bg-[#FDF6E8] hover:text-[#05243F] disabled:opacity-50"
-                    onClick={handleVerifyMonicredit}
-                    disabled={verifyMonicredit.isPending}
+                    onClick={handleMonipayPayment}
+                    disabled={!paymentSession?.monipay?.authorization_url || isProcessing}
+                    className="flex w-full items-center justify-center rounded-full bg-[#2284DB] px-4 py-3 text-base font-semibold text-white hover:bg-[#1a6bb8] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {verifyMonicredit.isPending
-                      ? "Verifying..."
-                      : "I've Made Payment"}
+                    {isProcessing ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                        Verifying payment...
+                      </>
+                    ) : (
+                      "Pay with Monipay"
+                    )}
                   </button>
-                  {verifyMonicredit.data && (
-                    <div
-                      className={`mt-4 text-center text-sm font-semibold ${(verifyMonicredit.data?.status ?? verifyMonicredit.data.status) ? "text-green-600" : "text-red-600"}`}
-                    >
-                      {typeof verifyMonicredit.data === "object" &&
-                        verifyMonicredit.data !== null
-                        ? verifyMonicredit.data?.message ||
-                        verifyMonicredit.data.message ||
-                        "Verification completed"
-                        : String(verifyMonicredit.data)}
-                    </div>
-                  )}
-                  {verifyMonicredit.isError && (
-                    <div className="mt-4 text-center text-sm font-semibold text-red-600">
-                      {typeof verifyMonicredit.error === "string"
-                        ? verifyMonicredit.error
-                        : String(verifyMonicredit.error)}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center text-sm font-normal text-red-500">
-                  No payment records found. It looks like you haven’t initiated
-                  any payments yet.
+                  <p className="mt-2 text-center text-xs text-[#697C8C]">
+                    You will be redirected to Monipay's secure payment page. Verification is automatic after payment.
+                  </p>
                 </div>
               )}
             </div>

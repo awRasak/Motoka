@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useGetState, useGetLocalGovernment } from "./useRenew";
 import { useInitializePayment } from "./usePayment";
 import { PAYMENT_TYPES } from "../payment/config/paymentTypes";
-import { fetchPaymentHeads, fetchPaymentSchedules } from "../../services/apiMonicredit";
+import { fetchPaymentHeads, fetchPaymentSchedules } from "../../services/apiMonipay";
 import { checkExistingPayments } from "../../services/apiPayment";
 import { updateProfile } from "../../services/apiProfile";
 import { FaArrowLeft, FaCarAlt } from "react-icons/fa";
@@ -74,8 +74,8 @@ export default function RenewLicense() {
     reset: resetPaymentInit,
   } = useInitializePayment();
 
-  // Detect Monicredit "missing phone" error — show inline phone collector
-  const monicreditPhoneError = paymentInitError &&
+  // Detect gateway "missing phone" error — show inline phone collector
+  const gatewayPhoneError = paymentInitError &&
     (paymentInitError.response?.data?.message || paymentInitError.message || "")
       .toLowerCase().includes("phone")
     ? (paymentInitError.response?.data?.message || paymentInitError.message)
@@ -368,13 +368,13 @@ export default function RenewLicense() {
     }
 
     // Create payload for bulk payment (supports multiple schedules)
-    // Note: payment_gateway defaults to 'monicredit' in apiPayment.js
+    // Note: payment_gateway defaults to 'monipay' in apiPayment.js
     // Users can change to Paystack in PaymentOptions.jsx after navigation
     const paymentPayload = {
       car_slug: carDetail?.slug,
       payment_schedule_id: availableSchedules.map((schedule) => schedule.id), // Array for bulk payments
       renewal_state: renewalState || undefined,
-      // payment_gateway will default to 'monicredit' via apiPayment.js
+      // payment_gateway will default to 'monipay' via apiPayment.js
       // Users can select Paystack in PaymentOptions page
       // Delivery details are optional for license renewal - only include if provided
       ...(deliveryDetails.address.trim() !== "" ||
@@ -442,7 +442,7 @@ export default function RenewLicense() {
     }
   };
 
-  // When Monicredit fails due to missing phone, user can switch to Paystack
+  // When Monipay fails due to missing phone, user can switch to Paystack
   const handlePayWithPaystack = () => {
     if (!isFormValid()) return;
     const availableSchedules = getAvailableSchedules();
@@ -468,7 +468,7 @@ export default function RenewLicense() {
     startPayment(paymentPayload);
   };
 
-  // Save phone to profile then retry Monicredit — no Settings round-trip needed
+  // Save phone to profile then retry Monipay — no Settings round-trip needed
   const handleSavePhoneAndRetry = async () => {
     const phone = inlinePhone.trim();
     if (!phone || phone.length < 7) {
@@ -485,7 +485,7 @@ export default function RenewLicense() {
       const paymentPayload = {
         car_slug: carDetail?.slug,
         payment_schedule_id: availableSchedules.map((s) => s.id),
-        payment_gateway: 'monicredit',
+        payment_gateway: 'monipay',
         renewal_state: renewalState || undefined,
         ...(deliveryDetails.address.trim() !== "" ||
             deliveryDetails.contact.trim() !== "" ||
@@ -516,45 +516,22 @@ export default function RenewLicense() {
     const inner = paymentInitData?.data || null;
     if (!inner) return;
 
-    // Normalize into the structure PaymentOptions expects
+    // Normalize into the structure PaymentOptions expects.
+    // Both Paystack and Monipay now return the same shape (authorization_url +
+    // access_code) — Monipay's own spec models its API on Paystack's — so both
+    // are handled the same way here, just keyed by gateway name.
     let normalized = {};
-    // Check gateway field first, then check for gateway-specific fields
-    const isMonicredit = inner?.gateway === 'monicredit' || 
-                        inner?.customer || 
-                        inner?.account_number || 
-                        inner?.bank_name;
-    const isPaystack = inner?.gateway === 'paystack' || 
-                      (inner?.authorization_url && !isMonicredit);
-    
-    if (isPaystack) {
-      // Paystack init
-      const authUrl = inner.authorization_url;
-      const reference = inner.reference || inner.transaction_id;
-      normalized = {
-        type: PAYMENT_TYPES.LICENSE_RENEWAL,
-        paystack: {
-          authorization_url: authUrl,
-          reference,
-        },
-        amount: inner.amount,
-        items: inner.items || [],
-      };
-    } else {
-      // Monicredit init - ensure monicredit data is nested under monicredit.data
-      let itemsArray = [];
-      try {
-        const itemsRaw = inner.items;
-        itemsArray = typeof itemsRaw === 'string' ? JSON.parse(itemsRaw) : (Array.isArray(itemsRaw) ? itemsRaw : []);
-      } catch (e) {
-        itemsArray = [];
-      }
-      normalized = {
-        type: PAYMENT_TYPES.LICENSE_RENEWAL,
-        monicredit: { data: inner },
-        amount: inner?.total_amount || inner?.amount,
-        items: itemsArray,
-      };
-    }
+    const gateway = inner?.gateway === 'paystack' ? 'paystack' : 'monipay';
+
+    normalized = {
+      type: PAYMENT_TYPES.LICENSE_RENEWAL,
+      [gateway]: {
+        authorization_url: inner.authorization_url,
+        reference: inner.reference || inner.transaction_id,
+      },
+      amount: inner.amount,
+      items: inner.items || [],
+    };
 
     // Create a complete payment data object that includes all necessary information
     // For license renewal, delivery details are optional
@@ -951,7 +928,7 @@ export default function RenewLicense() {
               </AnimatePresence>
 
               {/* Phone required (Google OAuth users) — inline input, same Pay Now button */}
-              {monicreditPhoneError && (
+              {gatewayPhoneError && (
                 <div className="mb-3 overflow-hidden rounded-[12px] border border-[#2389E3]/30 bg-[#F0F7FF] px-4 pt-4 pb-4">
                   <div className="mb-3 flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2389E3]/15">
@@ -982,13 +959,13 @@ export default function RenewLicense() {
 
               {/* Pay Now Button */}
               <button
-                onClick={monicreditPhoneError ? handleSavePhoneAndRetry : handlePayNow}
+                onClick={gatewayPhoneError ? handleSavePhoneAndRetry : handlePayNow}
                 disabled={
                   isPaymentInitializing ||
                   isSavingPhone ||
                   !isFormValid() ||
                   duplicateCheckLoading ||
-                  (monicreditPhoneError && !inlinePhone.trim())
+                  (gatewayPhoneError && !inlinePhone.trim())
                 }
                 className="mt-2 w-full rounded-full bg-[#2284DB] py-[10px] text-base font-semibold text-white transition-colors hover:bg-[#1B6CB3] disabled:opacity-50"
               >

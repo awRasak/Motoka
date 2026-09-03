@@ -6,9 +6,9 @@ const NG_PHONE_RE = /^(?:\+?234|0)[789]\d{9}$/;
 const normalize = (raw) => (raw || "").replace(/[\s-]/g, "");
 
 /**
- * Shown when a Monicredit (bank-transfer) init fails because the user has no
- * phone number on file. Lets them add it inline and continue, rather than being
- * bounced to Settings → Profile and losing the checkout. Falls back to card.
+ * Shown when a Monipay init fails because the user has no phone number on
+ * file. Lets them add it inline and continue, rather than being bounced to
+ * Settings → Profile and losing the checkout. Falls back to Paystack.
  */
 export default function PhonePromptModal({
   open,

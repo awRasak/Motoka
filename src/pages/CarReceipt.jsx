@@ -40,7 +40,7 @@ export default function CarReceipt() {
   }
 
   const payment = data?.payment;
-  const monicreditResponse = data?.monicredit_response;
+  const monipayResponse = data?.monipay_response;
 
   if (!payment) {
     return (
@@ -183,21 +183,21 @@ export default function CarReceipt() {
           )}
 
           {/* Payment Method Details */}
-          {monicreditResponse && (
+          {monipayResponse && (
             <div className="bg-gray-50 rounded-lg p-5">
               <h3 className="text-xs font-semibold text-gray-800 mb-2">Payment Details:</h3>
               <div className="space-y-1">
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-600">Channel:</span>
-                  <span className="text-sm font-medium text-gray-800">{monicreditResponse.data?.channel || 'card'}</span>
+                  <span className="text-sm font-medium text-gray-800">{monipayResponse.data?.channel || 'card'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-600">Date Paid:</span>
-                  <span className="text-sm font-medium text-gray-800">{formatDate(monicreditResponse.data?.date_paid)}</span>
+                  <span className="text-sm font-medium text-gray-800">{formatDate(monipayResponse.data?.date_paid)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-600">Order ID:</span>
-                  <span className="text-sm font-medium text-gray-800">{monicreditResponse.orderid || payment.transaction_id}</span>
+                  <span className="text-sm font-medium text-gray-800">{monipayResponse.orderid || payment.transaction_id}</span>
                 </div>
               </div>
             </div>

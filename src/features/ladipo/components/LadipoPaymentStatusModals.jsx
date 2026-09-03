@@ -38,11 +38,8 @@ function paymentMethodLabel(order) {
     order?.payment_method || order?.payment_gateway || order?.gateway || "",
   ).toLowerCase();
   if (!raw) return "Paid online";
-  if (
-    raw.includes("monicredit") ||
-    raw.includes("transfer") ||
-    raw.includes("bank")
-  ) {
+  if (raw.includes("monipay")) return "Monipay";
+  if (raw.includes("transfer") || raw.includes("bank")) {
     return "Transfer";
   }
   if (raw.includes("paystack")) return "Paystack";
