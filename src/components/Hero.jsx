@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import certifiedBadge from '../assets/v2/certified-badge.svg'
 import doc1 from '../assets/v2/doc-1.webp'
@@ -226,6 +227,7 @@ function CollageDoc({ item, index }) {
 export default function Hero() {
   const [plate, setPlate] = useState('')
   const [message, setMessage] = useState('')
+  const navigate = useNavigate()
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -233,8 +235,7 @@ export default function Hero() {
       setMessage('Enter a plate number first.')
       return
     }
-    setMessage("Renewals aren't live yet — join the waitlist and we'll notify you at launch.")
-    document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
+    navigate('/renew/vehicle-license')
   }
 
   return (
