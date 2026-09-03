@@ -1,17 +1,29 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import logoMark from '../assets/v2/logo-mark.svg'
 
 const NAV_LINKS = [
+  { label: 'Home', to: '/', exact: true },
   { label: 'About', to: '/about' },
-  { label: 'Service', to: '/renew/vehicle-license' },
+  // Service points at vehicle licence but should stay lit across every /renew
+  // flow, so match on the shared prefix rather than the exact destination.
+  { label: 'Service', to: '/renew/vehicle-license', match: '/renew' },
   { label: 'Blog', to: '/blog' },
   { label: 'FAQ', to: '/faq' },
 ]
 
+// `exact` keeps Home from matching every route; everything else also counts its
+// children, so /blog/:slug still marks Blog active.
+function isActive(link, pathname) {
+  const base = link.match ?? link.to
+  if (link.exact) return pathname === base
+  return pathname === base || pathname.startsWith(`${base}/`)
+}
+
 export default function Header() {
   const [open, setOpen] = useState(false)
+  const { pathname } = useLocation()
 
   useEffect(() => {
     if (!open) return
@@ -24,6 +36,9 @@ export default function Header() {
       document.body.style.overflow = prevOverflow
     }
   }, [open])
+
+  // Close the drawer whenever the route changes, including on browser back.
+  useEffect(() => setOpen(false), [pathname])
 
   return (
     <div className="bg-white sticky top-0 z-[70]">
@@ -55,19 +70,34 @@ export default function Header() {
             </span>
           </Link>
 
-          <div className="hidden lg:flex gap-[16px] items-center justify-center p-[10px]">
-            <Link to="/" className="border border-[rgba(35,137,227,0.25)] flex items-center justify-center px-[16px] py-[8px] rounded-[50px] cursor-pointer transition-colors hover:bg-[#f4faff]">
-              <span className="font-semibold text-[#0e6fc5] text-[14px] leading-normal whitespace-nowrap">
-                Home
-              </span>
-            </Link>
-            {NAV_LINKS.map((l) => (
-              <Link key={l.label} to={l.to} className="flex items-center justify-center px-[16px] py-[8px] cursor-pointer">
-                <span className="font-normal text-[#697c8c] text-[14px] leading-normal whitespace-nowrap transition-colors hover:text-[#05243f]">
-                  {l.label}
-                </span>
-              </Link>
-            ))}
+          <div className="hidden lg:flex gap-[16px] items-stretch justify-center h-[63px]">
+            {NAV_LINKS.map((l) => {
+              const active = isActive(l, pathname)
+              return (
+                // The stroke sits on the link, which spans the full height of
+                // the bar, so it lands flush on the container's bottom edge
+                // rather than floating under the label. Border-box keeps the
+                // 2px inside the 63px, so the bar height is unchanged.
+                <Link
+                  key={l.label}
+                  to={l.to}
+                  aria-current={active ? 'page' : undefined}
+                  className={`group flex items-center justify-center px-[16px] h-full border-b-2 cursor-pointer transition-colors duration-200 ${
+                    active
+                      ? 'border-[#2389e3]'
+                      : 'border-transparent hover:border-[#697c8c]'
+                  }`}
+                >
+                  <span
+                    className={`text-[14px] leading-normal whitespace-nowrap transition-colors duration-200 ${
+                      active ? 'font-medium text-[#05243f]' : 'font-normal text-[#697c8c]'
+                    }`}
+                  >
+                    {l.label}
+                  </span>
+                </Link>
+              )
+            })}
           </div>
         </div>
 
@@ -134,14 +164,23 @@ export default function Header() {
         </div>
 
         <div className="flex flex-col" style={{ padding: '12px 20px', gap: 4 }}>
-          <Link to="/" onClick={() => setOpen(false)} className="font-semibold text-[#0e6fc5] text-[15px] rounded-lg transition-colors hover:bg-[#f4faff]" style={{ padding: '10px 12px', margin: '0 -12px' }}>
-            Home
-          </Link>
-          {NAV_LINKS.map((l) => (
-            <Link key={l.label} to={l.to} onClick={() => setOpen(false)} className="font-normal text-[#697c8c] text-[15px] rounded-lg transition-colors hover:bg-[#f4faff] hover:text-[#05243f]" style={{ padding: '10px 12px', margin: '0 -12px' }}>
-              {l.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((l) => {
+            const active = isActive(l, pathname)
+            return (
+              <Link
+                key={l.label}
+                to={l.to}
+                onClick={() => setOpen(false)}
+                aria-current={active ? 'page' : undefined}
+                className={`text-[15px] rounded-lg transition-colors hover:bg-[#f4faff] ${
+                  active ? 'font-semibold text-[#05243f]' : 'font-normal text-[#697c8c]'
+                }`}
+                style={{ padding: '10px 12px', margin: '0 -12px' }}
+              >
+                {l.label}
+              </Link>
+            )
+          })}
           <div className="flex flex-col" style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #e2e8f0', gap: 12 }}>
             <button
               type="button"
