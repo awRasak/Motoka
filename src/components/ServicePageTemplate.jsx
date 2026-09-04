@@ -41,13 +41,27 @@ export default function ServicePageTemplate({
           </p>
           <h1 style={{ fontWeight: 500, fontSize: 'clamp(32px, 4.5vw, 50.9px)', color: '#0e6fc6', lineHeight: 1.15 }}>{h1}</h1>
           <p style={{ marginTop: 20, fontSize: 18, lineHeight: 1.6, color: '#05243f' }}>{subcopy}</p>
-          <Link
-            to={ctaTo}
-            className="inline-flex items-center justify-center hover:brightness-110 transition-all"
-            style={{ marginTop: 32, background: '#21b993', color: 'white', fontWeight: 600, fontSize: 16, padding: '14px 32px', borderRadius: 10 }}
-          >
-            {ctaText}
-          </Link>
+          {/* An absolute URL points outside this SPA's router (e.g. into the
+              live app on the same domain) — a plain <a> forces a real
+              navigation there instead of react-router swallowing it as an
+              internal route. */}
+          {/^https?:\/\//.test(ctaTo) ? (
+            <a
+              href={ctaTo}
+              className="inline-flex items-center justify-center hover:brightness-110 transition-all"
+              style={{ marginTop: 32, background: '#21b993', color: 'white', fontWeight: 600, fontSize: 16, padding: '14px 32px', borderRadius: 10 }}
+            >
+              {ctaText}
+            </a>
+          ) : (
+            <Link
+              to={ctaTo}
+              className="inline-flex items-center justify-center hover:brightness-110 transition-all"
+              style={{ marginTop: 32, background: '#21b993', color: 'white', fontWeight: 600, fontSize: 16, padding: '14px 32px', borderRadius: 10 }}
+            >
+              {ctaText}
+            </Link>
+          )}
         </div>
       </section>
 

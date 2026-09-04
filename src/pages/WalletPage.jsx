@@ -1,6 +1,20 @@
 import ServicePageTemplate from '../components/ServicePageTemplate'
 
+// The app and this marketing site share a domain/session, so the same
+// localStorage key the app's authStorage writes on login (see
+// Motoka/src/utils/authStorage.js) tells us whether to send someone to
+// sign up or straight into their existing wallet.
+function isLoggedIntoApp() {
+  try {
+    return !!window.localStorage.getItem('authToken')
+  } catch {
+    return false
+  }
+}
+
 export default function WalletPage() {
+  const loggedIn = isLoggedIntoApp()
+
   return (
     <ServicePageTemplate
       seoTitle="Motoka Save-Ahead Wallet — Save for Renewals Gradually | Motoka"
@@ -29,8 +43,8 @@ export default function WalletPage() {
           a: 'Yes — you can save ahead for your vehicle license, road worthiness certificate, insurance, and driver\'s license renewals, all tracked separately.',
         },
       ]}
-      ctaText="Set up your wallet"
-      ctaTo="/renew/vehicle-license"
+      ctaText={loggedIn ? 'Go to your wallet' : 'Set up your wallet'}
+      ctaTo={loggedIn ? 'https://motokaapp.ng/wallet' : 'https://motokaapp.ng/auth/signup'}
     />
   )
 }
