@@ -18,11 +18,6 @@ export default function HomePage() {
     'Renew your vehicle license, road worthiness, and insurance online — no queues, no office visits. Motoka tracks your renewal dates and handles the rest. MVAA-certified.'
   )
 
-  // Hash links (a service page's "Renew Now" button, or a footer link like
-  // "/#everything") land here via client-side nav, so the browser's native
-  // hash-scroll never fires — this does it manually. Keyed on location, not
-  // just mount, so it also fires for a hash link clicked while already on
-  // "/" (same route, no remount, so a mount-only effect would miss it).
   const location = useLocation()
   useEffect(() => {
     if (!location.hash) return
