@@ -12,6 +12,7 @@ import BlogIndexPage from './pages/BlogIndexPage'
 import BlogPostPage from './pages/BlogPostPage'
 import AboutPage from './pages/AboutPage'
 import FaqPage from './pages/FaqPage'
+import TrafficRulesPage from './pages/TrafficRulesPage'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
       <Route path="/blog/:slug" element={<BlogPostPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/faq" element={<FaqPage />} />
+      <Route path="/traffic-rules" element={<TrafficRulesPage />} />
     </Routes>
   )
 }

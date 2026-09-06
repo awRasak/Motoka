@@ -1,29 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ChevronDown, User, BookOpen, LogOut } from 'lucide-react'
 import logoMark from '../assets/v2/logo-mark.svg'
 
 const NAV_LINKS = [
   { label: 'Home', to: '/', exact: true },
   { label: 'About', to: '/about' },
-  // Service points at vehicle licence but should stay lit across every /renew
-  // flow, so match on the shared prefix rather than the exact destination.
   { label: 'Service', to: '/renew/vehicle-license', match: '/renew' },
   { label: 'Blog', to: '/blog' },
   { label: 'FAQ', to: '/faq' },
 ]
 
-// `exact` keeps Home from matching every route; everything else also counts its
-// children, so /blog/:slug still marks Blog active.
 function isActive(link, pathname) {
   const base = link.match ?? link.to
   if (link.exact) return pathname === base
   return pathname === base || pathname.startsWith(`${base}/`)
 }
 
-export default function Header() {
+export default function Header({ isLoggedIn = false }) {
   const [open, setOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const { pathname } = useLocation()
+  const profileRef = useRef(null)
 
   useEffect(() => {
     if (!open) return
@@ -37,7 +35,16 @@ export default function Header() {
     }
   }, [open])
 
-  // Close the drawer whenever the route changes, including on browser back.
+  useEffect(() => {
+    function handleClick(e) {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
   useEffect(() => setOpen(false), [pathname])
 
   return (
@@ -74,10 +81,6 @@ export default function Header() {
             {NAV_LINKS.map((l) => {
               const active = isActive(l, pathname)
               return (
-                // The stroke sits on the link, which spans the full height of
-                // the bar, so it lands flush on the container's bottom edge
-                // rather than floating under the label. Border-box keeps the
-                // 2px inside the 63px, so the bar height is unchanged.
                 <Link
                   key={l.label}
                   to={l.to}
@@ -101,15 +104,138 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="hidden lg:flex gap-[24px] items-center justify-end">
-          <span className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap cursor-pointer transition-opacity hover:opacity-75">
-            Login
-          </span>
-          <div className="bg-[#f4faff] border border-[#2389e3] flex h-[38px] items-center justify-center overflow-clip px-[24px] py-[14px] rounded-[90px] w-[92px] cursor-pointer transition-colors hover:bg-[#e4f1ff]">
-            <span className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap">
-              Register
-            </span>
-          </div>
+        {/* Desktop right side */}
+        <div className="hidden lg:flex gap-[24px] items-center justify-end" ref={profileRef}>
+          {isLoggedIn ? (
+            /* Profile dropdown — logged in */
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-75"
+                style={{ background: 'none', border: 'none', padding: 0 }}
+              >
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    background: '#f4faff',
+                    border: '1px solid #2389e3',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#2389e3',
+                  }}
+                >
+                  <User size={18} />
+                </div>
+                <ChevronDown
+                  size={14}
+                  style={{
+                    color: '#64748b',
+                    transition: 'transform 0.2s',
+                    transform: profileOpen ? 'rotate(180deg)' : 'rotate(0)',
+                  }}
+                />
+              </button>
+
+              {profileOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 8px)',
+                    right: 0,
+                    width: 200,
+                    background: '#fff',
+                    borderRadius: 16,
+                    boxShadow: '0 4px 24px rgba(5,36,63,0.12)',
+                    padding: 8,
+                    zIndex: 50,
+                  }}
+                >
+                  <Link
+                    to="/traffic-rules"
+                    onClick={() => setProfileOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '10px 12px',
+                      borderRadius: 10,
+                      textDecoration: 'none',
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: '#05243f',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f4faff'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <BookOpen size={16} style={{ color: '#2389e3' }} />
+                    Traffic Rules
+                  </Link>
+                  <Link
+                    to="/wallet"
+                    onClick={() => setProfileOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '10px 12px',
+                      borderRadius: 10,
+                      textDecoration: 'none',
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: '#05243f',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f4faff'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <User size={16} style={{ color: '#64748b' }} />
+                    Wallet
+                  </Link>
+                  <div style={{ height: 1, background: '#e2e8f0', margin: '4px 0' }} />
+                  <button
+                    type="button"
+                    onClick={() => setProfileOpen(false)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '10px 12px',
+                      borderRadius: 10,
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: '#ef4444',
+                      fontFamily: 'inherit',
+                      textAlign: 'left',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#fef2f2'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Login / Register — logged out */
+            <>
+              <span className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap cursor-pointer transition-opacity hover:opacity-75">
+                Login
+              </span>
+              <div className="bg-[#f4faff] border border-[#2389e3] flex h-[38px] items-center justify-center overflow-clip px-[24px] py-[14px] rounded-[90px] w-[92px] cursor-pointer transition-colors hover:bg-[#e4f1ff]">
+                <span className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap">
+                  Register
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         <button
@@ -181,23 +307,48 @@ export default function Header() {
               </Link>
             )
           })}
+
+          {isLoggedIn && (
+            <Link
+              to="/traffic-rules"
+              onClick={() => setOpen(false)}
+              className="text-[15px] rounded-lg transition-colors hover:bg-[#f4faff] font-normal text-[#697c8c]"
+              style={{ padding: '10px 12px', margin: '0 -12px', textDecoration: 'none' }}
+            >
+              Traffic Rules
+            </Link>
+          )}
+
           <div className="flex flex-col" style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #e2e8f0', gap: 12 }}>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="bg-[#f4faff] border border-[#2389e3] flex items-center justify-center w-full transition-colors hover:bg-[#e4f1ff]"
-              style={{ height: 44, borderRadius: 90 }}
-            >
-              <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Register</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="flex items-center justify-center w-full rounded-full transition-colors hover:bg-[#f4faff]"
-              style={{ height: 44 }}
-            >
-              <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Login</span>
-            </button>
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center w-full rounded-full transition-colors hover:bg-[#f4faff]"
+                style={{ height: 44, border: 'none', background: 'none', cursor: 'pointer' }}
+              >
+                <span className="font-semibold text-[#ef4444] text-[14px] whitespace-nowrap">Logout</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="bg-[#f4faff] border border-[#2389e3] flex items-center justify-center w-full transition-colors hover:bg-[#e4f1ff]"
+                  style={{ height: 44, borderRadius: 90 }}
+                >
+                  <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Register</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center w-full rounded-full transition-colors hover:bg-[#f4faff]"
+                  style={{ height: 44 }}
+                >
+                  <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Login</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

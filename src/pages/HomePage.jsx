@@ -27,7 +27,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header isLoggedIn={false} />
       <main className="flex-1">
         <Hero />
         <Services />
