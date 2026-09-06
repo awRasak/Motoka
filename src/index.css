@@ -24,3 +24,15 @@ body {
 .services-scroll::-webkit-scrollbar {
   display: none;
 }
+
+/* Prevent iOS auto-zoom on focus: Safari zooms any field <16px and with
+   the non-standard `html { zoom: 1.1 }` the viewport doesn't reliably snap
+   back. Forcing 16px on touch devices removes the zoom trigger entirely
+   without disabling pinch-zoom (unlike `maximum-scale=1` which harms a11y). */
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}

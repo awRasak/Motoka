@@ -13,6 +13,7 @@ import BlogPostPage from './pages/BlogPostPage'
 import AboutPage from './pages/AboutPage'
 import FaqPage from './pages/FaqPage'
 import TrafficRulesPage from './pages/TrafficRulesPage'
+import AppFaqPage from './pages/AppFaqPage'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/faq" element={<FaqPage />} />
       <Route path="/traffic-rules" element={<TrafficRulesPage />} />
+      <Route path="/app/faq" element={<AppFaqPage />} />
     </Routes>
   )
 }

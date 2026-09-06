@@ -1,15 +1,7 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, ChevronDown, User, BookOpen, LogOut } from 'lucide-react'
 import logoMark from '../assets/v2/logo-mark.svg'
-
-const NAV_LINKS = [
-  { label: 'Home', to: '/', exact: true },
-  { label: 'About', to: '/about' },
-  { label: 'Service', to: '/renew/vehicle-license', match: '/renew' },
-  { label: 'Blog', to: '/blog' },
-  { label: 'FAQ', to: '/faq' },
-]
 
 function isActive(link, pathname) {
   const base = link.match ?? link.to
@@ -22,6 +14,14 @@ export default function Header({ isLoggedIn = false }) {
   const [profileOpen, setProfileOpen] = useState(false)
   const { pathname } = useLocation()
   const profileRef = useRef(null)
+
+  const NAV_LINKS = useMemo(() => [
+    { label: 'Home', to: '/', exact: true },
+    { label: 'About', to: '/about' },
+    { label: 'Service', to: '/renew/vehicle-license', match: '/renew' },
+    { label: 'Blog', to: '/blog' },
+    { label: 'FAQ', to: isLoggedIn ? '/app/faq' : '/faq' },
+  ], [isLoggedIn])
 
   useEffect(() => {
     if (!open) return
