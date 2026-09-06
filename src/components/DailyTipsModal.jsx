@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, Bell } from 'lucide-react'
 import { getDailyTip } from '../data/dailyRoadTips'
+import { getTipIcon } from './TipIcons'
+import useNotifications from '../hooks/useNotifications'
 
 function playNotificationSound() {
   try {
@@ -22,10 +24,30 @@ function playNotificationSound() {
 
 export default function DailyTipsModal({ open, onOpenChange }) {
   const [tip] = useState(() => getDailyTip())
+  const { permission, requestPermission, showNotification, isSupported } = useNotifications()
 
   useEffect(() => {
-    if (open) playNotificationSound()
-  }, [open])
+    if (open) {
+      playNotificationSound()
+      // Also show native notification if permitted
+      if (permission === 'granted') {
+        showNotification(`🛣️ ${tip.title}`, {
+          body: tip.content,
+          tag: 'daily-road-tip',
+        })
+      }
+    }
+  }, [open, permission, tip, showNotification])
+
+  async function handleEnableNotifications() {
+    const result = await requestPermission()
+    if (result === 'granted') {
+      showNotification('Motoka Notifications Enabled', {
+        body: 'You\'ll receive daily road tips and renewal reminders.',
+        tag: 'notification-enabled',
+      })
+    }
+  }
 
   if (!open) return null
 
@@ -104,7 +126,7 @@ export default function DailyTipsModal({ open, onOpenChange }) {
 
         {/* Content */}
         <div style={{ padding: '24px' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>{tip.icon}</div>
+          <div style={{ width: 64, height: 64, marginBottom: 16 }}>{getTipIcon(tip.icon)}</div>
           <h4 style={{ fontWeight: 700, fontSize: 18, color: '#05243f', marginBottom: 12 }}>
             {tip.title}
           </h4>
@@ -114,7 +136,34 @@ export default function DailyTipsModal({ open, onOpenChange }) {
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '0 24px 24px' }}>
+        <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Enable notifications button */}
+          {isSupported && permission !== 'granted' && (
+            <button
+              type="button"
+              onClick={handleEnableNotifications}
+              style={{
+                width: '100%',
+                padding: '12px 24px',
+                borderRadius: 12,
+                border: '1px solid #e2e8f0',
+                background: '#f8fafc',
+                color: '#05243f',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              <Bell size={16} style={{ color: '#2389e3' }} />
+              Enable Push Notifications
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => onOpenChange(false)}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Volume2 } from 'lucide-react'
 import { getDailyTip, DAILY_ROAD_TIPS } from '../data/dailyRoadTips'
+import { getTipIcon } from '../components/TipIcons'
 import useSeoHead from '../hooks/useSeoHead'
 
 function playNotificationSound() {
@@ -107,7 +108,7 @@ export default function TrafficRulesPage() {
               Today's Tip · {currentTip.category}
             </span>
           </div>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>{currentTip.icon}</div>
+          <div style={{ width: 56, height: 56, marginBottom: 16 }}>{getTipIcon(currentTip.icon)}</div>
           <h2 style={{ fontWeight: 700, fontSize: 24, marginBottom: 12 }}>{currentTip.title}</h2>
           <p style={{ fontSize: 16, lineHeight: 1.7, opacity: 0.9 }}>{currentTip.content}</p>
 
@@ -168,7 +169,7 @@ export default function TrafficRulesPage() {
                     border: '1px solid #e2e8f0',
                   }}
                 >
-                  <div style={{ fontSize: 28, marginBottom: 12 }}>{t.icon}</div>
+                  <div style={{ width: 40, height: 40, marginBottom: 12 }}>{getTipIcon(t.icon)}</div>
                   <h4 style={{ fontWeight: 600, fontSize: 15, color: '#05243f', marginBottom: 8 }}>{t.title}</h4>
                   <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6 }}>{t.content}</p>
                 </div>

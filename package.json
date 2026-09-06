@@ -14,6 +14,7 @@
     "server": "node server/index.js"
   },
   "dependencies": {
+    "@lobehub/fluent-emoji": "^4.1.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "framer-motion": "^12.23.24",
