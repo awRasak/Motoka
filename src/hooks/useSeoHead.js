@@ -21,7 +21,9 @@ import { useEffect } from 'react'
 //
 // Keep this in sync with sitemap.xml, robots.txt and index.html's static
 // og/schema tags — they all hardcode the same origin.
-const CANONICAL_ORIGIN = 'https://www.motokaapp.ng'
+// Exported so pages with their own share image (e.g. blog posts) can build
+// an absolute og:image URL against the same origin.
+export const CANONICAL_ORIGIN = 'https://www.motokaapp.ng'
 const DEFAULT_OG_IMAGE = CANONICAL_ORIGIN + '/og-image.png'
 
 function setMeta(attr, key, content) {

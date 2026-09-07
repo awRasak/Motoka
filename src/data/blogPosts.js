@@ -10,6 +10,9 @@
 export const BLOG_POSTS = [
   {
     slug: 'vehicle-documents-checklist-nigeria',
+    image: '/blog/blog-documents-checklist.jpg',
+    imageAlt: 'Yellow danfo bus in Lagos traffic with street hawkers',
+    credit: 'Mir koks, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Driver Guides',
     title: 'What Documents Do You Need to Drive Legally in Nigeria? (2026 Guide)',
     seoTitle: 'What Documents Do You Need to Drive Legally in Nigeria? (2026 Guide) | Motoka',
@@ -50,6 +53,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'what-happens-license-expires',
+    image: '/blog/blog-expired-license.jpg',
+    imageAlt: 'Busy Lagos junction with okadas and pedestrians',
+    credit: 'Ehimze Nathanael Chinedum, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Driver Guides',
     title: 'What Happens If Your Vehicle License Expires in Nigeria?',
     seoTitle: 'What Happens If Your Vehicle License Expires in Nigeria? | Motoka',
@@ -78,6 +84,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'how-to-renew-vehicle-license-online-nigeria',
+    image: '/blog/blog-renew-online.webp',
+    imageAlt: 'Motoka renewal screen showing plate details and pay button',
+    credit: null,
     eyebrow: 'Driver Guides',
     title: 'How to Renew Your Vehicle License Online in Nigeria (Step-by-Step)',
     seoTitle: 'How to Renew Your Vehicle License Online in Nigeria (Step-by-Step) | Motoka',
@@ -110,6 +119,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'vehicle-license-renewal-ogun-state-guide',
+    image: '/blog/blog-ogun-guide.jpg',
+    imageAlt: 'Abiola Way in Abeokuta, Ogun State',
+    credit: 'Eukoha, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'State Guides',
     title: 'Vehicle License Renewal in Ogun State: Everything You Need to Know',
     seoTitle: 'Vehicle License Renewal in Ogun State: Everything You Need to Know | Motoka',
@@ -138,6 +150,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'vehicle-license-renewal-ibadan-oyo-state-guide',
+    image: '/blog/blog-ibadan-guide.jpg',
+    imageAlt: 'Aerial view of Ibadan city',
+    credit: 'Atoyen, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'State Guides',
     title: 'Vehicle License Renewal in Oyo State (Ibadan): Complete Guide',
     seoTitle: 'Vehicle License Renewal in Oyo State (Ibadan): Complete Guide | Motoka',
@@ -166,6 +181,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'road-worthiness-certificate-explained',
+    image: '/blog/blog-road-worthiness.jpg',
+    imageAlt: 'Nigerian mechanic inspecting a car engine',
+    credit: 'NiferO, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Driver Guides',
     title: 'Road Worthiness Certificate: What It Is and How to Renew It Online',
     seoTitle: 'Road Worthiness Certificate: What It Is and How to Renew It Online | Motoka',
@@ -194,6 +212,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'vehicle-license-renewal-cost-nigeria',
+    image: '/blog/blog-renewal-cost.jpg',
+    imageAlt: 'Vehicles queuing at an NNPC filling station in Lagos',
+    credit: 'Olusola David, Ayibiowu, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Driver Guides',
     title: 'How Much Does Vehicle License Renewal Cost in Nigeria? (2026 Prices)',
     seoTitle: 'How Much Does Vehicle License Renewal Cost in Nigeria? (2026 Prices) | Motoka',
@@ -222,6 +243,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'renew-vehicle-license-different-state',
+    image: '/blog/blog-different-state.jpg',
+    imageAlt: 'Wide expressway in Nigeria',
+    credit: 'Ifexmeco, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Driver Guides',
     title: 'Can You Renew a Vehicle License From a Different State?',
     seoTitle: 'Can You Renew a Vehicle License From a Different State? | Motoka',
@@ -250,6 +274,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'drivers-license-renewal-nigeria-frsc',
+    image: '/blog/blog-drivers-license.jpg',
+    imageAlt: 'FRSC office gate in Kaduna',
+    credit: 'Anasskoko, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Driver Guides',
     title: "Driver's License Renewal in Nigeria: FRSC Process Explained",
     seoTitle: "Driver's License Renewal in Nigeria: FRSC Process Explained | Motoka",
@@ -278,6 +305,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'motoka-save-ahead-wallet-explained',
+    image: '/blog/blog-save-ahead-wallet.jpg',
+    imageAlt: 'Fruit trader at a roadside stall in Nigeria',
+    credit: 'Oluphisayo, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Product',
     title: "How Motoka's Save-Ahead Wallet Works (And Why It Beats Paying in One Lump Sum)",
     seoTitle: "How Motoka's Save-Ahead Wallet Works | Motoka",
@@ -306,6 +336,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'how-to-register-commercial-vehicle-lagos',
+    image: '/blog/blog-commercial-lagos.jpg',
+    imageAlt: 'Fleet of yellow danfo buses on a Lagos street',
+    credit: 'Kaizenify, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Fleet Guides',
     title: 'How to Register a New Commercial Vehicle in Lagos: A Step-by-Step Guide for Fleet Owners',
     seoTitle: 'How to Register a Commercial Vehicle in Lagos (2026 Step-by-Step Guide) | Motoka',
@@ -394,6 +427,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'digital-tools-tracking-licence-expiries-lagos',
+    image: '/blog/blog-expiry-tracking.webp',
+    imageAlt: 'Motoka dashboard showing a car document expiring in 3 days',
+    credit: null,
     eyebrow: 'Fleet Guides',
     title: 'Digital Tools for Tracking Licence Expiries and Compliance: Best Apps for Lagos Fleet Operators',
     seoTitle: 'Best Tools for Tracking Vehicle Licence Expiries — Lagos Fleet Guide | Motoka',
@@ -461,6 +497,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'understanding-dealer-plate-numbers',
+    image: '/blog/blog-dealer-plates.jpg',
+    imageAlt: 'Lagos number plate close-up',
+    credit: 'Charlie, CC BY 2.0, via Wikimedia Commons',
     eyebrow: 'Fleet Guides',
     title: 'Understanding Dealer Plate Numbers: What They Mean for Your Business and How to Obtain One',
     seoTitle: 'Dealer Plate Numbers in Nigeria: Rules, Uses and How to Get One | Motoka',
@@ -530,6 +569,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'common-mistakes-renewing-vehicle-licences',
+    image: '/blog/blog-renewal-mistakes.jpg',
+    imageAlt: 'Roadside car repair in Nigeria',
+    credit: 'Johnnybam, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Driver Guides',
     title: 'Common Mistakes When Renewing Vehicle Licences in Nigeria (and How to Avoid Them)',
     seoTitle: 'Common Mistakes When Renewing Vehicle Licences in Nigeria | Motoka',
@@ -601,6 +643,9 @@ export const BLOG_POSTS = [
   },
   {
     slug: 'impact-new-traffic-regulations-fleet-costs',
+    image: '/blog/blog-fleet-costs.jpg',
+    imageAlt: 'Long queue of vehicles on Ahmadu Bello Way, Victoria Island, Lagos',
+    credit: 'Harmony FC, CC BY-SA 4.0, via Wikimedia Commons',
     eyebrow: 'Fleet Guides',
     title: 'The Impact of Recent Nigerian Traffic Regulations on Fleet Management Costs',
     seoTitle: 'How 2026 Nigerian Traffic Regulations Affect Fleet Costs | Motoka',

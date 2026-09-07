@@ -1,6 +1,6 @@
 import { Link, useParams, Navigate } from 'react-router-dom'
 import PageLayout from '../components/PageLayout'
-import useSeoHead from '../hooks/useSeoHead'
+import useSeoHead, { CANONICAL_ORIGIN } from '../hooks/useSeoHead'
 import useJsonLd from '../hooks/useJsonLd'
 import { getPostBySlug } from '../data/blogPosts'
 
@@ -12,7 +12,11 @@ export default function BlogPostPage() {
   const { slug } = useParams()
   const post = getPostBySlug(slug)
 
-  useSeoHead(post?.seoTitle, post?.seoDescription)
+  useSeoHead(
+    post?.seoTitle,
+    post?.seoDescription,
+    post?.image ? CANONICAL_ORIGIN + post.image : undefined
+  )
   // No publish/modified date in the post data — omitted rather than faked,
   // since Article schema is still valid without datePublished/dateModified.
   useJsonLd(
@@ -44,6 +48,21 @@ export default function BlogPostPage() {
             <h1 style={{ fontWeight: 500, fontSize: 'clamp(30px, 4vw, 44px)', color: '#0e6fc6', lineHeight: 1.2 }}>{post.title}</h1>
           </div>
         </section>
+
+        {post.image && (
+        <section style={{ paddingLeft: 'clamp(24px, 7.9vw, 114px)', paddingRight: 'clamp(24px, 7.9vw, 114px)', paddingTop: 40, maxWidth: 1000 }}>
+          <figure style={{ margin: 0 }}>
+            <img
+              src={post.image}
+              alt={post.imageAlt || post.title}
+              style={{ width: '100%', aspectRatio: '21 / 9', objectFit: 'cover', borderRadius: 20 }}
+            />
+            {post.credit && (
+              <figcaption style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>Photo: {post.credit}</figcaption>
+            )}
+          </figure>
+        </section>
+        )}
 
         <section style={{ paddingLeft: 'clamp(24px, 7.9vw, 114px)', paddingRight: 'clamp(24px, 7.9vw, 114px)', paddingTop: 64, paddingBottom: 40, maxWidth: 780 }}>
           <p style={{ color: '#334155', lineHeight: 1.8, fontSize: 17 }}>{post.intro}</p>

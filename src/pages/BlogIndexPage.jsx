@@ -29,8 +29,16 @@ export default function BlogIndexPage() {
               key={post.slug}
               to={`/blog/${post.slug}`}
               className="hover:brightness-105 transition-all"
-              style={{ display: 'block', background: '#f8fafc', border: '1px solid rgba(5,36,63,0.13)', borderRadius: 20, padding: 28 }}
+              style={{ display: 'block', background: '#f8fafc', border: '1px solid rgba(5,36,63,0.13)', borderRadius: 20, padding: 28, overflow: 'hidden' }}
             >
+              {post.image && (
+                <img
+                  src={post.image}
+                  alt={post.imageAlt || post.title}
+                  loading="lazy"
+                  style={{ width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', borderRadius: 12, marginBottom: 20 }}
+                />
+              )}
               <p style={{ fontWeight: 600, fontSize: 12, letterSpacing: '0.1em', color: '#0e6fc6', textTransform: 'uppercase', marginBottom: 12 }}>
                 {post.eyebrow}
               </p>
