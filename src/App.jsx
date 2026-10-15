@@ -88,6 +88,7 @@ import BlogLayout from "./components/BlogLayout.jsx";
 import MarketingLayout from "./components/MarketingLayout.jsx";
 import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
+import Terms from "./pages/Terms.jsx";
 import HowItWorks from "./pages/HowItWorks.jsx";
 import DriverGuides from "./pages/DriverGuides.jsx";
 import LicenseReminder from "./pages/LicenseReminder.jsx";
@@ -201,6 +202,7 @@ export default function App() {
           <Route element={<MarketingLayout />}>
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
+            <Route path="terms" element={<Terms />} />
             <Route path="how-it-works" element={<HowItWorks />} />
             <Route path="guides" element={<DriverGuides />} />
             <Route path="reminders" element={<LicenseReminder />} />

@@ -59,6 +59,7 @@ const schema = yup.object().shape({
       (v) => !v || /^[A-Z0-9]{6,12}$/.test(v),
     ),
   terms: yup.boolean().oneOf([true], "You must accept the Terms & Conditions"),
+  auto_renew: yup.boolean().default(false),
 });
 
 export default function Signup() {
@@ -98,6 +99,8 @@ export default function Signup() {
           password: data.password.trim(),
           password_confirmation: data.confirmPassword.trim(),
           referral_code: data.referral_code || getStoredReferralCode() || undefined,
+          terms_accepted: true,
+          auto_renew: Boolean(data.auto_renew),
           // nin: data.nin,
         },
         {
@@ -259,18 +262,27 @@ export default function Signup() {
                   )}
                 </div>
 
-                <div className="flex items-center w-full mt-2">
+                <div className="flex items-start w-full mt-2">
                   <input
                     id="terms"
                     {...register("terms")}
                     type="checkbox"
-                    className="h-4 w-4 cursor-pointer rounded border-[#F4F5FC] text-[#F4F5FC] focus:ring-[#F4F5FC]"
+                    className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-[#F4F5FC] text-[#F4F5FC] focus:ring-[#F4F5FC]"
                   />
                   <label
                     htmlFor="terms"
                     className="ml-3 block text-sm text-[#05243F] opacity-40"
                   >
-                    I agree to the Terms & Conditions
+                    I agree to the{" "}
+                    <Link
+                      to="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#2389E3] opacity-100 underline hover:text-[#A73957]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Terms &amp; Conditions
+                    </Link>
                   </label>
                 </div>
                 {errors.terms && (
@@ -278,6 +290,23 @@ export default function Signup() {
                     {errors.terms.message}
                   </p>
                 )}
+
+                <div className="flex items-start w-full mt-2">
+                  <input
+                    id="auto_renew"
+                    {...register("auto_renew")}
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-[#F4F5FC] text-[#F4F5FC] focus:ring-[#F4F5FC]"
+                  />
+                  <label
+                    htmlFor="auto_renew"
+                    className="ml-3 block text-sm text-[#05243F] opacity-40"
+                  >
+                    Enable auto-renew — Motoka may process my due renewals
+                    automatically, even before my payment for that cycle clears
+                    (see Section 5 of the Terms)
+                  </label>
+                </div>
 
               </div>
               <div className="mt-4 w-full">
