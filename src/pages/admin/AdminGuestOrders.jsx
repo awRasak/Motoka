@@ -84,7 +84,8 @@ export default function AdminGuestOrders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [paymentFilter, setPaymentFilter] = useState('all');
+  // Paid by default (and on every mount/reload): ops works the paid book.
+  const [paymentFilter, setPaymentFilter] = useState('payment_success');
   const [fulfillmentFilter, setFulfillmentFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');

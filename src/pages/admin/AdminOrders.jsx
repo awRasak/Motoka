@@ -47,10 +47,23 @@ const STATUS_TONE = {
   cancelled:  'gray',
 };
 
+// Payment filter mirrors the guest-orders tab. Values match
+// payment_transactions.status in the backend.
+const PAYMENT_FILTERS = [
+  { value: 'all',        label: 'All payments' },
+  { value: 'successful', label: 'Paid' },
+  { value: 'pending',    label: 'Pending payment' },
+  { value: 'failed',     label: 'Failed' },
+  { value: 'abandoned',  label: 'Abandoned' },
+  { value: 'refunded',   label: 'Refunded' },
+];
+
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
+  // Paid by default (and on every mount/reload): ops works the paid book.
+  const [paymentFilter, setPaymentFilter] = useState('successful');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -74,7 +87,7 @@ const AdminOrders = () => {
       return;
     }
     fetchOrders();
-  }, [activeFilter, currentPage, activeTab]);
+  }, [activeFilter, paymentFilter, currentPage, activeTab]);
 
   const fetchOrders = async () => {
     try {
@@ -83,6 +96,7 @@ const AdminOrders = () => {
 
       const params = new URLSearchParams({
         status: activeFilter,
+        payment: paymentFilter,
         page: currentPage,
         per_page: perPage,
       });
@@ -237,13 +251,29 @@ const AdminOrders = () => {
             </div>
           </div>
 
-          {/* Filter Dropdown */}
+          {/* Filter Dropdowns */}
           <div className="flex items-center gap-2">
             <FunnelIcon className="h-5 w-5 text-gray-400" />
+            <select
+              value={paymentFilter}
+              onChange={(e) => {
+                setPaymentFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-[#2389E3] focus:outline-none"
+              aria-label="Payment status"
+            >
+              {PAYMENT_FILTERS.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
             <select
               value={activeFilter}
               onChange={(e) => handleFilterChange(e.target.value)}
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-[#2389E3] focus:outline-none"
+              aria-label="Fulfilment status"
             >
               {STATUS_FILTERS.map((f) => (
                 <option key={f.value} value={f.value}>
@@ -357,7 +387,7 @@ const AdminOrders = () => {
           icon={ClipboardDocumentListIcon}
           title="No orders found"
           body={
-            searchTerm || activeFilter !== 'all'
+            searchTerm || activeFilter !== 'all' || paymentFilter !== 'all'
               ? 'Try adjusting your search or filter criteria.'
               : 'No orders have been placed yet.'
           }
