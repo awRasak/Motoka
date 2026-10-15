@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import {
   MagnifyingGlassIcon,
@@ -286,6 +286,7 @@ function ContactLinks({ email, phone }) {
 
 const AdminRenewals = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [tab, setTab] = useState(searchParams.get('bucket') || 'expired');
   const [month, setMonth] = useState(searchParams.get('month') || '');
   const [summary, setSummary] = useState(null);
@@ -563,10 +564,25 @@ const AdminRenewals = () => {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {rows.map(row => (
-                  <tr key={row.car_id || row.id} className="hover:bg-gray-50">
+                  <tr
+                    key={row.car_id || row.id}
+                    className={row.slug ? 'hover:bg-gray-50 cursor-pointer' : 'hover:bg-gray-50'}
+                    onClick={(e) => {
+                      // Inner email/phone/WhatsApp links and channel buttons
+                      // keep their own behaviour; anything else opens the car.
+                      if (e.target.closest('a,button')) return;
+                      if (row.slug) navigate(`/admin/cars/${row.slug}`);
+                    }}
+                  >
                     <td className="px-4 py-4 align-top">
                       <p className="font-semibold text-gray-900">
-                        {isDeferred ? row.document_name : (row.registration_no || '—')}
+                        {row.slug && !isDeferred ? (
+                          <span className="text-[#2389E3] hover:underline">
+                            {row.registration_no || '—'}
+                          </span>
+                        ) : (
+                          isDeferred ? row.document_name : (row.registration_no || '—')
+                        )}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5">
                         {isDeferred ? (row.plate_number || 'No plate recorded') : (row.vehicle || '—')}
