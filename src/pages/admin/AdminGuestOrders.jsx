@@ -16,15 +16,40 @@ import {
   CARD,
   TH,
   INPUT,
+  BTN_PRIMARY,
   BTN_SECONDARY,
 } from '../../components/admin/ui';
 
-const STATUS_FILTERS = [
+const PAYMENT_FILTERS = [
   { value: 'all', label: 'All' },
   { value: 'payment_success', label: 'Paid' },
   { value: 'pending_payment', label: 'Pending payment' },
   { value: 'payment_failed', label: 'Failed' },
 ];
+
+// Fulfilment mirrors the signed-in Orders flow: pending (New) →
+// processing (In Progress) → completed / cancelled.
+const FULFILLMENT_FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'pending', label: 'New' },
+  { value: 'processing', label: 'In Progress' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
+
+const FULFILLMENT_TONE = {
+  pending: 'blue',
+  processing: 'amber',
+  completed: 'green',
+  cancelled: 'gray',
+};
+
+const FULFILLMENT_LABEL = {
+  pending: 'New',
+  processing: 'In Progress',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+};
 
 const STATUS_TONE = {
   payment_success: 'green',
@@ -59,7 +84,8 @@ export default function AdminGuestOrders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [fulfillmentFilter, setFulfillmentFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,7 +100,8 @@ export default function AdminGuestOrders() {
         const data = await adminListGuestOrders({
           page: currentPage,
           limit: 20,
-          status: activeFilter,
+          status: paymentFilter,
+          fulfillment: fulfillmentFilter,
           search: submittedSearch,
         });
         if (cancelled) return;
@@ -89,7 +116,11 @@ export default function AdminGuestOrders() {
     };
     load();
     return () => { cancelled = true; };
-  }, [activeFilter, currentPage, submittedSearch]);
+  }, [paymentFilter, fulfillmentFilter, currentPage, submittedSearch]);
+
+  const handleViewOrder = (order) => {
+    navigate(`/admin/guest-orders/${order.id}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -120,14 +151,15 @@ export default function AdminGuestOrders() {
           <div className="flex items-center gap-2">
             <FunnelIcon className="h-5 w-5 text-gray-400" />
             <select
-              value={activeFilter}
+              value={paymentFilter}
               onChange={(e) => {
-                setActiveFilter(e.target.value);
+                setPaymentFilter(e.target.value);
                 setCurrentPage(1);
               }}
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-[#2389E3] focus:outline-none"
+              aria-label="Payment status"
             >
-              {STATUS_FILTERS.map((f) => (
+              {PAYMENT_FILTERS.map((f) => (
                 <option key={f.value} value={f.value}>
                   {f.label}
                 </option>
@@ -135,6 +167,27 @@ export default function AdminGuestOrders() {
             </select>
           </div>
         </div>
+      </div>
+
+      {/* Fulfilment tabs — mirrors the signed-in Orders flow */}
+      <div className="flex space-x-2 overflow-x-auto">
+        {FULFILLMENT_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => {
+              setFulfillmentFilter(f.value);
+              setCurrentPage(1);
+            }}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+              fulfillmentFilter === f.value
+                ? 'bg-[#2389E3] text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {loading ? (
@@ -150,16 +203,20 @@ export default function AdminGuestOrders() {
                   <th className={TH}>Items</th>
                   <th className={TH}>Amount</th>
                   <th className={TH}>Delivery</th>
-                  <th className={TH}>Status</th>
+                  <th className={TH}>Payment</th>
+                  <th className={TH}>Fulfilment</th>
                   <th className={TH}>Date</th>
+                  <th className={TH}>Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {orders.map((order) => (
+                {orders.map((order) => {
+                  const fulfillment = order.fulfillment_status || 'pending';
+                  return (
                   <tr
                     key={order.id}
                     className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => navigate(`/admin/guest-orders/${order.id}`)}
+                    onClick={() => handleViewOrder(order)}
                   >
                     <td className="px-4 py-3 text-sm text-gray-900">
                       <div className="font-medium">{order.guest_name}</div>
@@ -175,20 +232,38 @@ export default function AdminGuestOrders() {
                       <StatusBadge tone={STATUS_TONE[order.payment_status] || 'gray'}>
                         {STATUS_LABEL[order.payment_status] || order.payment_status}
                       </StatusBadge>
-                      {order.payment_status === 'payment_success' && order.scheduled_for && (
-                        <div className="mt-1 text-xs text-gray-500">starts {order.scheduled_for}</div>
-                      )}
                       {order.payment_status === 'payment_success' && !order.linked_user_id && (
                         <div className="mt-1">
                           <StatusBadge tone="amber">Awaiting registration</StatusBadge>
                         </div>
                       )}
                     </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge tone={FULFILLMENT_TONE[fulfillment] || 'gray'}>
+                        {FULFILLMENT_LABEL[fulfillment] || fulfillment}
+                      </StatusBadge>
+                      {order.payment_status === 'payment_success' && order.scheduled_for && (
+                        <div className="mt-1 text-xs text-gray-500">starts {order.scheduled_for}</div>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {order.created_at ? new Date(order.created_at).toLocaleDateString('en-GB') : '—'}
                     </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewOrder(order);
+                        }}
+                        className={BTN_PRIMARY}
+                      >
+                        Check Order
+                      </button>
+                    </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -197,7 +272,7 @@ export default function AdminGuestOrders() {
               icon={ClipboardDocumentListIcon}
               title="No guest orders found"
               body={
-                submittedSearch || activeFilter !== 'all'
+                submittedSearch || paymentFilter !== 'all' || fulfillmentFilter !== 'all'
                   ? 'Try adjusting your search or filter criteria.'
                   : 'No guest orders have been placed yet.'
               }

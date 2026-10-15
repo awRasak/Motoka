@@ -57,10 +57,11 @@ export async function adminGetGuestOrder(orderId) {
   return data.data;
 }
 
-export async function adminListGuestOrders({ page = 1, limit = 20, status, search } = {}) {
+export async function adminListGuestOrders({ page = 1, limit = 20, status, fulfillment, search } = {}) {
   const token = localStorage.getItem("adminToken");
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (status && status !== "all") params.set("status", status);
+  if (fulfillment && fulfillment !== "all") params.set("fulfillment", fulfillment);
   if (search) params.set("search", search);
   const res = await fetch(`${config.getApiBaseUrl()}/admin/guest-orders?${params}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -91,6 +92,34 @@ export async function adminRolloverGuestOrder(orderId, scheduledFor) {
   const data = await res.json();
   if (!res.ok || data.status === false) {
     throw new Error(data.message || "Failed to roll over guest order");
+  }
+  return data.data;
+}
+
+export async function adminUpdateGuestOrderStatus(orderId, status, notes) {
+  const token = localStorage.getItem("adminToken");
+  const res = await fetch(`${config.getApiBaseUrl()}/admin/guest-orders/${orderId}/status`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ status, notes }),
+  });
+  const data = await res.json();
+  if (!res.ok || data.status === false) {
+    throw new Error(data.message || "Failed to update guest order status");
+  }
+  return data.data;
+}
+
+export async function adminReopenGuestOrder(orderId, reason) {
+  const token = localStorage.getItem("adminToken");
+  const res = await fetch(`${config.getApiBaseUrl()}/admin/guest-orders/${orderId}/reopen`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ reason: reason || "Cancelled in error" }),
+  });
+  const data = await res.json();
+  if (!res.ok || data.status === false) {
+    throw new Error(data.message || "Failed to reopen guest order");
   }
   return data.data;
 }
