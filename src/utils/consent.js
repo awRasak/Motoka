@@ -1,5 +1,5 @@
 const CONSENT_KEY = "motoka_cookie_consent";
-export const META_PIXEL_ID = "2156944911874251";
+export const META_PIXEL_ID = "1495998229024939";
 
 export const getConsent = () => {
   try {
