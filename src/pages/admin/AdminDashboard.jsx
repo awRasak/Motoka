@@ -355,7 +355,6 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
-      </div>
 
       {/* Recent Orders and Transactions side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
