@@ -35,6 +35,14 @@ export async function uploadProfileImage(file) {
   return data
 }
 
+// Save terms / auto-renew consents (first-login modal, Settings toggle).
+// auto_renew: true requires a prior successful payment (403 otherwise);
+// false always allowed.
+export async function updateConsents(consents) {
+  const { data } = await api.put("/settings/profile/consents", consents)
+  return data
+}
+
 // Change password
 export async function changePassword(passwordData) {
   const { data } = await api.put("/settings/change-password", passwordData)

@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { toast } from "react-hot-toast"
 import { useGetCars } from "../../car/useCar"
+import { getProfile, updateConsents } from "../../../services/apiProfile"
 import AutoModeIcon from "../../../assets/images/ic_round-auto-mode.png"
 import CardSetupModal from "./CardSetupModal"
 import {
@@ -37,6 +38,41 @@ export default function AutoRenewalSettings({ onNavigate }) {
   const navigate = useNavigate()
   const [loadingId, setLoadingId] = useState(null)
   const [setupModalCar, setSetupModalCar] = useState(null)
+
+  // Account-level consent: fulfil first, collect later. Separate from the
+  // per-car card subscriptions below — this is the signup/opt-in switch.
+  const [consents, setConsents] = useState(null)
+  const [consentsLoading, setConsentsLoading] = useState(true)
+  const [consentsBusy, setConsentsBusy] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    getProfile()
+      .then((res) => {
+        if (!cancelled && res?.success) setConsents(res.data.profile)
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setConsentsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  const handleAccountToggle = async () => {
+    if (!consents || consentsBusy) return
+    const next = !consents.auto_renew_enabled
+    setConsentsBusy(true)
+    try {
+      const res = await updateConsents({ auto_renew: next })
+      if (res?.success === false) throw new Error(res?.message)
+      setConsents((prev) => ({ ...prev, ...res?.data?.consents }));
+      toast.success(next ? "Auto-renew enabled" : "Auto-renew disabled")
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err.message || "Could not update auto-renew")
+    } finally {
+      setConsentsBusy(false)
+    }
+  }
 
   const allCars = Object.values(carsData?.cars || {})
 
@@ -114,6 +150,34 @@ export default function AutoRenewalSettings({ onNavigate }) {
 
   return (
     <div>
+      {/* Account-level auto-renew consent */}
+      <div className="rounded-xl bg-white p-4 shadow-sm border border-[#F0F4FA] mb-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-[#05243F]">
+              Process renewals without waiting for payment
+            </p>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Motoka may start your due renewals even before that cycle&apos;s
+              payment clears. Amounts remain due — see{" "}
+              <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-[#2389E3] hover:underline">
+                Terms §5
+              </Link>.
+              {!consentsLoading && consents && !consents.auto_renew_eligible && !consents.auto_renew_enabled && (
+                <span className="mt-1 block text-amber-600">
+                  Unlocks after your first successful payment.
+                </span>
+              )}
+            </p>
+          </div>
+          <Toggle
+            checked={Boolean(consents?.auto_renew_enabled)}
+            disabled={consentsLoading || !consents?.auto_renew_eligible}
+            busy={consentsBusy}
+            onChange={handleAccountToggle}
+          />
+        </div>
+      </div>
       {isLoading ? (
         <div className="flex justify-center py-8">
           <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-[#2389E3]" />

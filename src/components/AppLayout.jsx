@@ -15,6 +15,8 @@ import { authStorage } from "../utils/authStorage";
 import Mo from "../features/mo/Mo.jsx";
 import Avatar from "../features/settings/components/ui/avatar";
 import { useProfile as useProfileQuery } from "../features/profile/useProfilePicture";
+import { useProfile as useConsentsProfile } from "../features/settings/hooks/useProfile";
+import ConsentModal from "../features/auth/ConsentModal";
 
   const navLinks = [
     { name: "Dashboard", path: "/dashboard" },
@@ -45,6 +47,26 @@ export default function AppLayout() {
   const navigate = useNavigate();
 
   const { imageUrl: profileImageUrl } = useProfileQuery();
+
+  // First-login consents: Google signups skip the form, and older accounts
+  // predate it — anyone without terms_accepted_at gets the blocking modal.
+  // Only shown on positive confirmation (never on fetch failure) so a
+  // network blip can't lock anyone out of the app.
+  const { profileData: consentsProfile, fetchProfile: fetchConsentsProfile } = useConsentsProfile();
+  const [showConsent, setShowConsent] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchConsentsProfile()
+      .then((profile) => {
+        if (cancelled) return;
+        if (profile && !profile.terms_accepted_at) setShowConsent(true);
+      })
+      .catch(() => {
+        // Unknown state (e.g. network blip) — never block the app.
+      });
+    return () => { cancelled = true; };
+  }, [fetchConsentsProfile]);
 
   const userName = localStorage.getItem("userInfo")
     ? JSON.parse(localStorage.getItem("userInfo")).name
@@ -141,6 +163,15 @@ export default function AppLayout() {
 
   return (
     <div className="flex items-center justify-center  flex-col min-h-screen bg-[#F4F5FC]" >
+      {showConsent && (
+        <ConsentModal
+          eligible={Boolean(consentsProfile?.auto_renew_eligible)}
+          onDone={() => {
+            setShowConsent(false);
+            fetchConsentsProfile(true);
+          }}
+        />
+      )}
       <div className="w-full max-w-4xl sm:mt-4 flex flex-col flex-1">
         {/* Header Navigation */}
         <header className="sticky top-0 z-10 h-16 bg-white shadow-sm sm:rounded-full">
