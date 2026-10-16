@@ -289,10 +289,8 @@ const AdminDashboard = () => {
       {/* Website traffic — GA4 sessions/users by channel + top pages */}
       <TrafficPanel />
 
-      {/* Chart and Lists */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Monthly Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+      {/* Revenue chart — full width */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">Revenue & Orders</h3>
             <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -357,7 +355,10 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
+      </div>
 
+      {/* Recent Orders and Transactions side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Orders */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
@@ -390,10 +391,9 @@ const AdminDashboard = () => {
             )}
           </div>
         </div>
-      </div>
 
-      {/* Recent Transactions */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        {/* Recent Transactions */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
           <Link to="/admin/payments" className="text-[#2389E3] text-sm font-medium hover:text-[#2389E3]">See More</Link>
@@ -428,6 +428,7 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
