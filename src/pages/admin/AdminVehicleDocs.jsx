@@ -17,36 +17,182 @@ import {
   CARD,
 } from '../../components/admin/ui';
 
-// Prices are stored in kobo in the DB. Display in Naira (divide by 100).
+// Renewal items are stored in kobo (100 kobo = ₦1). Plate and driver
+// licence prices are stored in whole Naira. The conversion helpers below
+// keep that split in one place so the edit handlers stay symmetric.
 const koboToNaira = (kobo) => (Number(kobo) / 100).toFixed(2);
 const nairaToKobo = (naira) => Math.round(parseFloat(naira) * 100);
 
+const authHeaders = () => {
+  const token = localStorage.getItem('adminToken');
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
+// ─── Shared inline price editor row ──────────────────────────────────────────
+
+const PriceRow = ({
+  label,
+  sublabel,
+  price,
+  unit, // 'kobo' | 'naira'
+  isEditing,
+  editValue,
+  onEditChange,
+  onStartEdit,
+  onCancel,
+  onSave,
+  onKeyDown,
+  saving,
+  badge,
+}) => {
+  const display =
+    unit === 'kobo'
+      ? Number(koboToNaira(price)).toLocaleString('en-NG', { minimumFractionDigits: 2 })
+      : Number(price).toLocaleString('en-NG');
+
+  return (
+    <tr className="hover:bg-gray-50 transition-colors">
+      <td className={`${TD} whitespace-nowrap`}>
+        <span className="text-sm font-medium text-gray-900">{label}</span>
+        {sublabel && (
+          <span className="ml-2 text-xs text-gray-400">{sublabel}</span>
+        )}
+      </td>
+      {badge && (
+        <td className={`${TD} whitespace-nowrap`}>{badge}</td>
+      )}
+      <td className={`${TD} whitespace-nowrap`}>
+        {isEditing ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-gray-500">₦</span>
+            <input
+              type="number"
+              min="0"
+              step={unit === 'kobo' ? '0.01' : '1'}
+              value={editValue}
+              onChange={(e) => onEditChange(e.target.value)}
+              onKeyDown={onKeyDown}
+              autoFocus
+              className="w-32 rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-[#2389E3] focus:outline-none"
+            />
+          </div>
+        ) : (
+          <span className="text-sm font-semibold text-gray-900">₦{display}</span>
+        )}
+      </td>
+      <td className={`${TD} whitespace-nowrap`}>
+        {isEditing ? (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onSave}
+              disabled={saving}
+              title="Save"
+              className="flex items-center justify-center h-8 w-8 rounded-lg bg-[#2389E3] text-white shadow-sm hover:bg-[#2389E3] disabled:opacity-50 transition-colors"
+            >
+              {saving ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <CheckIcon className="h-4 w-4" />
+              )}
+            </button>
+            <button
+              onClick={onCancel}
+              disabled={saving}
+              title="Cancel"
+              className="flex items-center justify-center h-8 w-8 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            >
+              <XMarkIcon className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onStartEdit}
+            title="Edit price"
+            className="flex items-center gap-1.5 rounded-lg bg-[#2389E3]/5 px-3 py-1.5 text-xs font-medium text-[#2389E3] hover:bg-[#2389E3]/10 transition-colors"
+          >
+            <PencilSquareIcon className="h-3.5 w-3.5" />
+            Edit
+          </button>
+        )}
+      </td>
+    </tr>
+  );
+};
+
+// ─── Section wrapper ─────────────────────────────────────────────────────────
+
+const PriceSection = ({ title, description, children, columns }) => (
+  <div className={`${CARD} overflow-hidden`}>
+    <div className="px-5 py-4 border-b border-gray-100">
+      <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+      <p className="mt-0.5 text-sm text-gray-500">{description}</p>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            {columns.map((col) => (
+              <th key={col} className={TH}>{col}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">{children}</tbody>
+      </table>
+    </div>
+  </div>
+);
+
+// ─── Main page ───────────────────────────────────────────────────────────────
+
 const AdminVehicleDocs = () => {
   const [items, setItems] = useState([]);
+  const [platePrices, setPlatePrices] = useState([]);
+  const [licensePrices, setLicensePrices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingKey, setEditingKey] = useState(null);
+
+  // Editing state: { section: 'renewal'|'plate'|'license', id: string }
+  const [editing, setEditing] = useState(null);
   const [editValue, setEditValue] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchItems();
+    fetchAll();
   }, []);
 
-  const fetchItems = async () => {
+  const fetchAll = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('adminToken');
-      const res = await fetch(`${config.getApiBaseUrl()}/admin/vehicle-doc-prices`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await res.json();
-      if (data.status || data.success) {
-        setItems(data.data || []);
+      const [renewalRes, plateRes, licenseRes] = await Promise.all([
+        fetch(`${config.getApiBaseUrl()}/admin/vehicle-doc-prices`, { headers: authHeaders() }),
+        fetch(`${config.getApiBaseUrl()}/admin/plate-prices`, { headers: authHeaders() }),
+        fetch(`${config.getApiBaseUrl()}/admin/driver-license-prices`, { headers: authHeaders() }),
+      ]);
+
+      const [renewal, plate, license] = await Promise.all([
+        renewalRes.json(),
+        plateRes.json(),
+        licenseRes.json(),
+      ]);
+
+      if (renewal.status || renewal.success) {
+        setItems(renewal.data || []);
       } else {
-        toast.error(data.message || 'Failed to load document prices');
+        toast.error(renewal.message || 'Failed to load renewal prices');
+      }
+
+      if (plate.status || plate.success) {
+        setPlatePrices(plate.data || []);
+      } else {
+        toast.error(plate.message || 'Failed to load plate prices');
+      }
+
+      if (license.status || license.success) {
+        setLicensePrices(license.data || []);
+      } else {
+        toast.error(license.message || 'Failed to load licence prices');
       }
     } catch {
       toast.error('Failed to load document prices');
@@ -55,51 +201,59 @@ const AdminVehicleDocs = () => {
     }
   };
 
-  const startEdit = (item) => {
-    setEditingKey(item.item_key);
-    setEditValue(koboToNaira(item.price));
+  // ── Edit handlers ──────────────────────────────────────────────────────────
+
+  const startEdit = (section, item, unit) => {
+    const rawPrice = unit === 'kobo' ? koboToNaira(item.price) : String(item.price);
+    setEditing({ section, id: item.id || item.item_key });
+    setEditValue(rawPrice);
   };
 
   const cancelEdit = () => {
-    setEditingKey(null);
+    setEditing(null);
     setEditValue('');
   };
 
-  const saveEdit = async (item) => {
+  const saveEdit = async () => {
+    if (!editing) return;
     const newNaira = parseFloat(editValue);
     if (isNaN(newNaira) || newNaira < 0) {
       toast.error('Please enter a valid amount');
       return;
     }
 
-    const newKobo = nairaToKobo(newNaira);
-    if (newKobo === item.price) {
-      cancelEdit();
-      return;
-    }
-
     setSaving(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      const res = await fetch(
-        `${config.getApiBaseUrl()}/admin/vehicle-doc-prices/${item.item_key}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ price: newKobo }),
-        },
-      );
+      let url, body;
+
+      if (editing.section === 'renewal') {
+        url = `${config.getApiBaseUrl()}/admin/vehicle-doc-prices/${editing.id}`;
+        body = { price: nairaToKobo(newNaira) };
+      } else if (editing.section === 'plate') {
+        url = `${config.getApiBaseUrl()}/admin/plate-prices/${editing.id}`;
+        body = { price: Math.round(newNaira) };
+      } else {
+        url = `${config.getApiBaseUrl()}/admin/driver-license-prices/${editing.id}`;
+        body = { price: Math.round(newNaira) };
+      }
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
       const data = await res.json();
+
       if (data.status || data.success) {
-        setItems((prev) =>
-          prev.map((i) =>
-            i.item_key === item.item_key ? { ...i, price: data.data.price } : i,
-          ),
-        );
-        toast.success(`${item.name} price updated`);
+        const updated = data.data;
+        if (editing.section === 'renewal') {
+          setItems((prev) => prev.map((i) => (i.item_key === editing.id ? { ...i, price: updated.price } : i)));
+        } else if (editing.section === 'plate') {
+          setPlatePrices((prev) => prev.map((i) => (i.id === editing.id ? { ...i, price: updated.price } : i)));
+        } else {
+          setLicensePrices((prev) => prev.map((i) => (i.id === editing.id ? { ...i, price: updated.price } : i)));
+        }
+        toast.success('Price updated');
         cancelEdit();
       } else {
         toast.error(data.message || 'Failed to update price');
@@ -111,8 +265,8 @@ const AdminVehicleDocs = () => {
     }
   };
 
-  const handleKeyDown = (e, item) => {
-    if (e.key === 'Enter') saveEdit(item);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') saveEdit();
     if (e.key === 'Escape') cancelEdit();
   };
 
@@ -120,158 +274,159 @@ const AdminVehicleDocs = () => {
     return <PageLoader />;
   }
 
+  // ── Label helpers ──────────────────────────────────────────────────────────
+
+  const plateLabel = (row) => {
+    const type = row.plate_type || 'Unknown';
+    if (row.sub_type) return `${type} — ${row.sub_type}`;
+    return type;
+  };
+
+  const licenseLabel = (row) => {
+    const type = row.license_type === 'new' ? 'New' : row.license_type === 'renew' ? 'Renewal' : row.license_type;
+    const dur = row.duration === '3yr' ? '3 years' : row.duration === '5yr' ? '5 years' : row.duration === 'international' ? 'International' : row.duration;
+    return `${type} — ${dur}`;
+  };
+
+  const isEditingRow = (section, id) => editing?.section === section && editing?.id === id;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <PageHeader
         icon={DocumentTextIcon}
-        title="Vehicle Document Prices"
-        subtitle="Manage the prices charged for each document at renewal"
+        title="Document Prices"
+        subtitle="Manage prices for renewals, plate numbers, and driver's licences"
       />
 
-      {/* Prices table */}
-      <div className={`${CARD} overflow-hidden`}>
-        <div className="px-5 py-4 border-b border-gray-100">
-          <p className="text-sm text-gray-500">
-            Click the edit icon on any row to update its price. Prices are in <strong>Naira (₦)</strong>.
-          </p>
-        </div>
+      <p className="text-sm text-gray-500">
+        Click the edit icon on any row to update its price. Changes take effect immediately for new orders.
+      </p>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className={TH}>
-                  Document
-                </th>
-                <th className={TH}>
-                  Key
-                </th>
-                <th className={TH}>
-                  Required
-                </th>
-                <th className={TH}>
-                  Status
-                </th>
-                <th className={TH}>
-                  Price (₦)
-                </th>
-                <th className={TH}>
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {items.map((item) => {
-                const isEditing = editingKey === item.item_key;
-                return (
-                  <tr key={item.item_key} className="hover:bg-gray-50 transition-colors">
-                    {/* Document name */}
-                    <td className={`${TD} whitespace-nowrap`}>
-                      <span className="text-sm font-medium text-gray-900">{item.name}</span>
-                    </td>
-
-                    {/* item_key */}
-                    <td className={`${TD} whitespace-nowrap`}>
-                      <code className="text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5">
-                        {item.item_key}
-                      </code>
-                    </td>
-
-                    {/* Required badge */}
-                    <td className={`${TD} whitespace-nowrap`}>
-                      {item.required ? (
-                        <StatusBadge tone="blue">Required</StatusBadge>
-                      ) : (
-                        <StatusBadge tone="gray">Optional</StatusBadge>
-                      )}
-                    </td>
-
-                    {/* Active badge */}
-                    <td className={`${TD} whitespace-nowrap`}>
-                      {item.active ? (
-                        <StatusBadge tone="green">Active</StatusBadge>
-                      ) : (
-                        <StatusBadge tone="red">Inactive</StatusBadge>
-                      )}
-                    </td>
-
-                    {/* Price — editable inline */}
-                    <td className={`${TD} whitespace-nowrap`}>
-                      {isEditing ? (
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm text-gray-500">₦</span>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onKeyDown={(e) => handleKeyDown(e, item)}
-                            autoFocus
-                            className="w-32 rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-[#2389E3] focus:outline-none"
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-sm font-semibold text-gray-900">
-                          ₦{Number(koboToNaira(item.price)).toLocaleString('en-NG', {
-                            minimumFractionDigits: 2,
-                          })}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className={`${TD} whitespace-nowrap`}>
-                      {isEditing ? (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => saveEdit(item)}
-                            disabled={saving}
-                            title="Save"
-                            className="flex items-center justify-center h-8 w-8 rounded-lg bg-[#2389E3] text-white shadow-sm hover:bg-[#2389E3] disabled:opacity-50 transition-colors"
-                          >
-                            {saving ? (
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            ) : (
-                              <CheckIcon className="h-4 w-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            disabled={saving}
-                            title="Cancel"
-                            className="flex items-center justify-center h-8 w-8 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-                          >
-                            <XMarkIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => startEdit(item)}
-                          title="Edit price"
-                          className="flex items-center gap-1.5 rounded-lg bg-[#2389E3]/5 px-3 py-1.5 text-xs font-medium text-[#2389E3] hover:bg-[#2389E3]/10 transition-colors"
-                        >
-                          <PencilSquareIcon className="h-3.5 w-3.5" />
-                          Edit
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
+      {/* ── Renewal items ─────────────────────────────────────────────────── */}
+      <PriceSection
+        title="Vehicle Document Renewals"
+        description="Prices charged for each document when renewing vehicle papers."
+        columns={['Document', 'Key', 'Required', 'Status', 'Price (₦)', 'Actions']}
+      >
+        {items.map((item) => (
+          <PriceRow
+            key={item.item_key}
+            label={item.name}
+            sublabel={item.item_key}
+            price={item.price}
+            unit="kobo"
+            isEditing={isEditingRow('renewal', item.item_key)}
+            editValue={editValue}
+            onEditChange={setEditValue}
+            onStartEdit={() => startEdit('renewal', item, 'kobo')}
+            onCancel={cancelEdit}
+            onSave={saveEdit}
+            onKeyDown={handleKeyDown}
+            saving={saving}
+            badge={
+              <>
+                {item.required ? (
+                  <StatusBadge tone="blue">Required</StatusBadge>
+                ) : (
+                  <StatusBadge tone="gray">Optional</StatusBadge>
+                )}
+                <span className="mx-1" />
+                {item.active ? (
+                  <StatusBadge tone="green">Active</StatusBadge>
+                ) : (
+                  <StatusBadge tone="red">Inactive</StatusBadge>
+                )}
+              </>
+            }
+          />
+        ))}
         {items.length === 0 && (
-          <EmptyState icon={DocumentTextIcon} title="No document prices found" />
+          <tr>
+            <td colSpan={6}>
+              <EmptyState icon={DocumentTextIcon} title="No renewal prices found" />
+            </td>
+          </tr>
         )}
-      </div>
+      </PriceSection>
 
-      {/* Footer hint */}
+      {/* ── Plate number prices ───────────────────────────────────────────── */}
+      <PriceSection
+        title="Plate Number Prices"
+        description="Prices for new, replacement, customised, and dealership plates."
+        columns={['Plate Type', 'Status', 'Price (₦)', 'Actions']}
+      >
+        {platePrices.map((row) => (
+          <PriceRow
+            key={row.id}
+            label={plateLabel(row)}
+            price={row.price}
+            unit="naira"
+            isEditing={isEditingRow('plate', row.id)}
+            editValue={editValue}
+            onEditChange={setEditValue}
+            onStartEdit={() => startEdit('plate', row, 'naira')}
+            onCancel={cancelEdit}
+            onSave={saveEdit}
+            onKeyDown={handleKeyDown}
+            saving={saving}
+            badge={
+              row.is_active ? (
+                <StatusBadge tone="green">Active</StatusBadge>
+              ) : (
+                <StatusBadge tone="red">Inactive</StatusBadge>
+              )
+            }
+          />
+        ))}
+        {platePrices.length === 0 && (
+          <tr>
+            <td colSpan={4}>
+              <EmptyState icon={DocumentTextIcon} title="No plate prices found" />
+            </td>
+          </tr>
+        )}
+      </PriceSection>
+
+      {/* ── Driver licence prices ─────────────────────────────────────────── */}
+      <PriceSection
+        title="Driver's Licence Prices"
+        description="Prices for new and renewal licences, by duration."
+        columns={['Licence Type', 'Status', 'Price (₦)', 'Actions']}
+      >
+        {licensePrices.map((row) => (
+          <PriceRow
+            key={row.id}
+            label={licenseLabel(row)}
+            price={row.price}
+            unit="naira"
+            isEditing={isEditingRow('license', row.id)}
+            editValue={editValue}
+            onEditChange={setEditValue}
+            onStartEdit={() => startEdit('license', row, 'naira')}
+            onCancel={cancelEdit}
+            onSave={saveEdit}
+            onKeyDown={handleKeyDown}
+            saving={saving}
+            badge={
+              row.is_active ? (
+                <StatusBadge tone="green">Active</StatusBadge>
+              ) : (
+                <StatusBadge tone="red">Inactive</StatusBadge>
+              )
+            }
+          />
+        ))}
+        {licensePrices.length === 0 && (
+          <tr>
+            <td colSpan={4}>
+              <EmptyState icon={DocumentTextIcon} title="No licence prices found" />
+            </td>
+          </tr>
+        )}
+      </PriceSection>
+
       <p className="text-xs text-gray-400">
-        Changes take effect immediately for new renewal orders. Existing orders are not affected.
+        Renewal prices are stored in kobo and converted for display. Plate and licence prices are stored in whole Naira.
       </p>
     </div>
   );
