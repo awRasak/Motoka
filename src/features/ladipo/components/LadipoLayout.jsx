@@ -111,7 +111,7 @@ export default function LadipoLayout({
     ));
 
   return (
-    <>
+    <div className="flex flex-col min-h-full pb-14 sm:pb-20">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mt-3 mb-6">
           <div className="flex items-start justify-between gap-3">
@@ -119,7 +119,7 @@ export default function LadipoLayout({
               <button
                 type="button"
                 onClick={goBack}
-                className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#E1E6F4] text-[#697C8C] transition-colors hover:bg-[#2389E3]/10"
+                className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#E1E6F4] text-[#697C8C] transition-colors hover:bg-[#2389E3]/10 cursor-pointer"
               >
                 <IoIosArrowBack className="h-5 w-5" />
               </button>
@@ -140,6 +140,6 @@ export default function LadipoLayout({
       </div>
 
       <div className="mx-auto w-full max-w-4xl md:max-w-5xl h-full px-4 sm:px-6 lg:px-8">{children}</div>
-    </>
+    </div>
   );
 }

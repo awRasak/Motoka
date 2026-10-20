@@ -30,10 +30,10 @@ function CartPage() {
   }
 
   return (
-    <LadipoLayout title="Cart" backPath="/ladipo">
+    <LadipoLayout title="Cart" backPath="/ladipo" headerEnd={<div />}>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white rounded-2xl border border-[#E1E6F4]">
+        <div className="flex flex-col items-center justify-center py-16 sm:py-20 my-4 sm:my-8 gap-4 bg-white rounded-2xl border border-[#E1E6F4] shadow-xs">
           <div className="w-20 h-20 rounded-2xl bg-[#F4F5FC] flex items-center justify-center">
             <Icon icon="solar:bag-4-bold-duotone" width="40" className="text-[#2389E3]/40" />
           </div>
@@ -49,7 +49,7 @@ function CartPage() {
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col gap-5 max-w-2xl mx-auto w-full">
+        <div className="flex flex-col gap-5 max-w-2xl mx-auto w-full my-4 sm:my-8">
           {/* Cart card */}
           <div className="bg-white rounded-2xl overflow-hidden border border-[#E8ECF0]">
             {/* Item rows */}
