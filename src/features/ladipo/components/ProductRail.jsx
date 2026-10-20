@@ -20,19 +20,19 @@ function ProductRail({ title, parts = [], loading = false, onSeeAll, seeAllLabel
       </div>
 
       {loading ? (
-        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex items-stretch gap-3 overflow-x-auto no-scrollbar pb-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="w-[160px] sm:w-[200px] flex-shrink-0">
+            <div key={i} className="w-[160px] sm:w-[200px] flex-shrink-0 flex flex-col">
               <ProductSkeleton />
             </div>
           ))}
         </div>
       ) : (
-        <div className="flex items-start gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 scroll-smooth">
+        <div className="flex items-stretch gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 scroll-smooth">
           {parts.map((part) => (
             <div
               key={part.id}
-              className="w-[160px] sm:w-[200px] flex-shrink-0 snap-start"
+              className="w-[160px] sm:w-[200px] flex-shrink-0 snap-start flex flex-col"
             >
               <ProductCard part={part} />
             </div>

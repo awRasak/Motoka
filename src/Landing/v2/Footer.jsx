@@ -23,9 +23,8 @@ const COLUMNS = [
   {
     title: 'Features',
     links: [
-      // /ladipo and /wallet are the signed-in app, so the marketing pages
-      // for those features live on their own paths.
-      { label: 'Ladipo Marketplace', to: '/ladipo-marketplace' },
+      // /ladipo is the public marketplace route.
+      { label: 'Ladipo Marketplace', to: '/ladipo' },
       { label: 'Save-Ahead Wallet', to: '/save-ahead-wallet' },
       { label: 'Ask Mo (AI Assistant)', to: '/mo' },
       { label: 'License Auto Reminder', to: '/reminders' },
@@ -105,17 +104,17 @@ export default function Footer() {
           <div className="inline-flex items-center" style={{ marginTop: 24, gap: 12, background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: '10px 14px' }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>Follow us on:</span>
             <div className="flex items-center" style={{ gap: 8 }}>
-              {SOCIALS.map(({ label, Icon, href }) => (
+              {SOCIALS.map((social) => (
                 <a
-                  key={label}
-                  href={href}
+                  key={social.label}
+                  href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={label}
+                  aria-label={social.label}
                   className="flex items-center justify-center hover:brightness-125 transition-all"
                   style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.12)', color: 'white' }}
                 >
-                  <Icon width={14} height={14} />
+                  <social.Icon width={14} height={14} />
                 </a>
               ))}
             </div>

@@ -1,12 +1,26 @@
+import { useState, useEffect } from "react";
 import CryptoJS from "crypto-js";
 
 const SECRET_KEY = import.meta.env.VITE_CRYPTO_SECRET || "your-secret-key";
+
+function notifyAuthChange(isAuthenticated) {
+  if (typeof window !== "undefined") {
+    try {
+      window.dispatchEvent(
+        new CustomEvent("authChange", { detail: { isAuthenticated } }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }
+}
 
 export const authStorage = {
   setToken: (token) => {
     try {
       const encryptedToken = CryptoJS.AES.encrypt(token, SECRET_KEY).toString();
       localStorage.setItem("authToken", encryptedToken);
+      notifyAuthChange(true);
     } catch (error) {
       console.error("Error storing token:", error);
     }
@@ -31,6 +45,7 @@ export const authStorage = {
   removeToken: () => {
     try {
       localStorage.removeItem("authToken");
+      notifyAuthChange(false);
     } catch (error) {
       console.error("Error removing token:", error);
     }
@@ -51,7 +66,7 @@ export const authStorage = {
         return false;
       }
       return true;
-    } catch (e) {
+    } catch {
       // If parsing fails, fall back to token presence
       return true;
     }
@@ -156,8 +171,39 @@ export const authStorage = {
       localStorage.removeItem("userInfo");
       localStorage.removeItem("rememberedEmail");
       console.log('All auth data cleared');
+      notifyAuthChange(false);
     } catch (error) {
       console.error("Error clearing auth data:", error);
     }
   }
 };
+
+/**
+ * React hook that reactively tracks authentication status across components,
+ * updating immediately upon sign-in, token expiration, or logout.
+ */
+export function useIsAuthenticated() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    authStorage.isAuthenticated(),
+  );
+
+  useEffect(() => {
+    const handleAuthChange = (event) => {
+      if (event?.detail?.isAuthenticated !== undefined) {
+        setIsAuthenticated(Boolean(event.detail.isAuthenticated));
+      } else {
+        setIsAuthenticated(authStorage.isAuthenticated());
+      }
+    };
+
+    window.addEventListener("authChange", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("authChange", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
+
+  return isAuthenticated;
+}

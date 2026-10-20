@@ -21,6 +21,7 @@ import AllCategoriesModal from "./components/AllCategoriesModal";
 import SelectCarModal from "./components/SelectCarModal";
 import FilterSidebar from "./components/FilterSidebar";
 import ladipoStore from "../../store/ladipoStore";
+import { authStorage } from "../../utils/authStorage";
 
 export default function Ladipo() {
   const [searchParams] = useSearchParams();
@@ -126,6 +127,7 @@ export default function Ladipo() {
 
   useEffect(() => {
     if (
+      authStorage.isAuthenticated() &&
       garageCars.length > 0 &&
       !selectedCar &&
       !hasPromptedCarModal.current &&
@@ -927,7 +929,7 @@ export default function Ladipo() {
         onClose={() => setShowAllCategories(false)}
       />
       <SelectCarModal
-        open={showCarModal}
+        open={showCarModal && authStorage.isAuthenticated()}
         onClose={() => setShowCarModal(false)}
         garageCars={garageCars}
         selectedCar={selectedCar}

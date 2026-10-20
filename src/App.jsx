@@ -60,6 +60,7 @@ import LadipoPaymentCallback from "./features/ladipo/LadipoPaymentCallback.jsx";
 import LadipoOrderSuccess from "./features/ladipo/LadipoOrderSuccess.jsx";
 import LadipoPaymentStatusModals from "./features/ladipo/components/LadipoPaymentStatusModals.jsx";
 import LadipoPaystackReturnHandler from "./features/ladipo/LadipoPaystackReturnHandler.jsx";
+import LadipoRouteLayout from "./components/LadipoRouteLayout.jsx";
 import CarReceipt from "./pages/CarReceipt.jsx";
 import PaymentReceipt from "./pages/PaymentReceipt.jsx";
 import TrackOrder from "./pages/TrackOrder.jsx";
@@ -153,7 +154,13 @@ function processOAuthHash() {
         email_verified: meta.email_verified ?? true,
       });
     }
-    window.location.replace("/dashboard");
+    const redirectUrl = sessionStorage.getItem("authRedirect") || "/dashboard";
+    try {
+      sessionStorage.removeItem("authRedirect");
+    } catch {
+      /* ignore */
+    }
+    window.location.replace(redirectUrl);
     return true;
   }
 
@@ -337,18 +344,20 @@ export default function App() {
             <Route path="settings">
               <Route index element={<Settings />} />
             </Route>
-            <Route path="ladipo">
-              <Route index element={<Ladipo />} />
-              <Route path=":slug" element={<ProductModal />} />
-              <Route path="cart-page" element={<CartPage />} />
-              <Route path="checkout" element={<LadipoCheckout />} />
-              <Route path="payment/callback" element={<LadipoPaymentCallback />} />
-              <Route path="order-success" element={<LadipoOrderSuccess />} />
-            </Route>
             <Route path="payment-success" element={<SuccessPage />} />
             <Route path="payment/car-receipt/:carId" element={<CarReceipt />} />
             <Route path="payment/receipt/:paymentType/:identifier" element={<PaymentReceipt />} />
             <Route path="orders/:orderNumber/track" element={<TrackOrder />} />
+          </Route>
+
+          {/* Ladipo Marketplace Routes — Public browsing, cart & details for guests; orders & checkout protected */}
+          <Route path="ladipo" element={<LadipoRouteLayout />}>
+            <Route index element={<Ladipo />} />
+            <Route path=":slug" element={<ProductModal />} />
+            <Route path="cart-page" element={<CartPage />} />
+            <Route path="checkout" element={<LadipoCheckout />} />
+            <Route path="payment/callback" element={<LadipoPaymentCallback />} />
+            <Route path="order-success" element={<LadipoOrderSuccess />} />
           </Route>
 
           {/* Guest renewal flow — public, no auth required */}

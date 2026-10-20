@@ -173,7 +173,7 @@ function ProductModal() {
 
               {/* Image Container */}
               <div
-                className="flex items-center justify-center p-4 mb-4 relative cursor-grab active:cursor-grabbing select-none h-[240px] sm:h-[300px] border border-[#E8E9EB] rounded-[16px] overflow-hidden"
+                className="flex items-center justify-center p-4 mb-4 relative cursor-grab active:cursor-grabbing select-none h-[240px] sm:h-[300px] border border-[#E1E6F4] bg-[#F8FAFC] rounded-[16px] overflow-hidden"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={(e) => handleTouchEnd(e, images.length)}
                 onKeyDown={(e) => handleKeyDown(e, images.length)}
@@ -182,7 +182,7 @@ function ProductModal() {
                 aria-label="Product image gallery"
               >
                 {images[selectedImage] ? (
-                  <img src={images[selectedImage]} alt={part.name} className="object-contain h-full w-full pointer-events-none" />
+                  <img src={images[selectedImage]} alt={part.name} className="object-contain max-h-full max-w-full h-full w-full pointer-events-none mix-blend-multiply" />
                 ) : (
                   <Icon icon="solar:box-bold-duotone" width="64" className="text-[#E1E6F4]" />
                 )}

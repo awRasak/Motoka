@@ -22,25 +22,53 @@ const useCartStore = create(
           return;
         }
 
-        await get().refreshFromBackend();
+        await get().syncGuestCartToBackend();
       },
 
-      refreshFromBackend: async () => {
+      syncGuestCartToBackend: async () => {
         if (!authStorage.isAuthenticated()) {
-          set({ initialized: true });
+          set({ initialized: true, syncError: false });
           return;
         }
 
+        const currentLocalItems = get().items || [];
+
         try {
           const [cartItems, partsResult] = await Promise.all([
-            getLadipoCart(),
-            getLadipoParts({ page: 1, limit: 1000 }),
+            getLadipoCart().catch(() => []),
+            getLadipoParts({ page: 1, limit: 1000 }).catch(() => ({ parts: [] })),
           ]);
 
           const parts = Array.isArray(partsResult?.parts) ? partsResult.parts : [];
           const partById = new Map(parts.map((part) => [part.id, part]));
 
-          const mappedItems = (Array.isArray(cartItems) ? cartItems : [])
+          const backendCart = Array.isArray(cartItems) ? cartItems : [];
+          const backendProductIds = new Set(backendCart.map((ci) => ci.product_id));
+
+          // Find local items added as guest that aren't yet in backend cart
+          const unSyncedItems = currentLocalItems.filter(
+            (item) => item.partId && !backendProductIds.has(item.partId),
+          );
+
+          if (unSyncedItems.length > 0) {
+            await Promise.allSettled(
+              unSyncedItems.map((item) =>
+                addLadipoCartItem({
+                  product_id: item.partId,
+                  quantity: item.quantity || 1,
+                }),
+              ),
+            );
+          }
+
+          // Fetch the refreshed backend cart after syncing
+          const finalCart =
+            unSyncedItems.length > 0
+              ? await getLadipoCart().catch(() => backendCart)
+              : backendCart;
+          const finalCartArr = Array.isArray(finalCart) ? finalCart : [];
+
+          const mappedItems = finalCartArr
             .map((cartItem) => {
               const part = partById.get(cartItem.product_id);
               if (!part) return null;
@@ -57,11 +85,22 @@ const useCartStore = create(
             })
             .filter(Boolean);
 
-          set({ items: mappedItems, initialized: true, syncError: false });
+          if (mappedItems.length > 0) {
+            set({ items: mappedItems, initialized: true, syncError: false });
+          } else if (currentLocalItems.length > 0) {
+            // Safety guard: if backend sync returned empty, preserve local items
+            set({ initialized: true, syncError: false });
+          } else {
+            set({ items: [], initialized: true, syncError: false });
+          }
         } catch {
           // Keep UI resilient: if backend sync fails, do not wipe local cart.
           set({ initialized: true, syncError: true });
         }
+      },
+
+      refreshFromBackend: async () => {
+        await get().syncGuestCartToBackend();
       },
 
       addItem: async (item) => {

@@ -62,7 +62,7 @@ export function useAddCar() {
   return { addCar, isAdding };
 }
 
-export function useGetCars() {
+export function useGetCars(options = {}) {
   const {
     data: cars,
     isLoading,
@@ -72,6 +72,7 @@ export function useGetCars() {
     queryKey: ["cars"],
     queryFn: getCarsApi,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: authStorage.isAuthenticated() && (options.enabled ?? true),
     onError: (error) => {
       toast.error(
         error.response?.data?.message || error.message || "Failed to fetch cars",

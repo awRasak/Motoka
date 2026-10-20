@@ -1,29 +1,26 @@
 export default function ProductSkeleton() {
   return (
-    <div className="flex flex-col bg-white rounded-2xl overflow-hidden animate-pulse">
+    <div className="flex flex-col h-full w-full rounded-2xl border border-[#E1E6F4] bg-white p-3 sm:p-3.5 animate-pulse">
       {/* Image placeholder */}
-      <div className="aspect-square bg-[#E1E6F4]" />
+      <div className="relative mb-3 aspect-square w-full rounded-xl bg-slate-100" />
 
       {/* Content placeholder */}
-      <div className="flex flex-col flex-1 px-3 sm:px-3.5 pt-2 pb-3 sm:pb-3.5 gap-2">
-        {/* Brand */}
-        <div className="h-3 w-16 bg-[#E1E6F4] rounded" />
-        
-        {/* Title */}
-        <div className="space-y-1.5">
-          <div className="h-3 w-full bg-[#E1E6F4] rounded" />
-          <div className="h-3 w-4/5 bg-[#E1E6F4] rounded" />
+      <div className="flex flex-col flex-1 justify-between">
+        <div>
+          {/* Title 2 lines */}
+          <div className="space-y-1.5 mb-2">
+            <div className="h-3.5 w-full bg-slate-100 rounded" />
+            <div className="h-3.5 w-3/4 bg-slate-100 rounded" />
+          </div>
+
+          {/* Brand */}
+          <div className="h-3 w-16 bg-slate-100 rounded mb-2" />
         </div>
 
-        {/* Price */}
-        <div className="mt-auto pt-1.5">
-          <div className="h-4 w-24 bg-[#E1E6F4] rounded" />
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-2 mt-2">
-          <div className="flex-1 h-10 bg-[#E1E6F4] rounded-[10px]" />
-          <div className="flex-1 h-10 bg-[#E1E6F4] rounded-[10px]" />
+        {/* Price & Button */}
+        <div className="mt-auto pt-2 flex flex-col gap-2">
+          <div className="h-4 w-20 bg-slate-100 rounded" />
+          <div className="h-8 w-full bg-slate-100 rounded-full" />
         </div>
       </div>
     </div>

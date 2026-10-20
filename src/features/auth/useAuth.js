@@ -15,6 +15,19 @@ import { sendLoginOtp as sendLoginOtpApi, verifyLoginOtp as verifyLoginOtpApi } 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+function getAuthRedirect(defaultPath = "/dashboard") {
+  try {
+    const redirect = sessionStorage.getItem("authRedirect");
+    if (redirect) {
+      sessionStorage.removeItem("authRedirect");
+      return redirect;
+    }
+  } catch {
+    /* ignore */
+  }
+  return defaultPath;
+}
+
 export function useLogin() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -43,7 +56,7 @@ export function useLogin() {
         }
 
         setTwoFactorRequired(false);
-        navigate("/dashboard");
+        navigate(getAuthRedirect());
       },
       onError: (err) => {
         toast.dismiss();
@@ -74,7 +87,7 @@ export function useLogin() {
           localStorage.setItem("userInfo", JSON.stringify(userDetails));
         }
 
-        navigate("/dashboard");
+        navigate(getAuthRedirect());
       }
     },
     onError: (err, variables) => {
@@ -121,7 +134,7 @@ export function useLogin() {
         localStorage.setItem("userInfo", JSON.stringify(userDetails));
       }
 
-      navigate("/dashboard");
+      navigate(getAuthRedirect());
     },
     onError: (err) => {
       toast.error(err.response?.data?.message || err.message || "Invalid OTP");

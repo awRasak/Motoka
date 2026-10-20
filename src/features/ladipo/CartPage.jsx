@@ -1,16 +1,33 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import LadipoLayout from "./components/LadipoLayout";
 import useCartStore, { selectTotalKobo } from "../../store/cartStore";
+import { authStorage } from "../../utils/authStorage";
+import CheckoutAuthModal from "./components/CheckoutAuthModal";
 
 function CartPage() {
+  const location = useLocation();
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const setQty = useCartStore((s) => s.setQty);
   const totalKobo = useCartStore(selectTotalKobo);
   const navigate = useNavigate();
+  const [authModalOpen, setAuthModalOpen] = useState(Boolean(location.state?.openAuthModal));
 
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
+  useEffect(() => {
+    if (location.state?.openAuthModal) {
+      setAuthModalOpen(true);
+    }
+  }, [location.state?.openAuthModal]);
+
+  function handleProceedToCheckout() {
+    if (!authStorage.isAuthenticated()) {
+      setAuthModalOpen(true);
+      return;
+    }
+    navigate("/ladipo/checkout");
+  }
 
   return (
     <LadipoLayout title="Cart" backPath="/ladipo">
@@ -117,16 +134,30 @@ function CartPage() {
           </div>
 
           {/* Checkout button */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-3">
             <button
-              onClick={() => navigate("/ladipo/checkout")}
-              className="w-[220px] bg-[#2389E3] hover:bg-[#2389E3] text-white font-bold text-[15px] py-3.5 rounded-full transition-all active:scale-[0.98] cursor-pointer shadow-md shadow-[#2389E3]/30"
+              onClick={handleProceedToCheckout}
+              className="w-full sm:w-[260px] bg-[#2389E3] hover:bg-[#1D74C2] text-white font-bold text-[15px] py-3.5 rounded-full transition-all active:scale-[0.98] cursor-pointer shadow-md shadow-[#2389E3]/25 flex items-center justify-center gap-2"
             >
-              Checkout
+              <span>Proceed to Checkout</span>
+              <Icon icon="lucide:arrow-right" width="16" />
             </button>
+            <p className="text-[12px] text-[#8A9EB0] text-center">
+              🔒 Safe & Secure Checkout via Monipay / Paystack
+            </p>
           </div>
         </div>
       )}
+
+      {/* Auth Modal for Guests */}
+      <CheckoutAuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={() => {
+          setAuthModalOpen(false);
+          navigate("/ladipo/checkout");
+        }}
+      />
     </LadipoLayout>
   );
 }

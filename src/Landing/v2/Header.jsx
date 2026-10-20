@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import logoMark from '../../assets/v2/logo-mark.svg'
+import { useIsAuthenticated } from '../../utils/authStorage'
 
 // The prototype shipped these as inert labels. Pointed at the routes the
 // previous landing header used, so the redesign is not a dead end.
@@ -10,6 +11,7 @@ import logoMark from '../../assets/v2/logo-mark.svg'
 // have no route of their own to be "on" and never take the active stroke.
 const NAV_LINKS = [
   { label: 'Home', to: '/#top', match: ['/'], exact: true },
+  { label: 'Ladipo', to: '/ladipo', match: ['/ladipo'] },
   { label: 'About', to: '/about', match: ['/about'] },
   { label: 'Service', to: '/#covers' },
   // The index lives at /blogs but posts at /blog/:slug, so Blog needs both
@@ -28,6 +30,7 @@ export default function Header() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const isAuth = useIsAuthenticated()
 
   useEffect(() => {
     if (!open) return
@@ -103,15 +106,35 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="hidden lg:flex gap-[24px] items-center justify-end">
-          <button type="button" onClick={() => navigate('/auth/login')} className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap cursor-pointer transition-opacity hover:opacity-75">
-            Login
-          </button>
-          <button type="button" onClick={() => navigate('/auth/signup')} className="bg-[#f4faff] border border-[#2389e3] flex h-[38px] items-center justify-center overflow-clip px-[24px] py-[14px] rounded-[90px] w-[92px] cursor-pointer transition-colors hover:bg-[#e4f1ff]">
-            <span className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap">
-              Register
-            </span>
-          </button>
+        <div className="hidden lg:flex gap-[20px] items-center justify-end">
+          {isAuth ? (
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="bg-[#2389e3] hover:bg-[#1a74c3] text-white flex h-[38px] items-center justify-center px-[22px] rounded-[90px] font-semibold text-[14px] cursor-pointer transition-colors shadow-xs"
+            >
+              Dashboard
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => navigate('/auth/login')}
+                className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap cursor-pointer transition-opacity hover:opacity-75"
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/auth/signup')}
+                className="bg-[#f4faff] border border-[#2389e3] flex h-[38px] items-center justify-center overflow-clip px-[24px] py-[14px] rounded-[90px] w-[92px] cursor-pointer transition-colors hover:bg-[#e4f1ff]"
+              >
+                <span className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap">
+                  Register
+                </span>
+              </button>
+            </>
+          )}
         </div>
 
         <button
@@ -184,22 +207,35 @@ export default function Header() {
             )
           })}
           <div className="flex flex-col" style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #e2e8f0', gap: 12 }}>
-            <button
-              type="button"
-              onClick={() => { setOpen(false); navigate('/auth/signup') }}
-              className="bg-[#f4faff] border border-[#2389e3] flex items-center justify-center w-full transition-colors hover:bg-[#e4f1ff]"
-              style={{ height: 44, borderRadius: 90 }}
-            >
-              <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Register</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => { setOpen(false); navigate('/auth/login') }}
-              className="flex items-center justify-center w-full rounded-full transition-colors hover:bg-[#f4faff]"
-              style={{ height: 44 }}
-            >
-              <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Login</span>
-            </button>
+            {isAuth ? (
+              <button
+                type="button"
+                onClick={() => { setOpen(false); navigate('/dashboard') }}
+                className="bg-[#2389e3] text-white flex items-center justify-center w-full transition-colors hover:bg-[#1a74c3] font-semibold text-[14px]"
+                style={{ height: 44, borderRadius: 90 }}
+              >
+                Go to Dashboard
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => { setOpen(false); navigate('/auth/signup') }}
+                  className="bg-[#f4faff] border border-[#2389e3] flex items-center justify-center w-full transition-colors hover:bg-[#e4f1ff]"
+                  style={{ height: 44, borderRadius: 90 }}
+                >
+                  <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Register</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setOpen(false); navigate('/auth/login') }}
+                  className="flex items-center justify-center w-full rounded-full transition-colors hover:bg-[#f4faff]"
+                  style={{ height: 44 }}
+                >
+                  <span className="font-semibold text-[#2389e3] text-[14px] whitespace-nowrap">Login</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -5,16 +5,23 @@ import { IoIosArrowBack } from "react-icons/io";
 import { Icon } from "@iconify/react";
 import { getWallet } from "../../../services/apiWallet";
 
+import { authStorage } from "../../../utils/authStorage";
+import useCartStore, { selectItemCount } from "../../../store/cartStore";
+
 function formatNaira(kobo) {
   return `₦${(Number(kobo || 0) / 100).toLocaleString("en-NG", { maximumFractionDigits: 2 })}`;
 }
 
 function WalletDemoChip() {
   const [showBalance, setShowBalance] = useState(true);
+  const isAuth = authStorage.isAuthenticated();
   const { data: wallet, isLoading } = useQuery({
     queryKey: ["wallet"],
     queryFn: getWallet,
+    enabled: isAuth,
   });
+
+  if (!isAuth) return null;
 
   const amount = isLoading
     ? "₦—"
@@ -62,22 +69,46 @@ export default function LadipoLayout({
   showWalletDemo = false,
 }) {
   const navigate = useNavigate();
-  const goBack = () => navigate(backPath ?? -1);
+  const isAuth = authStorage.isAuthenticated();
+  const cartItemCount = useCartStore(selectItemCount);
+  const goBack = () => {
+    if (backPath) return navigate(backPath);
+    if (window.history.length > 1) return navigate(-1);
+    navigate("/");
+  };
 
   const rightSlot =
     headerEnd ??
-    (showWalletDemo ? (
-      <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-3">
+    (isAuth ? (
+      showWalletDemo ? (
+        <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-3">
+          <Link
+            to="/settings"
+            state={{ settingsPage: "ladipo-orders" }}
+            className="whitespace-nowrap text-[11px] sm:text-[13px] font-semibold text-[#2389E3] underline-offset-2 hover:underline"
+          >
+            My Orders
+          </Link>
+          <WalletDemoChip />
+        </div>
+      ) : null
+    ) : (
+      <div className="flex flex-shrink-0 items-center gap-2">
         <Link
-          to="/settings"
-          state={{ settingsPage: "ladipo-orders" }}
-          className="whitespace-nowrap text-[11px] sm:text-[13px] font-semibold text-[#2389E3] underline-offset-2 hover:underline"
+          to="/ladipo/cart-page"
+          className="relative flex items-center gap-1.5 rounded-full bg-[#EAF1FF] px-3.5 py-1.5 text-xs font-semibold text-[#2389E3] hover:bg-[#d8e6ff] transition-colors"
+          title="Shopping Cart"
         >
-          My Orders
+          <Icon icon="solar:cart-large-minimalistic-bold" width="16" />
+          <span>Cart</span>
+          {cartItemCount > 0 && (
+            <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#2389E3] px-1 text-[10px] font-bold text-white">
+              {cartItemCount > 99 ? "99+" : cartItemCount}
+            </span>
+          )}
         </Link>
-        <WalletDemoChip />
       </div>
-    ) : null);
+    ));
 
   return (
     <>
