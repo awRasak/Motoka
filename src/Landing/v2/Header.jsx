@@ -11,12 +11,12 @@ import { useIsAuthenticated } from '../../utils/authStorage'
 // have no route of their own to be "on" and never take the active stroke.
 const NAV_LINKS = [
   { label: 'Home', to: '/#top', match: ['/'], exact: true },
-  { label: 'Ladipo', to: '/ladipo', match: ['/ladipo'] },
   { label: 'About', to: '/about', match: ['/about'] },
   { label: 'Service', to: '/#covers' },
   // The index lives at /blogs but posts at /blog/:slug, so Blog needs both
   // prefixes to stay lit while reading a post.
   { label: 'Blog', to: '/blogs', match: ['/blogs', '/blog'] },
+  { label: 'Ladipo', to: '/ladipo', match: ['/ladipo'] },
 ]
 
 function isActive(link, pathname) {
