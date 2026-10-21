@@ -448,6 +448,7 @@ export default function Ladipo() {
     <LadipoLayout
       title="Ladipo"
       subTitle="Browse genuine and aftermarket parts for your vehicle."
+      showBackButton={false}
       showWalletDemo
     >
       <div className="bg-white rounded-2xl pt-5 pb-8 sm:pb-12 px-5 sm:px-6 lg:px-8 mb-6 sm:mb-10 shadow-xs">

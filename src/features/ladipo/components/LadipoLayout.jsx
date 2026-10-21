@@ -63,6 +63,7 @@ export default function LadipoLayout({
   title = "Ladipo",
   subTitle,
   backPath,
+  showBackButton,
   /** Custom node on the right of the header (overrides showWalletDemo) */
   headerEnd,
   /** UI demo: wallet chip on the marketplace header */
@@ -71,6 +72,7 @@ export default function LadipoLayout({
   const navigate = useNavigate();
   const isAuth = authStorage.isAuthenticated();
   const cartItemCount = useCartStore(selectItemCount);
+  const shouldShowBack = showBackButton !== undefined ? showBackButton : Boolean(backPath);
   const goBack = () => {
     if (backPath) return navigate(backPath);
     if (window.history.length > 1) return navigate(-1);
@@ -112,17 +114,19 @@ export default function LadipoLayout({
 
   return (
     <div className="flex flex-col min-h-full pb-14 sm:pb-20">
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-4xl md:max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="mt-3 mb-6">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-start gap-3">
-              <button
-                type="button"
-                onClick={goBack}
-                className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#E1E6F4] text-[#697C8C] transition-colors hover:bg-[#2389E3]/10 cursor-pointer"
-              >
-                <IoIosArrowBack className="h-5 w-5" />
-              </button>
+              {shouldShowBack && (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#E1E6F4] text-[#697C8C] transition-colors hover:bg-[#2389E3]/10 cursor-pointer"
+                >
+                  <IoIosArrowBack className="h-5 w-5" />
+                </button>
+              )}
               <div className="min-w-0 flex-1">
                 <h1 className="text-xl font-medium text-[#05243F] md:text-2xl line-clamp-2">
                   {title}
