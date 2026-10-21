@@ -396,7 +396,7 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
                 >
                   <X className="h-6 w-6" />
                 </button>
-                <div className="w-full overflow-hidden p-1 pb-4 pt-6 sm:p-8 flex flex-col h-full flex-1 justify-center">
+                <div className="w-full overflow-hidden px-5 pb-5 pt-6 sm:p-8 flex flex-col h-full flex-1 justify-center">
                   <div className="animate-slideDown mb-4 flex flex-col space-y-1 sm:mb-2 sm:space-y-1 md:mt-3">
                     <h2 className="text-2xl font-medium text-[#05243F] sm:text-2xl">
                       Just a sec.

@@ -306,7 +306,7 @@ export default function Hero() {
             className="bg-white flex flex-col sm:flex-row gap-[10px] items-stretch sm:items-start p-[10px] rounded-[20px] w-full max-w-[548px]"
             style={{ filter: 'drop-shadow(0px 54px 27px rgba(69,161,242,0.1))' }}
           >
-            <div className="flex flex-1 flex-col h-[49px] items-start min-w-0">
+            <div className="flex flex-1 flex-col h-[58px] sm:h-[49px] items-start min-w-0">
               <div className="bg-[#eef6ff] border border-[rgba(35,137,227,0.18)] flex flex-1 items-center min-h-px overflow-clip pl-[16px] pr-[24px] py-[14px] rounded-[10px] w-full">
                 <label htmlFor="plate" className="sr-only">
                   Plate number
@@ -330,7 +330,7 @@ export default function Hero() {
             </div>
             <button
               type="submit"
-              className="bg-[#21b993] flex h-[49px] items-center justify-center overflow-clip px-[24px] rounded-[10px] cursor-pointer shrink-0 transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 active:brightness-95"
+              className="bg-[#21b993] flex h-[58px] sm:h-[49px] items-center justify-center overflow-clip px-[24px] rounded-[10px] cursor-pointer shrink-0 transition-all duration-200 hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 active:brightness-95"
             >
               <span style={{ fontWeight: 600, fontSize: 18, color: '#fff', whiteSpace: 'nowrap' }}>Renew Licence</span>
             </button>
