@@ -116,7 +116,7 @@ export default function LadipoLayout({
     <div className="flex flex-col min-h-full pb-14 sm:pb-20">
       <div className="mx-auto w-full max-w-4xl md:max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="mt-3 mb-6">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-start gap-3">
               {shouldShowBack && (
                 <button
@@ -138,7 +138,7 @@ export default function LadipoLayout({
                 ) : null}
               </div>
             </div>
-            {rightSlot ? <div className="flex-shrink-0 pt-0.5">{rightSlot}</div> : null}
+            {rightSlot ? <div className="flex-shrink-0 sm:translate-y-1">{rightSlot}</div> : null}
           </div>
         </div>
       </div>
