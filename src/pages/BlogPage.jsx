@@ -70,6 +70,29 @@ export default function BlogPage() {
         <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm mb-12">
           {blog.content}
         </div>
+
+        {/* Further reading — outbound resources, verified URLs only */}
+        {blog.resources?.length > 0 && (
+          <div className="mb-12 rounded-2xl border border-gray-100 bg-gray-50 p-6">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              Further reading
+            </h2>
+            <ul className="space-y-2">
+              {blog.resources.map((resource) => (
+                <li key={resource.url}>
+                  <a
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-[#2389E3] hover:underline"
+                  >
+                    {resource.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div className="flex justify-between gap-4 border-t pt-6">
 
           {/* Previous */}

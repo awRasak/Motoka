@@ -295,6 +295,58 @@ Motoka keeps every vehicle's licence, roadworthiness certificate and insurance i
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800",
     date: "Sep 2, 2026",
   },
+  {
+    id: 10,
+    title: "How Your Brakes Work and the Warning Signs Not to Ignore",
+    excerpt: "Squealing, a soft pedal, a car that pulls when you stop — what each noise and tug is telling you, and why Lagos stop-and-go traffic wears brakes faster than anywhere.",
+    content: `Your brakes are the one system on your car that fails quietly for weeks and then all at once. The pads wear down a millimetre at a time, the fluid gets old, and nothing feels different — until the morning you brake for a danfo pulling out and the pedal goes soft under your foot. Knowing how the system works, and what its warning signs sound like, is the difference between a ₦20,000 pad replacement now and an accident report later.
+
+How braking actually works, in one minute
+
+Press the brake pedal and you are pushing a plunger that pushes fluid. Brake fluid cannot compress, so that pressure travels down the lines to each wheel, where it forces a caliper to clamp brake pads against a spinning disc (rotor). The friction turns your car's motion into heat, and the car slows down. Most cars use discs at the front and either discs or drums at the rear, and an ABS module stops the wheels from locking under hard braking so you can still steer while stopping.
+
+Two things follow from that design. First, everything depends on the pads having material left and the fluid being clean. Second, the whole system runs on heat — and heat is exactly what Lagos traffic produces in abundance.
+
+Why brakes wear fast in Nigerian conditions
+
+Stop-and-go queues on the Third Mainland, long approaches to BRT lanes and checkpoints, danfos braking without warning — you might use the brakes a hundred times in a single short trip. Constant low-speed braking keeps the pads and fluid warm without ever giving them airflow to cool, which glazes the pad surface and hardens the rubber in the fluid over time. Add the dust and grit of harmattan season, which acts like grinding paste between pad and disc, and add one flash flood where a car sits in water for an hour, and brakes in this climate have a harder life than the manufacturer's numbers assume.
+
+The warning signs, ranked by how fast to act
+
+Squealing or screeching when you brake. Most pads have a small metal wear indicator that touches the disc once the friction material is nearly gone. That high-pitched squeal is the indicator doing its job. You have a few hundred kilometres left, not a few thousand.
+
+Grinding metal-on-metal. The pad material is gone and the backing plate is eating into the disc. Stop driving it to work. Every kilometre now is disc damage on top of pad damage.
+
+A soft or spongy pedal, or one that sinks to the floor. This is air or old fluid in the lines, not wear. It usually comes on gradually, and it means your stopping distance is growing without you noticing.
+
+The pedal vibrates or the steering pulls to one side when braking. Vibration usually means a warped disc from heat; pulling means one side is doing more work than the other — a stuck caliper, a collapsed hose, or unevenly worn pads.
+
+The brake warning light comes on. Two possibilities: fluid level is low (which means a leak somewhere in the system) or the parking brake is not fully released. If the pedal also feels soft, treat it as urgent.
+
+A puddle of dark oily fluid near a wheel, or a sweet burning smell after driving. Fluid leak. Do not drive.
+
+What to check, and when
+
+There is no need to open anything yourself. Ask your mechanic to check pad thickness at every oil change — it takes two minutes with the wheels off. Brake fluid should be flushed roughly every two years regardless of mileage, because it absorbs moisture from the air and that moisture rusts the system from inside. After any flood immersion, have the fluid and pads checked even if the brakes still feel normal; water trapped between pad and disc dries into glaze within days.
+
+There is one more deadline to keep in mind: brake function is part of what the VIS roadworthiness inspection tests. A vehicle with thin pads or leaking fluid can fail inspection — and unlike a document expiry, this one has you sitting in a testing bay instead of at home with time to spare.
+
+Motoka flags your roadworthiness and insurance renewals weeks ahead of the expiry date, so the inspection never arrives unannounced. Get the brakes looked at when that reminder fires, not the night before your appointment.
+
+Want the full mechanical deep-dive? How A Car Works explains the hydraulic system in detail, free to read: the braking system guide walks through discs, drums, ABS and hydraulics with proper diagrams.`,
+    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=800",
+    date: "Oct 21, 2026",
+    resources: [
+      {
+        title: "How the braking system works — How A Car Works",
+        url: "https://www.howacarworks.com/basics/how-the-braking-system-works",
+      },
+      {
+        title: "More on brakes — How A Car Works",
+        url: "https://www.howacarworks.com/brakes",
+      },
+    ],
+  },
 ];
 
 export default blogData
