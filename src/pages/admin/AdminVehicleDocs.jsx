@@ -388,7 +388,9 @@ const AdminVehicleDocs = () => {
       }
 
       if (cost.status || cost.success) {
-        setCosts(cost.data || []);
+        // Older backends wrapped the rows one level deeper
+        const rows = Array.isArray(cost.data) ? cost.data : cost.data?.data;
+        setCosts(rows || []);
       }
     } catch {
       toast.error('Failed to load document prices');
