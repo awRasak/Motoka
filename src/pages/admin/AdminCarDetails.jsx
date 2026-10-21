@@ -22,6 +22,8 @@ import {
 import { toast } from 'react-hot-toast';
 import config from '../../config/config';
 import EditCarModal from '../../components/admin/EditCarModal';
+import VerifyLinks from '../../components/admin/VerifyLinks';
+import MvaaCheckCard from '../../components/admin/MvaaCheckCard';
 import {
   PageHeader,
   StatusBadge,
@@ -278,6 +280,7 @@ const AdminCarDetails = () => {
         subtitle={car.registration_no || car.slug}
         actions={
           <>
+            <VerifyLinks plate={car.registration_no || car.plate_number} />
             <button onClick={() => setShowEditModal(true)} className={BTN_SECONDARY}>
               <PencilSquareIcon className="h-4 w-4" />
               Edit Car
@@ -399,6 +402,8 @@ const AdminCarDetails = () => {
           </div>
         </div>
       </div>
+
+      <MvaaCheckCard car={car} onSaved={(updated) => setCar((prev) => ({ ...prev, ...updated }))} />
 
       {/* Orders History */}
       <div className={CARD}>

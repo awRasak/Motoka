@@ -32,6 +32,7 @@ import { adminCreateShipment } from '../../services/apiDelivery';
 import ShipmentTracker from '../../components/delivery/ShipmentTracker';
 import { useAdminOrderTracking } from '../../hooks/useOrderTracking';
 import { useQueryClient } from '@tanstack/react-query';
+import VerifyLinks from '../../components/admin/VerifyLinks';
 
 const DOC_CATEGORIES = [
   { value: 'registration_certificate', label: 'Registration Certificate' },
@@ -484,6 +485,9 @@ const AdminOrderDetails = () => {
                   <p className="text-sm text-gray-500">
                     {order.car?.registration_no} • {order.car?.vehicle_year}
                   </p>
+                </div>
+                <div className="ml-auto">
+                  <VerifyLinks plate={order.car?.registration_no || order.car?.plate_number} />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

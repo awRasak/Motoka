@@ -22,6 +22,7 @@ import {
 } from '../../services/apiDelivery';
 import ShipmentTracker from '../../components/delivery/ShipmentTracker';
 import config from '../../config/config';
+import VerifyLinks from '../../components/admin/VerifyLinks';
 
 function ScheduleHoldCard({ order, onChanged }) {
   const [date, setDate] = useState(order.scheduled_for || '');
@@ -289,6 +290,7 @@ export default function AdminGuestOrderDetails() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <VerifyLinks plate={order.plate_number} />
           <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${STATUS_BADGE[order.payment_status] || 'bg-gray-100 text-gray-700'}`}>
             {STATUS_LABEL[order.payment_status] || order.payment_status}
           </span>
