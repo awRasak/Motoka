@@ -15,12 +15,16 @@ import {
   TD,
   TH,
   CARD,
+  BTN_PRIMARY,
+  INPUT,
 } from '../../components/admin/ui';
 
 // Renewal items are stored in kobo (100 kobo = ₦1). Plate and driver
 // licence prices are stored in whole Naira. The conversion helpers below
 // keep that split in one place so the edit handlers stay symmetric.
-const koboToNaira = (kobo) => (Number(kobo) / 100).toFixed(2);
+// Returns a plain number so it works for both display (via toLocaleString at
+// the call site) and for seeding the edit input.
+const koboToNaira = (kobo) => Number(kobo) / 100;
 const nairaToKobo = (naira) => Math.round(parseFloat(naira) * 100);
 
 const authHeaders = () => {
@@ -145,12 +149,198 @@ const PriceSection = ({ title, description, children, columns }) => (
   </div>
 );
 
+// ─── Agent cost table ───────────────────────────────────────────────────────
+//
+// What Motoka pays the fulfilment agent per service (kobo, matching
+// renewal_items.price). This is the number the payout pipeline sums when an
+// order is assigned. A service with no cost here is exactly the case that
+// holds a payout in manual_review, so keeping this table complete is what
+// keeps money moving without you.
+
+const COST_TYPE_LABEL = {
+  renewal_item: 'Renewal item',
+  plate_number: 'Plate number',
+  driver_license: 'Driver licence',
+};
+
+const AgentCostSection = ({ costs, onChange, authHeaders }) => {
+  const [draft, setDraft] = useState({ service_type: 'renewal_item', service_key: '', cost_naira: '' });
+  const [saving, setSaving] = useState(false);
+  const [editingKey, setEditingKey] = useState(null);
+  const [editNaira, setEditNaira] = useState('');
+
+  const save = async (e) => {
+    e.preventDefault();
+    const costKobo = Math.round(parseFloat(draft.cost_naira) * 100);
+    if (!draft.service_key.trim()) return toast.error('Service key is required');
+    if (!Number.isFinite(costKobo) || costKobo < 0) return toast.error('Cost must be a valid amount');
+
+    setSaving(true);
+    try {
+      const res = await fetch(`${config.getApiBaseUrl()}/admin/agent-costs`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          service_type: draft.service_type,
+          service_key: draft.service_key.trim(),
+          cost_kobo: costKobo,
+        }),
+      });
+      const data = await res.json();
+      if (data.status || data.success) {
+        toast.success('Cost saved');
+        const next = [...costs];
+        const idx = next.findIndex((c) => c.service_type === data.data.service_type && c.service_key === data.data.service_key);
+        if (idx >= 0) next[idx] = data.data; else next.push(data.data);
+        onChange(next.sort((a, b) => a.service_type.localeCompare(b.service_type) || a.service_key.localeCompare(b.service_key)));
+        setDraft({ service_type: draft.service_type, service_key: '', cost_naira: '' });
+      } else {
+        toast.error(data.message || 'Save failed');
+      }
+    } catch {
+      toast.error('Save failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveEdit = async (row) => {
+    const costKobo = Math.round(parseFloat(editNaira) * 100);
+    if (!Number.isFinite(costKobo) || costKobo < 0) return toast.error('Cost must be a valid amount');
+    try {
+      const res = await fetch(`${config.getApiBaseUrl()}/admin/agent-costs`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ service_type: row.service_type, service_key: row.service_key, cost_kobo: costKobo }),
+      });
+      const data = await res.json();
+      if (data.status || data.success) {
+        toast.success('Cost updated');
+        onChange(costs.map((c) => (c.service_type === row.service_type && c.service_key === row.service_key ? data.data : c)));
+        setEditingKey(null);
+      } else {
+        toast.error(data.message || 'Update failed');
+      }
+    } catch {
+      toast.error('Update failed');
+    }
+  };
+
+  return (
+    <div className={`${CARD} overflow-hidden`}>
+      <div className="px-5 py-4 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-gray-900">Agent cost table</h3>
+        <p className="mt-0.5 text-sm text-gray-500">
+          What we pay the fulfilment agent per service, in Naira. Missing costs hold the payout for review.
+        </p>
+      </div>
+
+      <form onSubmit={save} className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center gap-2 bg-gray-50/50">
+        <select
+          className={`${INPUT} w-auto`}
+          value={draft.service_type}
+          onChange={(e) => setDraft((d) => ({ ...d, service_type: e.target.value }))}
+        >
+          <option value="renewal_item">Renewal item</option>
+          <option value="plate_number">Plate number</option>
+          <option value="driver_license">Driver licence</option>
+        </select>
+        <input
+          className={INPUT}
+          placeholder={
+            draft.service_type === 'renewal_item' ? 'item_key (e.g. road_worthiness)'
+            : draft.service_type === 'plate_number' ? 'plate type (e.g. Normal)'
+            : 'type:duration (e.g. new:3yr)'
+          }
+          value={draft.service_key}
+          onChange={(e) => setDraft((d) => ({ ...d, service_key: e.target.value }))}
+        />
+        <input
+          className={INPUT}
+          placeholder="Cost (₦)"
+          inputMode="decimal"
+          value={draft.cost_naira}
+          onChange={(e) => setDraft((d) => ({ ...d, cost_naira: e.target.value }))}
+        />
+        <button type="submit" disabled={saving} className={BTN_PRIMARY}>
+          {saving ? 'Saving…' : 'Add / update'}
+        </button>
+      </form>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className={TH}>Service</th>
+              <th className={TH}>Key</th>
+              <th className={TH}>Cost</th>
+              <th className={TH}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {costs.map((c) => {
+              const key = `${c.service_type}:${c.service_key}`;
+              const editing = editingKey === key;
+              return (
+                <tr key={key} className="hover:bg-gray-50">
+                  <td className={`${TD} text-sm`}>{COST_TYPE_LABEL[c.service_type] || c.service_type}</td>
+                  <td className={`${TD} font-mono text-xs`}>{c.service_key}</td>
+                  <td className={TD}>
+                    {editing ? (
+                      <input
+                        className={`${INPUT} w-28`}
+                        value={editNaira}
+                        onChange={(e) => setEditNaira(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && saveEdit(c)}
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="font-semibold">₦{koboToNaira(c.cost_kobo).toLocaleString('en-NG', { minimumFractionDigits: 2 })}</span>
+                    )}
+                  </td>
+                  <td className={TD}>
+                    {editing ? (
+                      <div className="flex gap-2">
+                        <button onClick={() => saveEdit(c)} className="text-green-600 hover:underline text-xs font-medium">Save</button>
+                        <button onClick={() => setEditingKey(null)} className="text-gray-500 hover:underline text-xs">Cancel</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => { setEditingKey(key); setEditNaira(String(koboToNaira(c.cost_kobo))); }}
+                        className="text-[#2389E3] hover:underline text-xs font-medium"
+                      >
+                        <PencilSquareIcon className="h-3.5 w-3.5 inline" /> Edit
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+            {costs.length === 0 && (
+              <tr>
+                <td colSpan={4}>
+                  <EmptyState
+                    icon={DocumentTextIcon}
+                    title="No agent costs set"
+                    body="Add what each service costs you at the counter. Payouts are held until every service on an order is priced."
+                  />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 // ─── Main page ───────────────────────────────────────────────────────────────
 
 const AdminVehicleDocs = () => {
   const [items, setItems] = useState([]);
   const [platePrices, setPlatePrices] = useState([]);
   const [licensePrices, setLicensePrices] = useState([]);
+  const [costs, setCosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Editing state: { section: 'renewal'|'plate'|'license', id: string }
@@ -165,16 +355,18 @@ const AdminVehicleDocs = () => {
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const [renewalRes, plateRes, licenseRes] = await Promise.all([
+      const [renewalRes, plateRes, licenseRes, costRes] = await Promise.all([
         fetch(`${config.getApiBaseUrl()}/admin/vehicle-doc-prices`, { headers: authHeaders() }),
         fetch(`${config.getApiBaseUrl()}/admin/plate-prices`, { headers: authHeaders() }),
         fetch(`${config.getApiBaseUrl()}/admin/driver-license-prices`, { headers: authHeaders() }),
+        fetch(`${config.getApiBaseUrl()}/admin/agent-costs`, { headers: authHeaders() }),
       ]);
 
-      const [renewal, plate, license] = await Promise.all([
+      const [renewal, plate, license, cost] = await Promise.all([
         renewalRes.json(),
         plateRes.json(),
         licenseRes.json(),
+        costRes.json(),
       ]);
 
       if (renewal.status || renewal.success) {
@@ -194,6 +386,10 @@ const AdminVehicleDocs = () => {
       } else {
         toast.error(license.message || 'Failed to load licence prices');
       }
+
+      if (cost.status || cost.success) {
+        setCosts(cost.data || []);
+      }
     } catch {
       toast.error('Failed to load document prices');
     } finally {
@@ -204,7 +400,7 @@ const AdminVehicleDocs = () => {
   // ── Edit handlers ──────────────────────────────────────────────────────────
 
   const startEdit = (section, item, unit) => {
-    const rawPrice = unit === 'kobo' ? koboToNaira(item.price) : String(item.price);
+    const rawPrice = unit === 'kobo' ? String(koboToNaira(item.price)) : String(item.price);
     setEditing({ section, id: item.id || item.item_key });
     setEditValue(rawPrice);
   };
@@ -424,6 +620,9 @@ const AdminVehicleDocs = () => {
           </tr>
         )}
       </PriceSection>
+
+      {/* ── Agent cost table (what we pay the fulfilment agent) ───────────── */}
+      <AgentCostSection costs={costs} onChange={setCosts} authHeaders={authHeaders} />
 
       <p className="text-xs text-gray-400">
         Renewal prices are stored in kobo and converted for display. Plate and licence prices are stored in whole Naira.

@@ -1,217 +1,243 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   UserGroupIcon,
   PlusIcon,
-  MapPinIcon,
+  CheckIcon,
+  XMarkIcon,
+  PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import config from '../../config/config';
-import { PageHeader, PageLoader, EmptyState, CARD } from '../../components/admin/ui';
+import {
+  PageHeader,
+  StatusBadge,
+  PageLoader,
+  EmptyState,
+  Card,
+  TD,
+  TH,
+  BTN_PRIMARY,
+  BTN_SECONDARY,
+  INPUT,
+} from '../../components/admin/ui';
 
-const AdminAgents = () => {
-  const navigate = useNavigate();
+const authHeaders = () => {
+  const token = localStorage.getItem('adminToken');
+  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+};
+
+const EMPTY_FORM = {
+  name: '',
+  phone: '',
+  email: '',
+  bank_name: '',
+  account_number: '',
+  account_name: '',
+};
+
+// Bank account numbers are 10 digits in Nigeria. Validating here rather than
+// at the provider keeps a fat-fingered transfer from ever being attempted.
+const accountNumberValid = (v) => !v || /^\d{10}$/.test(v);
+
+export default function AdminAgents() {
   const [agents, setAgents] = useState([]);
-  const [agentPayments, setAgentPayments] = useState({});
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchAgents();
-    fetchAgentPayments();
-  }, []);
-
-  const fetchAgents = async () => {
+  const load = useCallback(async () => {
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${config.getApiBaseUrl()}/admin/agents`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      if (data.status) {
-        setAgents(data.data.data || []);
+      const res = await fetch(`${config.getApiBaseUrl()}/admin/agents`, { headers: authHeaders() });
+      const data = await res.json();
+      if (data.status || data.success) {
+        setAgents(Array.isArray(data.data) ? data.data : data.data?.data || []);
+      } else {
+        toast.error(data.message || 'Failed to load agents');
       }
     } catch {
-      toast.error('Failed to fetch agents');
+      toast.error('Failed to load agents');
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const startEdit = (agent) => {
+    setEditingId(agent.id);
+    setForm({
+      name: agent.name || '',
+      phone: agent.phone || '',
+      email: agent.email || '',
+      bank_name: agent.bank_name || '',
+      account_number: agent.account_number || '',
+      account_name: agent.account_name || '',
+    });
   };
 
-  const fetchAgentPayments = async () => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${config.getApiBaseUrl()}/admin/agent-payments`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+  const reset = () => { setEditingId(null); setForm(EMPTY_FORM); };
 
-      const data = await response.json();
-      if (data.status) {
-        // Group payments by agent_id and calculate totals
-        const paymentsByAgent = {};
-        data.data.data.forEach(payment => {
-          if (!paymentsByAgent[payment.agent_id]) {
-            paymentsByAgent[payment.agent_id] = {
-              totalAmount: 0,
-              totalCommission: 0,
-              pendingAmount: 0,
-              paidAmount: 0
-            };
-          }
-          paymentsByAgent[payment.agent_id].totalAmount += parseFloat(payment.amount);
-          paymentsByAgent[payment.agent_id].totalCommission += parseFloat(payment.commission_amount);
-          
-          if (payment.status === 'pending') {
-            paymentsByAgent[payment.agent_id].pendingAmount += parseFloat(payment.amount);
-          } else if (payment.status === 'paid') {
-            paymentsByAgent[payment.agent_id].paidAmount += parseFloat(payment.amount);
-          }
-        });
-        setAgentPayments(paymentsByAgent);
+  const save = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim()) return toast.error('Name is required');
+    if (!accountNumberValid(form.account_number)) return toast.error('Account number must be 10 digits');
+
+    setSaving(true);
+    try {
+      const url = editingId
+        ? `${config.getApiBaseUrl()}/admin/agents/${editingId}`
+        : `${config.getApiBaseUrl()}/admin/agents`;
+      const res = await fetch(url, {
+        method: editingId ? 'PUT' : 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (data.status || data.success) {
+        toast.success(editingId ? 'Agent updated' : 'Agent added');
+        reset();
+        load();
+      } else {
+        toast.error(data.message || 'Save failed');
       }
     } catch {
-      toast.error('Failed to fetch agent payments');
+      toast.error('Save failed');
+    } finally {
+      setSaving(false);
     }
   };
 
-  // Transform agents data to match display format
-  const displayAgents = agents.map(agent => {
-    const payments = agentPayments[agent.id] || { totalAmount: 0, pendingAmount: 0, paidAmount: 0 };
-    return {
-      id: agent.id,
-      uuid: agent.uuid || agent.slug, // Use UUID if available, fallback to slug
-      name: `${agent.first_name || ''} ${agent.last_name || ''}`.trim() || 'Unknown Agent',
-      amount: `N${payments.totalAmount.toLocaleString()}`,
-      pendingAmount: `N${payments.pendingAmount.toLocaleString()}`,
-      paidAmount: `N${payments.paidAmount.toLocaleString()}`,
-      location: agent.state || 'Unknown',
-      state: agent.state,
-      profile_image: agent.profile_image,
-      status: agent.status
-    };
-  });
+  const toggleStatus = async (agent) => {
+    const next = agent.status === 'active' ? 'inactive' : 'active';
+    try {
+      const res = await fetch(`${config.getApiBaseUrl()}/admin/agents/${agent.id}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ status: next }),
+      });
+      const data = await res.json();
+      if (data.status || data.success) {
+        toast.success(next === 'active' ? 'Agent activated' : 'Agent deactivated');
+        load();
+      } else {
+        toast.error(data.message || 'Update failed');
+      }
+    } catch {
+      toast.error('Update failed');
+    }
+  };
 
-  const filters = ['All', 'Active', 'Suspended', 'Deleted'];
-
-  // Filter agents based on active filter
-  const filteredAgents = displayAgents.filter(agent => {
-    if (activeFilter === 'All') return true;
-    if (activeFilter === 'Active') return agent.status === 'active';
-    if (activeFilter === 'Suspended') return agent.status === 'suspended';
-    if (activeFilter === 'Deleted') return agent.status === 'deleted';
-    return true;
-  });
-
-  if (loading) {
-    return <PageLoader />;
-  }
+  if (loading) return <PageLoader />;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <PageHeader
         icon={UserGroupIcon}
-        title="Agents"
-        subtitle="Field agents and their payment totals"
+        title="Fulfilment Agents"
+        subtitle="People Motoka pays to process documents. Money is sent here when an order is assigned."
       />
 
-      {/* Filter Tabs */}
-      <div className="flex space-x-2">
-        {filters.map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeFilter === filter
-                ? 'bg-[#2389E3] text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-
-      {/* Agents Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-        {filteredAgents.map((agent) => (
-          <div 
-            key={agent.id} 
-            className={`${CARD} p-6 hover:shadow-md transition-shadow cursor-pointer group`}
-            onClick={() => navigate(`/admin/agents/${agent.uuid}`)}
-          >
-            <div className="text-center">
-              {/* Profile Image */}
-              <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
-                {agent.profile_image ? (
-                  <img 
-                    src={`${config.getApiBaseUrl().replace('/api', '')}/${agent.profile_image}`}
-                    alt={agent.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div 
-                  className="w-full h-full bg-[#2389E3] rounded-full flex items-center justify-center text-white font-bold text-xl"
-                  style={{ display: agent.profile_image ? 'none' : 'flex' }}
-                >
-                  {agent.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                </div>
-              </div>
-              
-              {/* Name */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">
-                {agent.name}
-              </h3>
-
-              {/* Total Amount */}
-              <p className="text-xl font-bold tabular-nums text-gray-900 mb-3">
-                {agent.amount}
-              </p>
-              
-              {/* Location */}
-              <div className="flex items-center justify-center text-sm text-gray-500">
-                <MapPinIcon className="h-4 w-4 mr-1 text-gray-500" />
-                <span className="font-medium">{agent.location}</span>
-              </div>
-            </div>
+      <Card className="p-5">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">
+          {editingId ? 'Edit agent' : 'Add an agent'}
+        </h3>
+        <form onSubmit={save} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <input className={INPUT} placeholder="Full name *" value={form.name} onChange={set('name')} />
+          <input className={INPUT} placeholder="Phone" value={form.phone} onChange={set('phone')} />
+          <input className={INPUT} placeholder="Email (for alerts)" value={form.email} onChange={set('email')} />
+          <input className={INPUT} placeholder="Bank name" value={form.bank_name} onChange={set('bank_name')} />
+          <input
+            className={INPUT}
+            placeholder="Account number (10 digits)"
+            value={form.account_number}
+            onChange={set('account_number')}
+            inputMode="numeric"
+            maxLength={10}
+          />
+          <input className={INPUT} placeholder="Account name" value={form.account_name} onChange={set('account_name')} />
+          <div className="flex gap-2 sm:col-span-2 lg:col-span-3">
+            <button type="submit" disabled={saving} className={BTN_PRIMARY}>
+              {saving ? 'Saving…' : editingId ? 'Update agent' : 'Add agent'}
+            </button>
+            {editingId && (
+              <button type="button" onClick={reset} className={BTN_SECONDARY}>
+                Cancel
+              </button>
+            )}
           </div>
-        ))}
-      </div>
+        </form>
+      </Card>
 
-      {/* Empty State */}
-      {filteredAgents.length === 0 && (
-        <EmptyState
-          icon={UserGroupIcon}
-          title="No agents found"
-          body="No agents have been created yet. Create your first agent to get started."
-        />
-      )}
-
-      {/* Create New Agent Card */}
-      <div className="flex justify-center mt-8">
-        <div 
-          onClick={() => navigate('/admin/agents/create')}
-          className="bg-white rounded-xl border-2 border-dashed border-[#2389E3]/20 p-8 max-w-sm w-full text-center hover:bg-[#2389E3]/5 hover:border-[#2389E3] transition-colors cursor-pointer group"
-        >
-          <div className="w-20 h-20 bg-[#2389E3] rounded-full mx-auto mb-4 flex items-center justify-center group-hover:bg-[#2389E3] transition-colors">
-            <PlusIcon className="h-10 w-10 text-white" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#2389E3] transition-colors">Create New Agent</h3>
+      <Card className="overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className={TH}>Name</th>
+                <th className={TH}>Contact</th>
+                <th className={TH}>Bank</th>
+                <th className={TH}>Account</th>
+                <th className={TH}>Status</th>
+                <th className={TH}>Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {agents.map((a) => (
+                <tr key={a.id} className="hover:bg-gray-50">
+                  <td className={`${TD} font-medium text-gray-900`}>{a.name}</td>
+                  <td className={TD}>
+                    <div className="text-sm text-gray-900">{a.phone || '—'}</div>
+                    {a.email && <div className="text-xs text-gray-500">{a.email}</div>}
+                  </td>
+                  <td className={TD}>{a.bank_name || '—'}</td>
+                  <td className={TD}>
+                    <div className="text-sm">{a.account_number || '—'}</div>
+                    {a.account_name && <div className="text-xs text-gray-500">{a.account_name}</div>}
+                  </td>
+                  <td className={TD}>
+                    {a.status === 'active'
+                      ? <StatusBadge tone="green">Active</StatusBadge>
+                      : <StatusBadge tone="gray">Inactive</StatusBadge>}
+                  </td>
+                  <td className={TD}>
+                    <div className="flex gap-2">
+                      <button onClick={() => startEdit(a)} className="text-[#2389E3] hover:underline text-xs font-medium">
+                        <PencilSquareIcon className="h-4 w-4 inline" /> Edit
+                      </button>
+                      <button
+                        onClick={() => toggleStatus(a)}
+                        className={a.status === 'active' ? 'text-gray-500 hover:underline text-xs font-medium' : 'text-green-600 hover:underline text-xs font-medium'}
+                      >
+                        {a.status === 'active'
+                          ? <><XMarkIcon className="h-4 w-4 inline" /> Deactivate</>
+                          : <><CheckIcon className="h-4 w-4 inline" /> Activate</>}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {agents.length === 0 && (
+                <tr>
+                  <td colSpan={6}>
+                    <EmptyState
+                      icon={UserGroupIcon}
+                      title="No agents yet"
+                      body="Add the people who process documents for you. Paid orders will be assigned to them automatically."
+                    />
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      </div>
+      </Card>
+
+      <p className="text-xs text-gray-400">
+        Orders are assigned round-robin to active agents the moment payment clears. Payouts are held if an agent has no bank details or if a service has no cost set.
+      </p>
     </div>
   );
-};
-
-export default AdminAgents;
+}

@@ -6,8 +6,7 @@ import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminOrdersHub from '../pages/admin/AdminOrdersHub';
 import AdminOrderDetails from '../pages/admin/AdminOrderDetails';
 import AdminAgents from '../pages/admin/AdminAgents';
-import CreateAgent from '../pages/admin/CreateAgent';
-import AgentView from '../pages/admin/AgentView';
+import AdminPayouts from '../pages/admin/AdminPayouts';
 import AdminCars from '../pages/admin/AdminCars';
 import AdminCarDetails from '../pages/admin/AdminCarDetails';
 import AdminPayments from '../pages/admin/AdminPayments';
@@ -90,8 +89,7 @@ const AdminRoutes = () => {
                 <Route path="guest-orders" element={<Navigate to="/admin/orders?tab=guest" replace />} />
                 <Route path="guest-orders/:orderId" element={<AdminGuestOrderDetails />} />
                 <Route path="agents" element={<AdminAgents />} />
-                <Route path="agents/create" element={<CreateAgent />} />
-                <Route path="agents/:uuid" element={<AgentView />} />
+                <Route path="payouts" element={<AdminPayouts />} />
                 <Route path="cars" element={<AdminCars />} />
                 <Route path="cars/:slug" element={<AdminCarDetails />} />
                 <Route path="payments" element={<AdminPayments />} />

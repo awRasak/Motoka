@@ -23,12 +23,13 @@ import {
   ChevronRightIcon,
   CurrencyDollarIcon,
   GiftIcon,
+  UserGroupIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 
-// NOTE: 'Agents' is intentionally absent. The three agent pages still exist in
-// AdminRoutes, but every endpoint they call (/admin/agents, /admin/agent-payments,
-// /admin/agents/check-state, /admin/states) returns 404 — there is no agents
-// router on the backend. Re-add this entry when that API is built.
+// 'Agents' and 'Payouts' back a real backend now (migration 107). The earlier
+// pages under /admin/agents/* were dead UI calling endpoints that never
+// existed; they were replaced by the fulfilment-agent module.
 const NAV_ITEMS = [
   { name: 'Dashboard',       href: '/admin/dashboard',                    icon: HomeIcon,                  exact: true },
   // Guest orders live as a tab inside Orders (see AdminOrders) — no separate
@@ -42,6 +43,8 @@ const NAV_ITEMS = [
   { name: 'Driver Licences', href: '/admin/driver-license-applications',  icon: IdentificationIcon,        exact: false },
   { name: 'Wallets',         href: '/admin/wallets',                      icon: WalletIcon,                exact: false },
   { name: 'Doc Prices',      href: '/admin/vehicle-doc-prices',           icon: CurrencyDollarIcon,        exact: false },
+  { name: 'Agents',          href: '/admin/agents',                       icon: UserGroupIcon,             exact: false },
+  { name: 'Payouts',         href: '/admin/payouts',                      icon: BanknotesIcon,             exact: false },
   { name: 'Referrals',       href: '/admin/referral',                     icon: GiftIcon,                  exact: false },
 ];
 
