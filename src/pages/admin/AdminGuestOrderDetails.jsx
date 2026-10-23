@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeftIcon,
   ArrowTopRightOnSquareIcon,
@@ -311,7 +311,19 @@ export default function AdminGuestOrderDetails() {
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <dt className="text-gray-500">Name</dt>
-              <dd className="font-medium text-gray-900">{order.guest_name}</dd>
+              <dd className="font-medium text-gray-900">
+                {order.linked_user_id ? (
+                  <Link
+                    to={`/admin/users/${order.linked_user_id}`}
+                    className="text-[#2389E3] hover:underline"
+                    title="View user profile"
+                  >
+                    {order.guest_name}
+                  </Link>
+                ) : (
+                  order.guest_name
+                )}
+              </dd>
             </div>
             <div>
               <dt className="text-gray-500">Email</dt>
@@ -329,9 +341,13 @@ export default function AdminGuestOrderDetails() {
               <dt className="text-gray-500">Motoka account</dt>
               <dd className="font-medium text-gray-900">
                 {order.linked_user_id ? (
-                  <span className="inline-flex items-center gap-1 text-green-700">
+                  <Link
+                    to={`/admin/users/${order.linked_user_id}`}
+                    className="inline-flex items-center gap-1 text-green-700 hover:underline"
+                    title="View user profile"
+                  >
                     <CheckBadgeIcon className="h-4 w-4" /> Linked to a registered account
-                  </span>
+                  </Link>
                 ) : (
                   'Guest — no account yet'
                 )}
