@@ -18,6 +18,7 @@ export default function RoadWorthinessRenewalPage() {
         { title: 'No early-morning queue', description: 'Book and track your inspection from your phone instead of standing in line.' },
         { title: 'Booking handled for you', description: 'Motoka coordinates the inspection slot — you just show up.' },
         { title: 'Digital copy, always on hand', description: 'Your certificate is stored in your Motoka wallet for any checkpoint.' },
+        { title: 'Lagos renewal follow-up', description: 'Lagos renewals require a VIO inspection and include a monthly referral document to keep you compliant — we coordinate this entirely for you.' },
         { title: 'Renewal reminders', description: 'Get notified before your road worthiness certificate lapses.' },
       ]}
       faqs={[
@@ -28,6 +29,10 @@ export default function RoadWorthinessRenewalPage() {
         {
           q: 'How long is a road worthiness certificate valid for?',
           a: 'Validity depends on your vehicle category and state, but Motoka tracks your specific expiry date and reminds you before it lapses.',
+        },
+        {
+          q: 'What makes Lagos road worthiness renewals different?',
+          a: 'In Lagos, you must complete a VIO (Vehicle Inspection Office) inspection and receive a monthly referral document to stay compliant. Motoka handles all of this — from booking your inspection to processing the referral — so you can focus on driving your business.',
         },
       ]}
     />
