@@ -55,8 +55,8 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
     fee: 0,
   });
 
-  // State of renewal — defaults to Ogun
-  const [renewalState, setRenewalState] = useState("Ogun");
+  // State of renewal — no default, so the customer must actively pick one
+  const [renewalState, setRenewalState] = useState("");
 
   // Step 3 — gateway selection
   const [selectedGateway, setSelectedGateway] = useState("monipay");

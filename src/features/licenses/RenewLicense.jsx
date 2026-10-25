@@ -55,8 +55,10 @@ export default function RenewLicense() {
     amount: "0",
   });
 
-  // State of renewal (which state processes the renewal) — defaults to Ogun
-  const [renewalState, setRenewalState] = useState("Ogun");
+  // State of renewal (which state processes the renewal) — no default, so the
+  // customer must actively pick one. Prefilling Ogun silently recorded Lagos
+  // renewals as Ogun because most people never touch a filled-in dropdown.
+  const [renewalState, setRenewalState] = useState("");
 
   // LGA options for the selected state
   const [lgaOptions, setLgaOptions] = useState([]);
