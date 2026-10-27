@@ -8,6 +8,8 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
+  PlusIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../../config/supabaseClient';
@@ -18,9 +20,6 @@ import {
   StatusBadge,
   PageLoader,
   EmptyState,
-  BTN_PRIMARY,
-  BTN_SECONDARY,
-  BTN_DANGER,
   TH,
   TD,
   INPUT,
@@ -49,7 +48,17 @@ const AdminPlateVerification = () => {
   const [statusFilter, setStatusFilter] = useState('pending');
   const [actionLoading, setActionLoading] = useState(new Set());
   const [verifyUrl, setVerifyUrl] = useState('https://verify.autoreg.ng/');
-  const [selectedForAction, setSelectedForAction] = useState({ userId: null, action: null });
+  // Car detail capture modal state
+  const [captureModal, setCaptureModal] = useState({
+    isOpen: false,
+    userId: null,
+    plateNumber: '',
+    chassis_number: '',
+    car_color: '',
+    car_brand: '',
+    car_model: '',
+    car_year: '',
+  });
 
   useEffect(() => {
     fetchVerifyUrl();
@@ -119,11 +128,33 @@ const AdminPlateVerification = () => {
     if (!plate) return;
     copyPlate(plate);
     window.open(verifyUrl, '_blank', 'noopener');
-    toast.info(`Plate ${plate} copied. Verify on autoreg.ng, then mark below.`);
+    toast.info(`Plate ${plate} copied. Verify on autoreg.ng, then approve below.`);
   };
 
-  const handleVerify = async (userId) => {
+  const openCaptureModal = (userId, plateNumber) => {
+    setCaptureModal({
+      isOpen: true,
+      userId,
+      plateNumber,
+      chassis_number: '',
+      car_color: '',
+      car_brand: '',
+      car_model: '',
+      car_year: '',
+    });
+  };
+
+  const closeCaptureModal = () => setCaptureModal((prev) => ({ ...prev, isOpen: false }));
+
+  const handleCaptureChange = (key, value) => {
+    setCaptureModal((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleVerifyWithDetails = async () => {
+    const { userId, plateNumber, chassis_number, car_color, car_brand, car_model, car_year } = captureModal;
+    if (!userId) return;
     if (actionLoading.has(userId)) return;
+
     setActionLoading((prev) => new Set([...prev, userId]));
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -133,11 +164,19 @@ const AdminPlateVerification = () => {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ note: 'Verified via autoreg.ng portal' }),
+        body: JSON.stringify({
+          note: 'Verified via autoreg.ng portal — car details captured',
+          chassis_number: chassis_number || null,
+          car_color: car_color || null,
+          car_brand: car_brand || null,
+          car_model: car_model || null,
+          car_year: car_year ? Number(car_year) : null,
+        }),
       });
       const data = await res.json();
       if (data.status) {
-        toast.success(data.message || 'Plate verified — ₦2,000 credited');
+        toast.success(`Plate ${plateNumber} verified. Car details saved.`);
+        closeCaptureModal();
         fetchItems();
       } else {
         toast.error(data.message || 'Verification failed');
@@ -151,7 +190,7 @@ const AdminPlateVerification = () => {
 
   const handleReject = async (userId) => {
     if (actionLoading.has(userId)) return;
-    const reason = prompt('Reason for rejection:');
+    const reason = prompt('Reason for rejection (bonus will be clawed back):');
     if (!reason || !reason.trim()) return;
     setActionLoading((prev) => new Set([...prev, userId]));
     try {
@@ -166,7 +205,7 @@ const AdminPlateVerification = () => {
       });
       const data = await res.json();
       if (data.status) {
-        toast.success(data.message || 'Plate rejected');
+        toast.success(data.clawedBack ? 'Rejected — ₦2,000 clawed back from wallet' : 'Plate rejected');
         fetchItems();
       } else {
         toast.error(data.message || 'Rejection failed');
@@ -183,7 +222,7 @@ const AdminPlateVerification = () => {
   if (items.length === 0) {
     return (
       <div className="space-y-6">
-        <PageHeader icon={ClockIcon} title="Plate Verification Queue" subtitle="Users awaiting plate verification before their ₦2,000 signup bonus is credited." />
+        <PageHeader icon={ClockIcon} title="Plate Verification Queue" subtitle="Users who signed up with a plate number. ₦2,000 is already credited — verify on autoreg.ng, then approve or reject (clawback) below." />
         <EmptyState icon={ClockIcon} title="No pending verifications" body="All plates have been verified or rejected." />
       </div>
     );
@@ -194,7 +233,7 @@ const AdminPlateVerification = () => {
       <PageHeader
         icon={ClockIcon}
         title="Plate Verification Queue"
-        subtitle="Verify plates on autoreg.ng, then approve or reject below. Verified users get ₦2,000 credited to their wallet."
+        subtitle="₦2,000 signup bonus is already credited. Verify on autoreg.ng, then approve (keep bonus) or reject (clawback ₦2,000). Capture car details to pre-fill add-car."
       />
 
       <Card className="overflow-hidden">
@@ -241,7 +280,7 @@ const AdminPlateVerification = () => {
                 <TH>User</TH>
                 <TH>Phone</TH>
                 <TH>Status</TH>
-                <TH>Bonus Credited</TH>
+                <TH>Bonus</TH>
                 <TH>Created</TH>
                 <TH className="text-right">Actions</TH>
               </tr>
@@ -261,7 +300,7 @@ const AdminPlateVerification = () => {
                     <StatusBadge tone={STATUS_TONE[item.plate_verification_status] || 'gray'}>{STATUS_LABELS[item.plate_verification_status]}</StatusBadge>
                   </td>
                   <td className={TD}>
-                    <StatusBadge tone={item.plate_bonus_credited ? 'green' : 'gray'}>{item.plate_bonus_credited ? 'Yes' : 'No'}</StatusBadge>
+                    <StatusBadge tone={item.plate_bonus_credited ? 'green' : 'gray'}>{item.plate_bonus_credited ? '₦2k credited' : '—'}</StatusBadge>
                   </td>
                   <td className={TD}>
                     <div className="text-xs text-gray-500">{new Date(item.created_at).toLocaleDateString()}</div>
@@ -275,26 +314,28 @@ const AdminPlateVerification = () => {
                             className="text-[#2389E3] hover:underline text-xs flex items-center gap-1"
                             title="Open autoreg.ng & copy plate"
                           >
-                            <ExternalLinkIcon className="h-3 w-3" /> Verify
+                            <ExternalLinkIcon className="h-3 w-3" /> Verify on portal
                           </button>
                           <button
-                            onClick={() => handleVerify(item.id)}
+                            onClick={() => openCaptureModal(item.id, item.plate_number)}
                             disabled={isActionLoading(item.id)}
-                            className="text-green-600 hover:underline text-xs font-medium disabled:opacity-50"
+                            className="text-green-600 hover:underline text-xs font-medium flex items-center gap-1 disabled:opacity-50"
                           >
-                            {isActionLoading(item.id) ? '…' : 'Approve + ₦2k'}
+                            <CheckCircleIcon className="h-3 w-3" /> Approve + capture details
                           </button>
                           <button
                             onClick={() => handleReject(item.id)}
                             disabled={isActionLoading(item.id)}
                             className="text-red-600 hover:underline text-xs disabled:opacity-50"
                           >
-                            {isActionLoading(item.id) ? '…' : 'Reject'}
+                            {isActionLoading(item.id) ? '…' : 'Reject + clawback'}
                           </button>
                         </>
                       )}
                       {item.plate_verification_status === 'verified' && (
-                        <span className="text-xs text-green-600">Verified</span>
+                        <span className="text-xs text-green-600 flex items-center gap-1">
+                          <CheckCircleIcon className="h-3 w-3" /> Verified
+                        </span>
                       )}
                       {item.plate_verification_status === 'rejected' && (
                         <span className="text-xs text-red-600">Rejected</span>
@@ -328,6 +369,97 @@ const AdminPlateVerification = () => {
           </div>
         )}
       </Card>
+
+      {/* ── Car detail capture modal ── */}
+      {captureModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={closeCaptureModal} />
+          <Card className="relative w-full max-w-md mx-4 bg-white">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">Capture Car Details</h3>
+              <button onClick={closeCaptureModal} className="text-gray-400 hover:text-gray-600">
+                <XCircleIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-500">
+                Plate: <span className="font-mono text-gray-900">{captureModal.plateNumber}</span><br />
+                Enter what you observed on autoreg.ng to pre-fill the add-car form later.
+              </p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Chassis Number</label>
+                  <input
+                    type="text"
+                    value={captureModal.chassis_number}
+                    onChange={(e) => handleCaptureChange('chassis_number', e.target.value)}
+                    placeholder="e.g. VIN1234567890"
+                    className={INPUT}
+                    autoCapitalize="characters"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
+                  <input
+                    type="text"
+                    value={captureModal.car_color}
+                    onChange={(e) => handleCaptureChange('car_color', e.target.value)}
+                    placeholder="e.g. Silver, Black, Red"
+                    className={INPUT}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Brand (Make)</label>
+                    <input
+                      type="text"
+                      value={captureModal.car_brand}
+                      onChange={(e) => handleCaptureChange('car_brand', e.target.value)}
+                      placeholder="e.g. Toyota"
+                      className={INPUT}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Model</label>
+                    <input
+                      type="text"
+                      value={captureModal.car_model}
+                      onChange={(e) => handleCaptureChange('car_model', e.target.value)}
+                      placeholder="e.g. Corolla"
+                      className={INPUT}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Year</label>
+                  <input
+                    type="number"
+                    value={captureModal.car_year}
+                    onChange={(e) => handleCaptureChange('car_year', e.target.value)}
+                    placeholder="e.g. 2020"
+                    className={INPUT}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  onClick={closeCaptureModal}
+                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleVerifyWithDetails}
+                  disabled={isActionLoading(captureModal.userId)}
+                  className="px-4 py-2 rounded-lg bg-[#2389E3] text-white hover:bg-[#1d6fb4] disabled:opacity-50 text-sm font-medium"
+                >
+                  {isActionLoading(captureModal.userId) ? 'Saving…' : 'Verify & Save Details'}
+                </button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
