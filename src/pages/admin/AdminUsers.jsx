@@ -35,6 +35,7 @@ const AdminUsers = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [carsFilter, setCarsFilter] = useState('all');
   const [sortFilter, setSortFilter] = useState('recently_added');
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, user: null });
   const [actionLoading, setActionLoading] = useState(false);
@@ -42,7 +43,7 @@ const AdminUsers = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, searchTerm, statusFilter, sortFilter]);
+  }, [currentPage, searchTerm, statusFilter, carsFilter, sortFilter]);
 
   const fetchUsers = async () => {
     try {
@@ -59,6 +60,7 @@ const AdminUsers = () => {
         per_page: 15,
         search: searchTerm,
         status: statusFilter,
+        cars: carsFilter,
         sort: sortFilter,
       });
 
@@ -274,6 +276,19 @@ const AdminUsers = () => {
           <option value="deleted">Deleted</option>
         </select>
         <select
+          value={carsFilter}
+          onChange={(e) => {
+            setCarsFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#2389E3] focus:outline-none focus:ring-1 focus:ring-[#2389E3]"
+          aria-label="Filter by cars"
+        >
+          <option value="all">All Cars</option>
+          <option value="any">Has Cars</option>
+          <option value="none">No Cars (0)</option>
+        </select>
+        <select
           value={sortFilter}
           onChange={(e) => {
             setSortFilter(e.target.value);
@@ -295,7 +310,7 @@ const AdminUsers = () => {
             icon={UsersIcon}
             title="No users found"
             body={
-              searchTerm || statusFilter !== 'all'
+              searchTerm || statusFilter !== 'all' || carsFilter !== 'all'
                 ? 'No users match your search or filters. Try adjusting them.'
                 : 'Users will appear here once they register.'
             }

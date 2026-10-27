@@ -13,6 +13,8 @@ const REASON_LABEL = {
   admin_adjustment: "Adjustment",
   reversal: "Reversal",
   referral: "Referral bonus",
+  first_car_bonus: "Welcome bonus",
+  bonus_expiry: "Bonus expired",
 };
 
 export default function Wallet() {
@@ -45,6 +47,16 @@ export default function Wallet() {
           <div className="mb-6 text-4xl font-semibold tracking-tight">
             {walletLoading ? <span className="opacity-50">₦—</span> : naira(wallet?.balance_kobo)}
           </div>
+          {!walletLoading && Number(wallet?.bonus_balance_kobo || 0) > 0 && (
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
+              <span>{naira(wallet.bonus_balance_kobo)} welcome bonus</span>
+              {wallet.bonus_expires_at && (
+                <span className="text-white/60">
+                  · expires {new Date(wallet.bonus_expires_at).toLocaleDateString("en-NG", { dateStyle: "medium" })}
+                </span>
+              )}
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <button
               onClick={() => setFundOpen(true)}
@@ -63,6 +75,9 @@ export default function Wallet() {
       <div className="mt-3 flex items-center gap-2 px-1 text-xs text-[#697C8C]">
         <ShieldCheck className="h-3.5 w-3.5" />
         Funds stay in your wallet and can be used for any Motoka renewal.
+        {!walletLoading && Number(wallet?.bonus_balance_kobo || 0) > 0 && (
+          <> Welcome bonus is part of this balance and can only be spent on payments.</>
+        )}
       </div>
 
       {/* History */}
