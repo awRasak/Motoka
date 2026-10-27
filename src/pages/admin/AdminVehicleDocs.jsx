@@ -401,9 +401,10 @@ const AdminVehicleDocs = () => {
 
   // ── Edit handlers ──────────────────────────────────────────────────────────
 
-  const startEdit = (section, item, unit) => {
-    const rawPrice = unit === 'kobo' ? String(koboToNaira(item.price)) : String(item.price);
-    setEditing({ section, id: item.id || item.item_key });
+  const startEdit = (section, item, unit, field = 'price') => {
+    const priceSource = field === 'price_lagos' ? item.price_lagos : item.price;
+    const rawPrice = unit === 'kobo' ? String(priceSource != null ? koboToNaira(priceSource) : '') : String(priceSource != null ? priceSource : '');
+    setEditing({ section, id: item.id || item.item_key, field });
     setEditValue(rawPrice);
   };
 
@@ -426,7 +427,9 @@ const AdminVehicleDocs = () => {
 
       if (editing.section === 'renewal') {
         url = `${config.getApiBaseUrl()}/admin/vehicle-doc-prices/${editing.id}`;
-        body = { price: nairaToKobo(newNaira) };
+        body = editing.field === 'price_lagos'
+          ? { price_lagos: nairaToKobo(newNaira) }
+          : { price: nairaToKobo(newNaira) };
       } else if (editing.section === 'plate') {
         url = `${config.getApiBaseUrl()}/admin/plate-prices/${editing.id}`;
         body = { price: Math.round(newNaira) };
@@ -445,7 +448,7 @@ const AdminVehicleDocs = () => {
       if (data.status || data.success) {
         const updated = data.data;
         if (editing.section === 'renewal') {
-          setItems((prev) => prev.map((i) => (i.item_key === editing.id ? { ...i, price: updated.price } : i)));
+          setItems((prev) => prev.map((i) => (i.item_key === editing.id ? { ...i, ...updated } : i)));
         } else if (editing.section === 'plate') {
           setPlatePrices((prev) => prev.map((i) => (i.id === editing.id ? { ...i, price: updated.price } : i)));
         } else {
@@ -504,39 +507,88 @@ const AdminVehicleDocs = () => {
       <PriceSection
         title="Vehicle Document Renewals"
         description="Prices charged for each document when renewing vehicle papers."
-        columns={['Document', 'Key', 'Required', 'Status', 'Price (₦)', 'Actions']}
+        columns={['Document', 'Key', 'Required', 'Status', 'Price (₦)', 'Lagos Price (₦)', 'Actions']}
       >
         {items.map((item) => (
-          <PriceRow
-            key={item.item_key}
-            label={item.name}
-            sublabel={item.item_key}
-            price={item.price}
-            unit="kobo"
-            isEditing={isEditingRow('renewal', item.item_key)}
-            editValue={editValue}
-            onEditChange={setEditValue}
-            onStartEdit={() => startEdit('renewal', item, 'kobo')}
-            onCancel={cancelEdit}
-            onSave={saveEdit}
-            onKeyDown={handleKeyDown}
-            saving={saving}
-            badge={
-              <>
-                {item.required ? (
-                  <StatusBadge tone="blue">Required</StatusBadge>
-                ) : (
-                  <StatusBadge tone="gray">Optional</StatusBadge>
-                )}
-                <span className="mx-1" />
-                {item.active ? (
-                  <StatusBadge tone="green">Active</StatusBadge>
-                ) : (
-                  <StatusBadge tone="red">Inactive</StatusBadge>
-                )}
-              </>
-            }
-          />
+          <tr key={item.item_key} className="hover:bg-gray-50">
+            <td className={TD}>
+              <div className="text-sm font-medium text-gray-900">{item.name}</div>
+            </td>
+            <td className={`${TD} font-mono text-xs text-gray-500`}>{item.item_key}</td>
+            <td className={TD}>
+              {item.required ? (
+                <StatusBadge tone="blue">Required</StatusBadge>
+              ) : (
+                <StatusBadge tone="gray">Optional</StatusBadge>
+              )}
+            </td>
+            <td className={TD}>
+              {item.active ? (
+                <StatusBadge tone="green">Active</StatusBadge>
+              ) : (
+                <StatusBadge tone="red">Inactive</StatusBadge>
+              )}
+            </td>
+            <td className={TD}>
+              {isEditingRow('renewal', item.item_key) && editing?.field !== 'price_lagos' ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    className={`${INPUT} w-28`}
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                  />
+                  <span className="text-xs text-gray-500">₦</span>
+                </div>
+              ) : (
+                <span className="font-semibold">₦{koboToNaira(item.price).toLocaleString('en-NG', { minimumFractionDigits: 2 })}</span>
+              )}
+            </td>
+            <td className={TD}>
+              {isEditingRow('renewal', item.item_key) && editing?.field === 'price_lagos' ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    className={`${INPUT} w-28`}
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                  />
+                  <span className="text-xs text-gray-500">₦</span>
+                </div>
+              ) : (
+                <span className="font-semibold">
+                  {item.price_lagos != null
+                    ? `₦${koboToNaira(item.price_lagos).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+                    : <span className="text-gray-400 text-xs">—</span>}
+                </span>
+              )}
+            </td>
+            <td className={TD}>
+              {isEditingRow('renewal', item.item_key) ? (
+                <div className="flex gap-2">
+                  <button onClick={saveEdit} disabled={saving} className="text-green-600 hover:underline text-xs font-medium disabled:opacity-50">Save</button>
+                  <button onClick={cancelEdit} className="text-gray-500 hover:underline text-xs">Cancel</button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => startEdit('renewal', item, 'kobo', 'price')}
+                    className="text-[#2389E3] hover:underline text-xs font-medium"
+                  >
+                    <PencilSquareIcon className="h-3.5 w-3.5 inline" /> Edit Price
+                  </button>
+                  <button
+                    onClick={() => startEdit('renewal', item, 'kobo', 'price_lagos')}
+                    className="text-[#2389E3] hover:underline text-xs font-medium"
+                  >
+                    <PencilSquareIcon className="h-3.5 w-3.5 inline" /> {item.price_lagos != null ? 'Edit Lagos' : 'Set Lagos'}
+                  </button>
+                </div>
+              )}
+            </td>
+          </tr>
         ))}
         {items.length === 0 && (
           <tr>
