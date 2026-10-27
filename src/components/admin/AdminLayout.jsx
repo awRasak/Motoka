@@ -25,6 +25,7 @@ import {
   GiftIcon,
   UserGroupIcon,
   BanknotesIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 
 // 'Agents' and 'Payouts' back a real backend now (migration 107). The earlier
@@ -43,6 +44,7 @@ const NAV_ITEMS = [
   { name: 'Driver Licences', href: '/admin/driver-license-applications',  icon: IdentificationIcon,        exact: false },
   { name: 'Wallets',         href: '/admin/wallets',                      icon: WalletIcon,                exact: false },
   { name: 'Doc Prices',      href: '/admin/vehicle-doc-prices',           icon: CurrencyDollarIcon,        exact: false },
+  { name: 'Plate Verify',    href: '/admin/plate-verifications',          icon: ShieldCheckIcon,           exact: false },
   { name: 'Agents',          href: '/admin/agents',                       icon: UserGroupIcon,             exact: false },
   { name: 'Payouts',         href: '/admin/payouts',                      icon: BanknotesIcon,             exact: false },
   { name: 'Referrals',       href: '/admin/referral',                     icon: GiftIcon,                  exact: false },

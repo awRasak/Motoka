@@ -18,6 +18,7 @@ import AdminWallets from '../pages/admin/AdminWallets.jsx';
 import AdminRenewals from '../pages/admin/AdminRenewals.jsx';
 import AdminLadipo from '../pages/admin/AdminLadipo.jsx';
 import AdminVehicleDocs from '../pages/admin/AdminVehicleDocs.jsx';
+import AdminPlateVerification from '../pages/admin/AdminPlateVerification.jsx';
 
 import AdminGuestOrderDetails from '../pages/admin/AdminGuestOrderDetails.jsx';
 import AdminReferral from '../pages/admin/AdminReferral.jsx';
@@ -102,6 +103,7 @@ const AdminRoutes = () => {
                 <Route path="wallets" element={<AdminWallets />} />
                 <Route path="ladipo" element={<AdminLadipo />} />
                 <Route path="vehicle-doc-prices" element={<AdminVehicleDocs />} />
+                <Route path="plate-verifications" element={<AdminPlateVerification />} />
                 <Route path="referral" element={<AdminReferral />} />
       </Route>
     </Routes>

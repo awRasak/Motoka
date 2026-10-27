@@ -35,6 +35,13 @@ const schema = yup.object().shape({
       /^(0\d{10}|(\+234|234)\d{10})$/,
       "Enter a valid Nigerian phone number",
     ),
+  plate_number: yup
+    .string()
+    .notRequired()
+    .matches(
+      /^[A-Z0-9\s\-]+$/,
+      "Plate number can only contain letters, numbers, spaces, and hyphens",
+    ),
   // nin: yup.string().required("NIN is required"),
   password: yup
     .string()
@@ -96,6 +103,7 @@ export default function Signup() {
           name: data.name,
           email: data.email,
           phone_number: data.phone,
+          plate_number: data.plate_number || undefined,
           password: data.password.trim(),
           password_confirmation: data.confirmPassword.trim(),
           referral_code: data.referral_code || getStoredReferralCode() || undefined,
@@ -184,8 +192,18 @@ export default function Signup() {
                     <input
                       id="phone"
                       type="tel"
+                      inputMode="tel"
                       {...register("phone")}
                       placeholder="Phone Number*"
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/[^0-9+]/g, '');
+                      }}
+                      onKeyPress={(e) => {
+                        const char = String.fromCharCode(e.which || e.keyCode);
+                        if (!/[0-9+]/.test(char)) {
+                          e.preventDefault();
+                        }
+                      }}
                       className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[#05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none`} />
                     {errors.phone && (
                       <p className="animate-shake mt-1 text-xs text-[#A73957]">
@@ -193,6 +211,22 @@ export default function Signup() {
                       </p>
                     )}
                   </div>
+                </div>
+                <div className="w-full">
+                  <input
+                    id="plate_number"
+                    type="text"
+                    {...register("plate_number")}
+                    placeholder="Plate Number (e.g. LSR 123 AA)*"
+                    onInput={(e) => {
+                      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\s\-]/g, '');
+                    }}
+                    className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[#05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none`} />
+                  {errors.plate_number && (
+                    <p className="animate-shake mt-1 text-xs text-[#A73957]">
+                      {errors.plate_number.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full">
                   <div className="relative">

@@ -99,6 +99,7 @@ export async function signupRequest({
   password_confirmation,
   nin: _nin, // Reserved for future KYC
   phone_number,
+  plate_number,
   referral_code,
 }) {
   // Split name into first_name and last_name for Node.js backend
@@ -113,6 +114,7 @@ export async function signupRequest({
     password,
     password_confirmation,
     phone: phone_number,
+    plate_number: plate_number || null,
   };
   if (referral_code) {
     payload.referral_code = String(referral_code).trim().toUpperCase();
