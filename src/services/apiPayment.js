@@ -130,8 +130,8 @@ export async function initializeDriverLicensePayment(payload) {
   return data;
 }
 
-export async function fetchPaymentSchedules() {
-  const res = await api.get("/payment-schedule");
+export async function fetchPaymentSchedules(state = null) {
+  const res = await api.get("/payment-schedule", { params: state ? { state } : {} });
   if (!res.data.status) throw new Error(res.data.message || "Failed to fetch payment schedules");
   return res.data.data;
 }

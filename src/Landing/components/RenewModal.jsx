@@ -86,7 +86,7 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
   useEffect(() => {
     if (step !== 2) return;
     setLoadingItems(true);
-    fetchRenewalItems()
+    fetchRenewalItems(renewalState || undefined)
       .then((items) => {
         setRenewalItems(items);
         // Everything on by default except the items below. Select-all still
@@ -101,7 +101,7 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
       })
       .catch(() => toast.error("Failed to load renewal options"))
       .finally(() => setLoadingItems(false));
-  }, [step]);
+  }, [step, renewalState]);
 
   // ── Load states when delivery checkbox is ticked ─────────────────────────
   useEffect(() => {

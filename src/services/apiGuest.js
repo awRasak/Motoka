@@ -16,8 +16,8 @@ const guestApi = axios.create({
 
 // ── Reference data (public) ───────────────────────────────────────────────────
 
-export async function fetchRenewalItems() {
-  const { data } = await guestApi.get('/public/renewal-items');
+export async function fetchRenewalItems(state = null) {
+  const { data } = await guestApi.get('/public/renewal-items', { params: state ? { state } : {} });
   return data.data; // [{ id, name, price, required }]
 }
 

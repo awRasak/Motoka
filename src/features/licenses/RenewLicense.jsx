@@ -156,7 +156,7 @@ export default function RenewLicense() {
       try {
         const [heads, schedules] = await Promise.all([
           fetchPaymentHeads(),
-          fetchPaymentSchedules(),
+          fetchPaymentSchedules(renewalState || undefined),
         ]);
 
         const headsArr = Array.isArray(heads) ? heads : [];
@@ -188,7 +188,7 @@ export default function RenewLicense() {
       }
     }
     fetchData();
-  }, [carDetail?.car_type]);
+  }, [carDetail?.car_type, renewalState]);
 
   // Default-select all document types when payment heads load
   useEffect(() => {
