@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MagnifyingGlassIcon,
-  RefreshIcon,
+  ArrowPathIcon,
   CopyIcon,
-  ExternalLinkIcon,
+  ArrowTopRightOnSquareIcon,
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
@@ -314,7 +314,7 @@ const AdminPlateVerification = () => {
                             className="text-[#2389E3] hover:underline text-xs flex items-center gap-1"
                             title="Open autoreg.ng & copy plate"
                           >
-                            <ExternalLinkIcon className="h-3 w-3" /> Verify on portal
+                            <ArrowTopRightOnSquareIcon className="h-3 w-3" /> Verify on portal
                           </button>
                           <button
                             onClick={() => openCaptureModal(item.id, item.plate_number)}
@@ -356,14 +356,14 @@ const AdminPlateVerification = () => {
                 disabled={currentPage === 1}
                 className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50"
               >
-                <RefreshIcon className="h-4 w-4 rotate-180" />
+                <ArrowPathIcon className="h-4 w-4 rotate-180" />
               </button>
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages}
                 className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50"
               >
-                <RefreshIcon className="h-4 w-4" />
+                <ArrowPathIcon className="h-4 w-4" />
               </button>
             </div>
           </div>
