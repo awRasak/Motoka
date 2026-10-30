@@ -26,10 +26,11 @@ const schema = yup.object().shape({
     ),
   plate_number: yup
     .string()
-    .required("Plate number is required")
-    .matches(
-      /^[A-Z0-9\s\-]+$/,
+    .transform((v) => (v ? String(v).trim().toUpperCase() : ""))
+    .test(
+      "plate-format",
       "Plate number can only contain letters, numbers, spaces, and hyphens",
+      (v) => !v || /^[A-Z0-9\s\-]+$/.test(v),
     ),
   // nin: yup.string().required("NIN is required"),
   password: yup
@@ -169,7 +170,7 @@ export default function Signup() {
                     id="plate_number"
                     type="text"
                     {...register("plate_number")}
-                    placeholder="Plate Number (e.g. LSR 123 AA)*"
+                    placeholder="Plate Number (optional, e.g. LSR 123 AA)"
                     onInput={(e) => {
                       e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\s\-]/g, '');
                     }}
