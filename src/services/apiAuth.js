@@ -93,19 +93,18 @@ export async function logout() {
 }
 
 export async function signupRequest({
-  name,
   email,
   password,
   password_confirmation,
   nin: _nin, // Reserved for future KYC
   phone_number,
   plate_number,
-  referral_code,
 }) {
-  // Split name into first_name and last_name for Node.js backend
-  const nameParts = (name || '').trim().split(' ');
-  const first_name = nameParts[0] || '';
-  const last_name = nameParts.slice(1).join(' ') || nameParts[0] || '';
+  // The signup form no longer collects a name. Derive a display name from the
+  // email prefix (e.g. "rasak@motokaapp.ng" -> "rasak"); the user can change it
+  // later from their profile.
+  const first_name = (email || '').split('@')[0] || '';
+  const last_name = '';
 
   const payload = {
     first_name,
@@ -116,9 +115,6 @@ export async function signupRequest({
     phone: phone_number,
     plate_number: plate_number || null,
   };
-  if (referral_code) {
-    payload.referral_code = String(referral_code).trim().toUpperCase();
-  }
 
   const { data } = await api.post("/register", payload);
 

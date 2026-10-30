@@ -1,6 +1,6 @@
 "use client"
-import React, { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import ImageSlider from "../../components/ImageSlider";
 import AuthSideHero from "../../components/AuthSideHero"
@@ -11,19 +11,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import TwoFactorVerification from "../../components/TwoFA/TwoFactorVerification";
-import {
-  captureReferralCodeFromUrl,
-  getStoredReferralCode,
-} from "../../services/apiReferral";
 
 const schema = yup.object().shape({
-  name: yup
-    .string()
-    .required("Username is required")
-    .matches(
-      /^[A-Za-z\s'-]+$/,
-      "Name can only contain letters, spaces, hyphens, and apostrophes",
-    ),
   email: yup
     .string()
     .email("Invalid email format")
@@ -37,7 +26,7 @@ const schema = yup.object().shape({
     ),
   plate_number: yup
     .string()
-    .notRequired()
+    .required("Plate number is required")
     .matches(
       /^[A-Z0-9\s\-]+$/,
       "Plate number can only contain letters, numbers, spaces, and hyphens",
@@ -57,14 +46,6 @@ const schema = yup.object().shape({
     .string()
     .oneOf([yup.ref("password"), undefined], "Passwords do not match")
     .required("Please confirm your password"),
-  referral_code: yup
-    .string()
-    .transform((v) => (v ? String(v).trim().toUpperCase() : ""))
-    .test(
-      "referral-format",
-      "Referral code must be 6-12 letters or numbers",
-      (v) => !v || /^[A-Z0-9]{6,12}$/.test(v),
-    ),
   terms: yup.boolean().oneOf([true], "You must accept the Terms & Conditions"),
   auto_renew: yup.boolean().default(false),
 });
@@ -72,41 +53,28 @@ const schema = yup.object().shape({
 export default function Signup() {
   const { signupUser, isSigningUp } = useSignup();
   const { loginWithGoogle, isLoadingGoogle } = useGoogleLogin();
-  const [searchParams] = useSearchParams();
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
     reValidateMode: "onChange",
-    defaultValues: {
-      referral_code: getStoredReferralCode(),
-    },
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  useEffect(() => {
-    const fromUrl = captureReferralCodeFromUrl(`?${searchParams.toString()}`);
-    const code = fromUrl || getStoredReferralCode();
-    if (code) setValue("referral_code", code);
-  }, [searchParams, setValue]);
 
   const onSubmit = (data) => {
     const loadingToast = toast.loading("Creating your account...");
     try {
       signupUser(
         {
-          name: data.name,
           email: data.email,
           phone_number: data.phone,
-          plate_number: data.plate_number || undefined,
+          plate_number: data.plate_number,
           password: data.password.trim(),
           password_confirmation: data.confirmPassword.trim(),
-          referral_code: data.referral_code || getStoredReferralCode() || undefined,
           terms_accepted: true,
           auto_renew: Boolean(data.auto_renew),
           // nin: data.nin,
@@ -160,57 +128,41 @@ export default function Signup() {
 
                 <div className="w-full">
                   <input
-                    id="name"
-                    type="text"
-                    {...register("name")}
-                    placeholder="Username*"
-                    className="mt-1 block w-full rounded-lg bg-[#F4F5FC] px-4 py-3 !text-sm text-[#05243F] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none sm:px-5 sm:py-4"
+                    id="email"
+                    type="email"
+                    {...register("email")}
+                    placeholder="Email*"
+                    className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[#05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none`}
                   />
-                  {errors.name && (
+                  {errors.email && (
                     <p className="animate-shake mt-1 text-xs text-[#A73957]">
-                      {errors.name.message}
+                      {errors.email.message}
                     </p>
                   )}
                 </div>
-                <div className="flex gap-3">
-                  <div className="w-full">
-                    <input
-                      id="email"
-                      type="email"
-                      {...register("email")}
-                      placeholder="Enter your Email*"
-                      className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none `}
-                    />
-                    {errors.email && (
-                      <p className="animate-shake mt-1 text-xs text-[#A73957]">
-                        {errors.email.message}
-                      </p>
-                    )}
-                  </div>
 
-                  <div className="w-full">
-                    <input
-                      id="phone"
-                      type="tel"
-                      inputMode="tel"
-                      {...register("phone")}
-                      placeholder="Phone Number*"
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/[^0-9+]/g, '');
-                      }}
-                      onKeyPress={(e) => {
-                        const char = String.fromCharCode(e.which || e.keyCode);
-                        if (!/[0-9+]/.test(char)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[#05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none`} />
-                    {errors.phone && (
-                      <p className="animate-shake mt-1 text-xs text-[#A73957]">
-                        {errors.phone.message}
-                      </p>
-                    )}
-                  </div>
+                <div className="w-full">
+                  <input
+                    id="phone"
+                    type="tel"
+                    inputMode="tel"
+                    {...register("phone")}
+                    placeholder="Phone Number*"
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/[^0-9+]/g, '');
+                    }}
+                    onKeyPress={(e) => {
+                      const char = String.fromCharCode(e.which || e.keyCode);
+                      if (!/[0-9+]/.test(char)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[#05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none`} />
+                  {errors.phone && (
+                    <p className="animate-shake mt-1 text-xs text-[#A73957]">
+                      {errors.phone.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full">
                   <input
@@ -276,22 +228,6 @@ export default function Signup() {
                   {errors.confirmPassword && (
                     <p className="animate-shake mt-1 text-xs text-[#A73957]">
                       {errors.confirmPassword.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-full">
-                  <input
-                    id="referral_code"
-                    type="text"
-                    {...register("referral_code")}
-                    placeholder="Referral code (optional)"
-                    autoCapitalize="characters"
-                    className="mt-1 block w-full rounded-xl bg-[#F4F5FC] px-4 py-3 !text-sm uppercase tracking-wider text-[#05243F] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none sm:px-5 sm:py-4"
-                  />
-                  {errors.referral_code && (
-                    <p className="animate-shake mt-1 text-xs text-[#A73957]">
-                      {errors.referral_code.message}
                     </p>
                   )}
                 </div>
