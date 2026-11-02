@@ -43,7 +43,13 @@ export function useOAuthCallback() {
         localStorage.setItem("userInfo", JSON.stringify(userDetails));
       }
 
-      navigate("/dashboard");
+      const redirect = sessionStorage.getItem("authRedirect") || "/dashboard";
+      try {
+        sessionStorage.removeItem("authRedirect");
+      } catch {
+        /* ignore */
+      }
+      navigate(redirect);
     },
     onError: (err) => {
       toast.error(err.response?.data?.message || err.message || "OAuth login failed");

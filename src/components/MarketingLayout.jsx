@@ -10,7 +10,7 @@ export default function MarketingLayout() {
   return (
     <div className="flex min-h-dvh flex-col">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pb-10 sm:pb-14">
         <Outlet />
       </main>
       <Footer />

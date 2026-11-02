@@ -5,6 +5,7 @@ import useV2Chrome from "./v2/useV2Chrome";
 import Header from "./v2/Header";
 import Hero from "./v2/Hero";
 import Services from "./v2/Services";
+import LadipoSection from "./v2/LadipoSection";
 import EverythingSection from "./v2/EverythingSection";
 import WhyUs from "./v2/WhyUs";
 import Mission from "./v2/Mission";
@@ -48,6 +49,7 @@ function LandingV2() {
       <main className="flex-1">
         <Hero />
         <Services />
+        <LadipoSection />
         <EverythingSection />
         <WhyUs />
         <Mission />

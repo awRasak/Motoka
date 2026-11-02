@@ -1,22 +1,39 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import LadipoLayout from "./components/LadipoLayout";
 import useCartStore, { selectTotalKobo } from "../../store/cartStore";
+import { authStorage } from "../../utils/authStorage";
+import CheckoutAuthModal from "./components/CheckoutAuthModal";
 
 function CartPage() {
+  const location = useLocation();
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const setQty = useCartStore((s) => s.setQty);
   const totalKobo = useCartStore(selectTotalKobo);
   const navigate = useNavigate();
+  const [authModalOpen, setAuthModalOpen] = useState(Boolean(location.state?.openAuthModal));
 
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
+  useEffect(() => {
+    if (location.state?.openAuthModal) {
+      setAuthModalOpen(true);
+    }
+  }, [location.state?.openAuthModal]);
+
+  function handleProceedToCheckout() {
+    if (!authStorage.isAuthenticated()) {
+      setAuthModalOpen(true);
+      return;
+    }
+    navigate("/ladipo/checkout");
+  }
 
   return (
-    <LadipoLayout title="Cart" backPath="/ladipo">
+    <LadipoLayout title="Cart" backPath="/ladipo" headerEnd={<div />}>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white rounded-2xl border border-[#E1E6F4]">
+        <div className="flex flex-col items-center justify-center py-16 sm:py-20 my-4 sm:my-8 gap-4 bg-white rounded-2xl border border-[#E1E6F4] shadow-xs">
           <div className="w-20 h-20 rounded-2xl bg-[#F4F5FC] flex items-center justify-center">
             <Icon icon="solar:bag-4-bold-duotone" width="40" className="text-[#2389E3]/40" />
           </div>
@@ -32,7 +49,7 @@ function CartPage() {
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col gap-5 max-w-2xl mx-auto w-full">
+        <div className="flex flex-col gap-5 max-w-2xl mx-auto w-full my-4 sm:my-8">
           {/* Cart card */}
           <div className="bg-white rounded-2xl overflow-hidden border border-[#E8ECF0]">
             {/* Item rows */}
@@ -117,16 +134,30 @@ function CartPage() {
           </div>
 
           {/* Checkout button */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-3">
             <button
-              onClick={() => navigate("/ladipo/checkout")}
-              className="w-[220px] bg-[#2389E3] hover:bg-[#2389E3] text-white font-bold text-[15px] py-3.5 rounded-full transition-all active:scale-[0.98] cursor-pointer shadow-md shadow-[#2389E3]/30"
+              onClick={handleProceedToCheckout}
+              className="w-full sm:w-[260px] bg-[#2389E3] hover:bg-[#1D74C2] text-white font-bold text-[15px] py-3.5 rounded-full transition-all active:scale-[0.98] cursor-pointer shadow-md shadow-[#2389E3]/25 flex items-center justify-center gap-2"
             >
-              Checkout
+              <span>Proceed to Checkout</span>
+              <Icon icon="lucide:arrow-right" width="16" />
             </button>
+            <p className="text-[12px] text-[#8A9EB0] text-center">
+              🔒 Safe & Secure Checkout via Monipay / Paystack
+            </p>
           </div>
         </div>
       )}
+
+      {/* Auth Modal for Guests */}
+      <CheckoutAuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={() => {
+          setAuthModalOpen(false);
+          navigate("/ladipo/checkout");
+        }}
+      />
     </LadipoLayout>
   );
 }

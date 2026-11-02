@@ -49,7 +49,7 @@ function ProductCard({ part }) {
 
   return (
     <div
-      className="group relative flex h-full max-h-[300px] sm:max-h-[380px] w-full cursor-pointer flex-col overflow-hidden rounded-[16px] border border-[#E1E6F4] bg-white p-3 sm:p-4 transition-all duration-300 hover:border-[#2389E3]"
+      className="group relative flex flex-col h-full w-full cursor-pointer rounded-2xl border border-[#E1E6F4] bg-white p-3 sm:p-3.5 transition-all duration-300 hover:border-[#2389E3] hover:shadow-md"
       onClick={handleCardOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -63,40 +63,50 @@ function ProductCard({ part }) {
     >
       <button
         onClick={handleAddToCart}
-        className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-[#DFE4E8] text-white transition-colors group-hover:bg-[#2389E3]"
+        className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-white/95 text-[#697C8C] shadow-xs border border-[#E1E6F4] hover:bg-[#2389E3] hover:text-white hover:border-[#2389E3] transition-all cursor-pointer"
+        title="Add to cart"
+        aria-label="Add to cart"
       >
         <Icon icon="lucide:plus" width="14" strokeWidth="3" />
       </button>
 
       {part.condition && (
-        <span className={`absolute top-3 left-3 sm:top-4 sm:left-4 z-10 rounded-[4px] px-1.5 py-[2px] text-[9px] font-bold ${condition.color}`}>
+        <span className={`absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10 rounded-md px-2 py-0.5 text-[9px] font-bold shadow-xs ${condition.color}`}>
           {condition.text}
         </span>
       )}
 
-      <div className="relative mb-3 sm:mb-4 aspect-square flex items-center justify-center">
+      {/* Uniform Image Stage: all product images scale into identical square frame */}
+      <div className="relative mb-3 aspect-square w-full rounded-xl bg-[#F8FAFC] flex items-center justify-center p-3 sm:p-4 overflow-hidden">
         {part.primary_image_url ? (
           <img
             src={part.primary_image_url}
             alt={part.name}
-            className="h-3/4 w-3/4 object-contain transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
           />
         ) : (
-          <Icon icon="solar:box-bold-duotone" width="36" className="text-[#D3D9DE] sm:w-12" />
+          <Icon icon="solar:box-bold-duotone" width="36" className="text-[#D3D9DE] sm:w-10 sm:h-10" />
         )}
       </div>
 
-      <div className="flex flex-1 flex-col">
-        <p className="mb-1 h-[2.25rem] sm:h-[3.5rem] overflow-hidden text-[12px] sm:text-[14px] font-bold leading-snug text-[#05243F] line-clamp-2">
-          {part.name}
-        </p>
+      {/* Product Content: Title strictly 2 lines, brand 1 line, button pinned to bottom */}
+      <div className="flex flex-1 flex-col justify-between">
+        <div>
+          <h3
+            className="text-[12px] sm:text-[13px] font-bold leading-[1.3] text-[#05243F] line-clamp-2 min-h-[2.6em] max-h-[2.6em] overflow-hidden mb-1 group-hover:text-[#2389E3] transition-colors"
+            title={part.name}
+          >
+            {part.name}
+          </h3>
 
-        <p className="mb-1 sm:mb-2 h-[1rem] sm:h-[1.25rem] overflow-hidden text-[11px] sm:text-[12px] font-medium text-[#8A9EB0] line-clamp-1">
-          {part.brand || "\u00A0"}
-        </p>
+          <p className="text-[11px] sm:text-[12px] font-medium text-[#8A9EB0] truncate min-h-[1.25rem] max-h-[1.25rem] mb-2">
+            {part.brand || "\u00A0"}
+          </p>
+        </div>
 
-        <div className="mt-auto flex flex-col gap-2 sm:gap-3">
-          <p className="text-[13px] sm:text-[14px] font-bold text-[#2389E3]">
+        <div className="mt-auto pt-2 flex flex-col gap-2">
+          <p className="text-[13px] sm:text-[15px] font-bold text-[#2389E3] leading-none truncate">
             {part.price_kobo != null
               ? `\u20A6${(Math.round(part.price_kobo) / 100).toLocaleString("en-NG", {
                   minimumFractionDigits: 0,
@@ -106,8 +116,9 @@ function ProductCard({ part }) {
           </p>
 
           <button
+            type="button"
             onClick={handleBuyNow}
-            className="flex w-full items-center justify-center rounded-full bg-[#DFE4E8] py-1.5 sm:py-2 text-[11px] sm:text-[13px] font-bold text-white transition-colors duration-300 cursor-pointer group-hover:bg-[#2389E3]"
+            className="flex w-full items-center justify-center rounded-full bg-[#DFE4E8] py-2 text-[12px] sm:text-[13px] font-bold text-white transition-colors duration-200 cursor-pointer group-hover:bg-[#2389E3] hover:!bg-[#1a76c7]"
           >
             Buy Now
           </button>

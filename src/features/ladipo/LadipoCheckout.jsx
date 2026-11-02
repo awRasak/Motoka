@@ -6,6 +6,7 @@ import useCartStore, { selectTotalKobo } from "../../store/cartStore";
 import { createLadipoOrder } from "../../services/apiLadipo";
 import { PAYMENT_TYPES } from "../payment/config/paymentTypes";
 import { useGetLocalGovernment, useGetState } from "../licenses/useRenew";
+import { authStorage } from "../../utils/authStorage";
 import SearchableSelect from "../../components/shared/SearchableSelect";
 import LadipoLayout from "./components/LadipoLayout";
 
@@ -20,13 +21,29 @@ const DELIVERY_OPTIONS = [
 
 export default function LadipoCheckout() {
   const navigate = useNavigate();
+  const initialized = useCartStore((s) => s.initialized);
   const items = useCartStore((s) => s.items);
   const subtotalKobo = useCartStore(selectTotalKobo);
 
   const deliveryOption = DELIVERY_OPTIONS[0];
+
+  const currentUser = useMemo(() => authStorage.getUserInfo(), []);
+  const initialName = useMemo(() => {
+    if (!currentUser) return "";
+    return (
+      [currentUser.first_name, currentUser.last_name].filter(Boolean).join(" ") ||
+      currentUser.name ||
+      ""
+    );
+  }, [currentUser]);
+  const initialPhone = useMemo(
+    () => currentUser?.phone || currentUser?.phone_number || "",
+    [currentUser]
+  );
+
   const [form, setForm] = useState({
-    contact_name: "",
-    phone: "",
+    contact_name: initialName,
+    phone: initialPhone,
     address: "",
     state: "",
     stateName: "",
@@ -41,10 +58,27 @@ export default function LadipoCheckout() {
   } = useGetLocalGovernment();
 
   useEffect(() => {
-    if (items.length === 0) {
-      navigate("/ladipo/cart-page");
+    if (!authStorage.isAuthenticated()) {
+      navigate("/ladipo/cart-page", {
+        state: { openAuthModal: true },
+        replace: true,
+      });
+      return;
     }
-  }, [items.length, navigate]);
+    if (initialized && items.length === 0) {
+      navigate("/ladipo/cart-page", { replace: true });
+    }
+  }, [initialized, items.length, navigate]);
+
+  useEffect(() => {
+    if (currentUser) {
+      setForm((prev) => ({
+        ...prev,
+        contact_name: prev.contact_name || initialName,
+        phone: prev.phone || initialPhone,
+      }));
+    }
+  }, [currentUser, initialName, initialPhone]);
 
   const isState = state?.data;
   const selectedState = useMemo(
@@ -59,6 +93,16 @@ export default function LadipoCheckout() {
     form.address.trim() &&
     form.state &&
     form.lga;
+
+  if (!initialized) {
+    return (
+      <LadipoLayout title="Checkout" backPath="/ladipo/cart-page">
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 rounded-full border-3 border-[#2389E3] border-t-transparent animate-spin" />
+        </div>
+      </LadipoLayout>
+    );
+  }
 
   if (items.length === 0) {
     return null;
