@@ -73,7 +73,7 @@ const AdminPlateVerification = () => {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const data = await res.json();
-      if (data.status && data.data?.url) setVerifyUrl(data.data.url);
+      if ((data.success || data.status) && data.data?.url) setVerifyUrl(data.data.url);
     } catch {
       // keep default
     }
@@ -97,7 +97,7 @@ const AdminPlateVerification = () => {
       });
       const data = await res.json();
 
-      if (data.status) {
+      if (data.success || data.status) {
         setItems(data.data.verifications || []);
         setTotal(data.data.pagination.total || 0);
         setTotalPages(data.data.pagination.totalPages || 1);
@@ -174,8 +174,10 @@ const AdminPlateVerification = () => {
         }),
       });
       const data = await res.json();
-      if (data.status) {
-        toast.success(`Plate ${plateNumber} verified. Car details saved.`);
+      if (data.success || data.status) {
+        toast.success(data.data?.bonus_granted === false
+          ? `Plate ${plateNumber} verified, but the ₦2,000 credit FAILED — verify again to retry.`
+          : `Plate ${plateNumber} verified — ₦2,000 credited. Car details saved.`);
         closeCaptureModal();
         fetchItems();
       } else {
@@ -190,7 +192,7 @@ const AdminPlateVerification = () => {
 
   const handleReject = async (userId) => {
     if (actionLoading.has(userId)) return;
-    const reason = prompt('Reason for rejection (bonus will be clawed back):');
+    const reason = prompt('Reason for rejection (no bonus has been paid yet):');
     if (!reason || !reason.trim()) return;
     setActionLoading((prev) => new Set([...prev, userId]));
     try {
@@ -204,8 +206,8 @@ const AdminPlateVerification = () => {
         body: JSON.stringify({ note: reason.trim() }),
       });
       const data = await res.json();
-      if (data.status) {
-        toast.success(data.clawedBack ? 'Rejected — ₦2,000 clawed back from wallet' : 'Plate rejected');
+      if (data.success || data.status) {
+        toast.success('Plate rejected');
         fetchItems();
       } else {
         toast.error(data.message || 'Rejection failed');
@@ -222,7 +224,7 @@ const AdminPlateVerification = () => {
   if (items.length === 0) {
     return (
       <div className="space-y-6">
-        <PageHeader icon={ClockIcon} title="Plate Verification Queue" subtitle="Users who signed up with a plate number. ₦2,000 is already credited — verify on autoreg.ng, then approve or reject (clawback) below." />
+        <PageHeader icon={ClockIcon} title="Plate Verification Queue" subtitle="Users who signed up with a plate number. Nothing is paid yet — verify on autoreg.ng, then approve to credit ₦2,000, or reject." />
         <EmptyState icon={ClockIcon} title="No pending verifications" body="All plates have been verified or rejected." />
       </div>
     );
@@ -233,7 +235,7 @@ const AdminPlateVerification = () => {
       <PageHeader
         icon={ClockIcon}
         title="Plate Verification Queue"
-        subtitle="₦2,000 signup bonus is already credited. Verify on autoreg.ng, then approve (keep bonus) or reject (clawback ₦2,000). Capture car details to pre-fill add-car."
+        subtitle="No money moves until you approve. Check the plate on autoreg.ng, then approve to credit the ₦2,000 welcome bonus (renewals only, expires in 356 days), or reject. Capture car details to pre-fill add-car."
       />
 
       <Card className="overflow-hidden">
