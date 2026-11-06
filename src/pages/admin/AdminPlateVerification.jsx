@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
+  CopyIcon,
   ArrowTopRightOnSquareIcon,
   CheckCircleIcon,
   XCircleIcon,
