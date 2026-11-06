@@ -47,6 +47,18 @@ const SearchableSelect = ({
   const handleBlur = () => {
     setTimeout(() => {
       setIsOpen(false);
+      // The box renders searchTerm over value, so a half-typed term left behind
+      // makes an unselected field read as selected. Commit it when it is an exact
+      // match, otherwise drop it so the field falls back to the real value.
+      if (!allowCustom && searchTerm) {
+        const match = options.find(
+          (option) => option[filterKey].toLowerCase() === searchTerm.trim().toLowerCase()
+        );
+        if (match) {
+          onChange({ target: { name, value: match[filterKey] } });
+        }
+        setSearchTerm("");
+      }
     }, 200);
   };
 

@@ -27,6 +27,7 @@ const schema = yup.object().shape({
   plate_number: yup
     .string()
     .transform((v) => (v ? String(v).trim().toUpperCase() : ""))
+    .required("Plate number is required")
     .test(
       "plate-format",
       "Plate number can only contain letters, numbers, spaces, and hyphens",
@@ -57,6 +58,8 @@ export default function Signup() {
   const {
     register,
     handleSubmit,
+    watch,
+    trigger,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -65,8 +68,22 @@ export default function Signup() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmedPlate, setConfirmedPlate] = useState("");
+
+  const plateValue = (watch("plate_number") || "").trim().toUpperCase();
+  const plateConfirmed = Boolean(confirmedPlate) && confirmedPlate === plateValue;
+
+  const handleConfirmPlate = async () => {
+    const valid = await trigger("plate_number");
+    if (!valid) return;
+    setConfirmedPlate(plateValue);
+  };
 
   const onSubmit = (data) => {
+    if (!plateConfirmed) {
+      toast.error("Confirm your plate number first");
+      return;
+    }
     const loadingToast = toast.loading("Creating your account...");
     try {
       signupUser(
@@ -166,18 +183,39 @@ export default function Signup() {
                   )}
                 </div>
                 <div className="w-full">
-                  <input
-                    id="plate_number"
-                    type="text"
-                    {...register("plate_number")}
-                    placeholder="Plate Number (optional, e.g. LSR 123 AA)"
-                    onInput={(e) => {
-                      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\s\-]/g, '');
-                    }}
-                    className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[#05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none`} />
+                  <div className="flex gap-2">
+                    <input
+                      id="plate_number"
+                      type="text"
+                      {...register("plate_number")}
+                      placeholder="Plate Number*"
+                      onInput={(e) => {
+                        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\s\-]/g, '');
+                      }}
+                      className={`mt-1 block w-full rounded-[8px] bg-[#F4F5FC] px-3 py-3 sm:px-4 sm:py-4 !text-sm sm:text-sm text-[#05243F] placeholder:text-[#05243F66] shadow-2xs transition-colors duration-300 hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD] focus:outline-none`} />
+                    <button
+                      type="button"
+                      onClick={handleConfirmPlate}
+                      disabled={!plateValue || plateConfirmed}
+                      className={`mt-1 shrink-0 rounded-[8px] px-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ${
+                        !plateValue || plateConfirmed
+                          ? "cursor-not-allowed bg-[#F4F5FC] text-[#05243F66]"
+                          : "bg-[#2389E3] text-white hover:bg-[#FFF4DD] hover:text-[#05243F]"
+                      }`}
+                    >
+                      {plateConfirmed ? "Confirmed" : "Confirm"}
+                    </button>
+                  </div>
                   {errors.plate_number && (
                     <p className="animate-shake mt-1 text-xs text-[#A73957]">
                       {errors.plate_number.message}
+                    </p>
+                  )}
+                  {plateConfirmed && !errors.plate_number && (
+                    <p className="mt-2 rounded-[8px] bg-[#F4F5FC] px-3 py-2 text-xs leading-relaxed text-[#05243F] opacity-70">
+                      We&apos;ll confirm {confirmedPlate} against the national
+                      register and fill in your car&apos;s make, model and colour.
+                      Your &#8358;2,000 bonus lands once it checks out.
                     </p>
                   )}
                 </div>
