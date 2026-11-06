@@ -51,6 +51,21 @@ const STATIC_ROUTES = [
   '/blogs',
 ]
 
+// Content-change dates for sitemap <lastmod>. Anything not listed falls back
+// to DEFAULT_LASTMOD (the last date the shared shell/landing changed), not the
+// build date — see the sitemap comment below for why a rolling "today" hurts.
+const DEFAULT_LASTMOD = '2026-10-22'
+const ROUTE_LASTMOD = {
+  '/': '2026-11-06',
+  '/renew/vehicle-license': '2026-11-06',
+  '/renew/road-worthiness': '2026-10-22',
+  '/renew/drivers-license': '2026-10-22',
+  '/renew/insurance': '2026-10-22',
+  '/faq': '2026-10-22',
+  '/guides': '2026-10-22',
+  '/blogs': '2026-10-22',
+}
+
 // Vercel's build image ships no Chrome shared libraries, so the browser
 // puppeteer downloads for itself dies on launch with
 // `libnspr4.so: cannot open shared object file`. That took down every deploy
@@ -142,9 +157,16 @@ async function main() {
     // 12 of these 26 URLs — every state page, every /renew/* page and /faq
     // among the missing. Generating it from the same list that was just
     // rendered is the only way it stays true.
-    const lastmod = new Date().toISOString().slice(0, 10)
+    //
+    // lastmod must be the date the page's CONTENT last changed, not the build
+    // date. Stamping every URL with today on every build (as this used to) is
+    // a signal Google learns to ignore, and it hides the pages that genuinely
+    // moved. Routes keep a real date here; bump it when you change that page.
     const urls = routes
-      .map((route) => `  <url>\n    <loc>${SITE_ORIGIN}${route}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`)
+      .map((route) => {
+        const lastmod = ROUTE_LASTMOD[route] || DEFAULT_LASTMOD
+        return `  <url>\n    <loc>${SITE_ORIGIN}${route}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
+      })
       .join('\n')
     await writeFile(
       path.join(DIST, 'sitemap.xml'),

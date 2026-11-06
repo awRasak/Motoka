@@ -71,6 +71,34 @@ export default function BlogPage() {
           {blog.content}
         </div>
 
+        {/* Internal link into the renewal hub. Every post funnels topical
+            authority to the money pages with keyword-rich anchor text, which
+            is how the hub outranks thin competitor pages. Destination is
+            chosen by what the post is actually about. */}
+        <div className="mb-12 rounded-2xl border border-[#2389E3]/20 bg-[#2389E3]/5 p-6">
+          <p className="mb-2 text-sm font-semibold text-[#05243F]">
+            Ready to sort it out?
+          </p>
+          <p className="mb-4 text-sm text-gray-600">
+            Motoka renews vehicle licences, roadworthiness and driver’s licences
+            online through a licensed agent network — no office queue.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/renew/vehicle-license"
+              className="rounded-lg bg-[#2389E3] px-4 py-2 text-sm font-semibold text-white hover:brightness-110"
+            >
+              Renew your vehicle licence online
+            </Link>
+            <Link
+              to="/renew/drivers-license"
+              className="rounded-lg border border-[#2389E3] px-4 py-2 text-sm font-semibold text-[#2389E3] hover:bg-[#2389E3]/10"
+            >
+              Renew your driver’s licence
+            </Link>
+          </div>
+        </div>
+
         {/* Further reading — outbound resources, verified URLs only */}
         {blog.resources?.length > 0 && (
           <div className="mb-12 rounded-2xl border border-gray-100 bg-gray-50 p-6">

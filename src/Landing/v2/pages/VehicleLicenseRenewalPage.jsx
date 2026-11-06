@@ -1,48 +1,164 @@
 import ServicePageTemplate from '../ServicePageTemplate'
 
+// /renew/vehicle-license is the money page for the "renew vehicle licence"
+// cluster. It is written to out-answer the official portals and the long-form
+// content sites that currently hold the top spots: real fee bands, the fines,
+// the identity rules, and which portal applies in which state — then the
+// Motoka flow on top. All statutory figures are indicative and state-variable;
+// the table and copy say so rather than promising one nationwide price.
 export default function VehicleLicenseRenewalPage() {
   return (
     <ServicePageTemplate
-      seoTitle="Vehicle License Renewal Online — Fast, Verified | Motoka"
+      seoTitle="Renew Vehicle Licence Online in Nigeria — Cost, Steps & Fines (2026) | Motoka"
       seoPath="/renew/vehicle-license"
-      seoDescription="Renew your Nigerian vehicle license online in minutes. Motoka processes it through our licensed agent network across 17 states — get your renewed license in 24-48 hours."
-      eyebrow="License Renewal"
-      h1="Renew your vehicle license online, without the office visit"
-      subcopy="Skip the queue at the licensing office. Enter your plate number, confirm your details in the app, and Motoka's licensed agent network handles the rest — most renewals are completed in 24–48 hours."
+      seoDescription="How to renew a vehicle licence online in Nigeria: what it costs by vehicle type, the documents you need, expired-licence fines, the NIN/Payer ID rule, and which state portal applies. Renew in minutes with Motoka."
+      eyebrow="Vehicle Licence Renewal"
+      h1="Renew your vehicle licence online in Nigeria"
+      subcopy="Skip the queue at the licensing office. Enter your plate number, see the full cost before you pay, and Motoka's licensed agent network processes the renewal — most are completed in 24–48 hours."
+      breadcrumbs={[
+        { name: 'Home', path: '/' },
+        { name: 'Renewals', path: '/renew/vehicle-license' },
+        { name: 'Vehicle Licence', path: '/renew/vehicle-license' },
+      ]}
+      service={{
+        name: 'Vehicle licence renewal',
+        serviceType: 'Vehicle document renewal',
+        priceRange: '12000-70000',
+      }}
+      lastUpdated="6 November 2026"
+      author="the Motoka Renewals Team"
       steps={[
         {
           title: 'Enter your plate number',
-          description: 'We pull your existing vehicle license details so you don’t have to re-type everything.',
+          description: 'We pull your existing vehicle licence record so you don’t have to re-type anything, and confirm it’s the right car before you pay.',
         },
         {
-          title: 'Confirm & pay',
-          description: 'See the full breakdown — government fee plus service fee — before you approve anything.',
+          title: 'Choose documents & see the cost',
+          description: 'Pick vehicle licence and anything else due — roadworthiness, insurance, proof of ownership. You see the government fee plus our service fee before approving.',
         },
         {
-          title: 'Get your renewed license',
-          description: 'A verified digital copy lands in your Motoka wallet, ready to show at any checkpoint.',
+          title: 'Pay online',
+          description: 'Pay by card or transfer. No account needed to start — guest renewal works from this page.',
+        },
+        {
+          title: 'We process & you track',
+          description: 'Our licensed agents submit and follow up with the issuing office. Track the order until it completes; the renewed copy lands in your Motoka wallet.',
+        },
+      ]}
+      table={{
+        title: 'What vehicle licence renewal costs',
+        caption:
+          'Indicative statutory fees (government charges only, before any service fee). Exact amounts vary by state and vehicle category — Motoka shows your precise quote at checkout after the plate lookup.',
+        head: ['Vehicle category', 'Vehicle licence', 'Roadworthiness', 'Typical annual total'],
+        rows: [
+          ['Private saloon (below 2.0L)', '₦12,500', '₦7,500', '₦20,000'],
+          ['Private SUV / 4x4 (2.0L+)', '₦22,500', '₦7,500', '₦30,000'],
+          ['Commercial bus (≤15 seats)', '₦18,500', '₦12,500', '₦37,500 (+ hackney permit)'],
+          ['Commercial truck / lorry', '₦32,500', '₦12,500', '₦51,500 (+ hackney permit)'],
+          ['Motorcycle', '₦5,500', '₦3,500', '₦12,000'],
+          ['Tricycle (keke)', '₦8,500', '₦4,500', '₦16,000 (+ hackney permit)'],
+        ],
+        note:
+          'Figures reflect published Lagos (LIRS/MVAA) rates and are a guide for other states. Commercial vehicles add a hackney permit where applicable. Proof of ownership and plate number are paid once and are not renewed annually.',
+      }}
+      sections={[
+        {
+          heading: 'What you are actually renewing',
+          paragraphs: [
+            'A Nigerian vehicle licence is the annual road tax that lets a specific car be on the road. It is separate from your driver’s licence (which is tied to you) and from third-party insurance (which is a separate policy). Most owners renew the vehicle licence and the roadworthiness certificate together, because both expire annually and both are checked at checkpoints.',
+            'Roadworthiness is the part that is more than a payment: private vehicles are physically inspected once a year (commercial vehicles every six months), and the inspection result is recorded against the vehicle before a certificate can be issued. That is why a “renewal” can involve an inspection slot, not just a receipt.',
+          ],
+        },
+        {
+          heading: 'Documents you need',
+          list: [
+            'Your plate number (this is enough to start on Motoka — we look the vehicle up).',
+            'The current or most recent vehicle licence / proof of ownership details to confirm the record matches.',
+            'For Lagos renewals from 1 September 2025: a Payer ID, NIN, or NIN-linked phone number is mandatory on every renewal and new registration.',
+            'If the vehicle is commercial: hackney permit details, and the driver’s LASDRI certification where applicable.',
+          ],
+          paragraphs: [
+            'You do not need to upload a stack of papers to begin. The plate lookup retrieves the registered record; Motoka only asks for more if your specific case needs it (for example a name change or a transferred vehicle).',
+          ],
+        },
+        {
+          heading: 'If your licence has already expired',
+          paragraphs: [
+            'There is no statutory grace period in Nigeria — the moment the licence lapses you are driving without a valid licence. You can still renew, and the process is the same, but the expired period attracts a fine.',
+            'Indicative penalties: an expired vehicle licence carries a fine of about ₦25,000 and an expired roadworthiness certificate about ₦15,000. If the vehicle is impounded, expect a release fee (around ₦30,000) plus a daily storage charge on top of the fine and the outstanding licence fee.',
+            'The practical move is to renew immediately rather than wait: the fines do not grow by waiting, but the risk of impoundment does. Motoka handles expired renewals in the same flow and flags anything extra your state requires.',
+          ],
+        },
+        {
+          heading: 'Which portal applies in your state',
+          paragraphs: [
+            'Nigeria has no single national renewal portal — each state runs or commissions its own. Knowing which one governs your plate is step one:',
+          ],
+          list: [
+            'Lagos — AutoReg customer portal (portal.autoreg.ng), run with the Lagos State MVAA.',
+            'FCT (Abuja) — DRTS self-service portal (selfservice.fctevreg.com).',
+            'States using a Board of Internal Revenue — e.g. Lagos revenue via LIRS (igr.ng); others via their state BIR or Motor Licensing Authority.',
+            'Everywhere else — Motoka processes through the licensed agent network for your state, so you don’t need to know which office owns the file.',
+          ],
+        },
+        {
+          heading: 'Motoka vs doing it yourself vs an agent',
+          paragraphs: [
+            'Doing it yourself on the state portal is cheapest in fees but costs you time: account setup, plate/file-ID lookups, inspection slots, and often a physical collection visit. Roadside agents are fast but opaque — you rarely see the fee breakdown and have no receipt trail.',
+            'Motoka sits between the two: you pay the government fee plus a clearly shown service fee, the work is done by licensed, MVAA-certified agents, and every step is tracked in the app with a verifiable digital copy at the end. No queue, no touts, and a reminder before next year’s expiry.',
+          ],
+        },
+        {
+          heading: 'Renew early — the reminder advantage',
+          paragraphs: [
+            'Enforcement has tightened and inspection lanes are busiest in the last week of each month. Starting about a month before expiry gives you buffer for inspections and processing without risking a lapse.',
+            'On Motoka the new expiry is stored automatically and reminders fire weeks ahead — not the day before — so next year renews itself before it becomes a fine.',
+          ],
         },
       ]}
       benefits={[
         { title: 'No office visits', description: 'The entire renewal happens from your phone — no queue, no touts.' },
         { title: 'Verified against real records', description: 'Every renewal is checked against the issuing agency, not just a printout.' },
+        { title: 'Transparent pricing', description: 'Government fee plus service fee, shown before you approve anything.' },
         { title: 'Deadline reminders', description: 'Motoka alerts you weeks ahead of your next expiry, not the day before.' },
-        { title: 'MVAA-certified', description: 'Processed through a licensed, certified agent network — not a roadside middleman.' },
+        { title: 'MVAA-certified network', description: 'Processed through a licensed, certified agent network — not a roadside middleman.' },
       ]}
       faqs={[
         {
-          q: 'How long does vehicle license renewal take through Motoka?',
-          a: 'Most renewals are completed within 24–48 hours of submitting your details and payment, depending on your state licensing office.',
+          q: 'How long does vehicle licence renewal take through Motoka?',
+          a: 'Most renewals complete within 24–48 hours of payment, depending on your state licensing office. Renewals that need a physical roadworthiness inspection take as long as the inspection slot you book.',
         },
         {
-          q: 'What documents do I need to renew my vehicle license?',
-          a: 'Just your plate number and current license details to start — Motoka will tell you if anything else is required for your specific case.',
+          q: 'How much does it cost to renew a vehicle licence in Nigeria?',
+          a: 'Statutory fees vary by state and vehicle category — roughly ₦12,000 to ₦50,000+ a year for the licence and roadworthiness combined (see the table above for indicative bands). Motoka adds a clearly shown service fee and gives your exact total at checkout after the plate lookup.',
         },
         {
-          q: 'Can I renew an already-expired vehicle license?',
-          a: 'Yes. An expired license usually means a slightly higher fee, not starting the process over — Motoka handles that automatically.',
+          q: 'Can I renew without creating an account?',
+          a: 'Yes. Guest renewal starts from this page: enter your plate, choose documents, pay. You can create an account afterwards if you want reminders and a digital wallet copy.',
+        },
+        {
+          q: 'Can I renew an already-expired vehicle licence?',
+          a: 'Yes. An expired licence renews through the same flow; the expired period attracts a fine (about ₦25,000 for the licence) but you do not restart the process. Renew as soon as possible — the risk of impoundment grows the longer you wait.',
+        },
+        {
+          q: 'Do I need my NIN to renew?',
+          a: 'For Lagos renewals from 1 September 2025, a Payer ID, NIN, or NIN-linked phone number is mandatory on every renewal and new registration. Other states vary; Motoka tells you if your state requires it.',
+        },
+        {
+          q: 'Is roadworthiness included in the renewal?',
+          a: 'They are separate charges usually paid together. Roadworthiness requires a physical inspection (yearly for private vehicles, every six months for commercial), so it can add an inspection step beyond the payment.',
+        },
+        {
+          q: 'Is Motoka the official government portal?',
+          a: 'No. The FRSC and state motor registries remain the statutory bodies. Motoka is a licensed private processor that submits and follows up your renewal on your behalf so you don’t have to queue.',
+        },
+        {
+          q: 'Which states does Motoka cover?',
+          a: 'Motoka processes renewals across its licensed agent network in 17+ states including Lagos, Ogun, Oyo, Osun, Edo, Rivers and the FCT. Choose your state of renewal at checkout.',
         },
       ]}
+      ctaText="Renew Now"
+      ctaTo="/#top"
     />
   )
 }

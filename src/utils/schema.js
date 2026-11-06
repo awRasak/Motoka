@@ -56,6 +56,47 @@ export function howToSchema({ name, description, path, steps }) {
   };
 }
 
+// crumbs are [{ name, path }] from the site root down to the current page.
+// The last crumb is the page itself, so it carries no link.
+export function breadcrumbSchema(crumbs) {
+  if (!crumbs?.length) return undefined;
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      ...(index < crumbs.length - 1 ? { item: absoluteUrl(crumb.path) } : {}),
+    })),
+  };
+}
+
+// A Service node tells Google what is actually for sale on the page and where
+// it applies. priceRange is deliberately a broad indicative band in NGN rather
+// than a hard price: statutory fees vary by state and vehicle, and a wrong
+// exact figure in schema is worse than a clearly-labelled range.
+export function serviceSchema({ name, description, path, serviceType, priceRange }) {
+  return {
+    "@type": "Service",
+    name,
+    description,
+    serviceType,
+    url: absoluteUrl(path),
+    areaServed: { "@type": "Country", name: "Nigeria" },
+    provider: PUBLISHER,
+    ...(priceRange
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "NGN",
+            priceRange,
+            availability: "https://schema.org/InStock",
+          },
+        }
+      : {}),
+  };
+}
+
 export function blogPostingSchema({ title, description, path, date, image }) {
   // Posts carry a display date like "Mar 20, 2026". Anything Date cannot read
   // is left off rather than emitted as an invalid datePublished.
