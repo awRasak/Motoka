@@ -168,6 +168,10 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
       toast.error(PLATE_ERROR);
       return;
     }
+    if (!renewalState) {
+      toast.error("Please choose your state of renewal");
+      return;
+    }
     if (!formData.name || !formData.phone || !formData.email || !formData.expiryDate) {
       toast.error("Please fill in all fields");
       return;
@@ -410,27 +414,51 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
 
                   <form className="flex flex-col flex-1" onSubmit={handleSubmitStep1}>
                     <div className="space-y-3 sm:space-y-3 flex-1 flex items-center flex-col justify-center">
-                      <div className="relative w-full">
-                        <input
-                          type="text"
-                          id="plateNumber"
-                          value={plateNumber}
-                          readOnly={isPlateLocked}
-                          onChange={isPlateLocked ? undefined : handlePlateChange}
-                          className={`peer block w-full rounded-lg px-4 pb-4 pt-7 text-lg text-[#05243F] font-bold shadow-2xs focus:outline-none border-none sm:px-5 placeholder-transparent ${
-                            isPlateLocked
-                              ? "bg-[#FFFBEB]"
-                              : "bg-[#F4F5FC] hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD]"
-                          }`}
-                          placeholder="Your plate no."
-                        />
-                        <label
-                          htmlFor="plateNumber"
-                          className="absolute left-4 top-5 z-10 origin-[0] -translate-y-2.5 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-[#2389E3] pointer-events-none"
-                        >
-                          Your plate no.*
-                        </label>
+                      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+                        <div className="relative w-full sm:flex-[3]">
+                          <input
+                            type="text"
+                            id="plateNumber"
+                            value={plateNumber}
+                            readOnly={isPlateLocked}
+                            onChange={isPlateLocked ? undefined : handlePlateChange}
+                            className={`peer block w-full rounded-lg px-4 pb-4 pt-7 text-lg text-[#05243F] font-bold shadow-2xs focus:outline-none border-none sm:px-5 placeholder-transparent ${
+                              isPlateLocked
+                                ? "bg-[#FFFBEB]"
+                                : "bg-[#F4F5FC] hover:bg-[#FFF4DD]/50 focus:bg-[#FFF4DD]"
+                            }`}
+                            placeholder="Your plate no."
+                          />
+                          <label
+                            htmlFor="plateNumber"
+                            className="absolute left-4 top-5 z-10 origin-[0] -translate-y-2.5 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-[#2389E3] pointer-events-none"
+                          >
+                            Your plate no.*
+                          </label>
+                        </div>
+
+                        <div className="w-full sm:flex-[2]">
+                          <SearchableSelect
+                            name="renewal_state"
+                            value={renewalState}
+                            onChange={(e) => setRenewalState(e.target.value)}
+                            options={NIGERIAN_STATES.map((s) => ({ id: s, name: s }))}
+                            placeholder="State*"
+                            filterKey="name"
+                            allowCustom={false}
+                          />
+                        </div>
                       </div>
+
+                      {renewalState === "Lagos" && (
+                        <div className="flex w-full gap-3 rounded-[10px] border border-[#FDB022]/40 bg-[#FFFBF0] p-3">
+                          <Icon icon="solar:info-circle-bold" className="mt-0.5 shrink-0 text-[#C98B1A]" fontSize={18} />
+                          <p className="text-xs text-[#7A5C00]">
+                            Lagos road worthiness requires a VIO inspection, so it is priced higher
+                            than other states and the documents take longer to process.
+                          </p>
+                        </div>
+                      )}
 
                       <div className="relative w-full">
                         <input
@@ -735,40 +763,6 @@ export default function RenewModal({ isOpen, onClose, initialPlateNumber }) {
                       <div className="mt-3 w-full rounded-[10px] border border-[#F4F5FC] p-4 text-[16px] font-semibold text-[#05243F]/90">
                         {formatCurrency(renewalAmount / 100)}
                       </div>
-                    </div>
-
-                    {/* State of Renewal */}
-                    <div className="mb-6">
-                      <div className="relative">
-                        <SearchableSelect
-                          label={<>State of Renewal <span className="text-red-500">*</span></>}
-                          name="renewal_state"
-                          value={renewalState}
-                          onChange={(e) => setRenewalState(e.target.value)}
-                          options={NIGERIAN_STATES.map((s) => ({ id: s, name: s }))}
-                          placeholder="Select state of renewal"
-                          filterKey="name"
-                          allowCustom={false}
-                        />
-                        {renewalState && (
-                          <button
-                            type="button"
-                            onClick={() => setRenewalState("")}
-                            className="absolute right-9 top-[calc(0.75rem+1.25rem)] -translate-y-1/2 text-[#05243F]/30 hover:text-[#05243F]/60 transition-colors"
-                            aria-label="Clear state"
-                          >
-                            <Icon icon="solar:close-circle-bold" fontSize={16} />
-                          </button>
-                        )}
-                      </div>
-                      {renewalState === "Lagos" && (
-                        <div className="mt-3 flex gap-3 rounded-[10px] border border-[#FDB022]/40 bg-[#FFFBF0] p-3">
-                          <Icon icon="solar:info-circle-bold" className="mt-0.5 shrink-0 text-[#C98B1A]" fontSize={18} />
-                          <p className="text-xs text-[#7A5C00]">
-                            Because you have chosen Lagos state you will be required to take your vehicle for inspection which may affect the documents process timeline.
-                          </p>
-                        </div>
-                      )}
                     </div>
 
                     <div className="mb-6">
