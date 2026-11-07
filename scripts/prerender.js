@@ -56,14 +56,20 @@ const STATIC_ROUTES = [
 // build date — see the sitemap comment below for why a rolling "today" hurts.
 const DEFAULT_LASTMOD = '2026-10-22'
 const ROUTE_LASTMOD = {
-  '/': '2026-11-06',
-  '/renew/vehicle-license': '2026-11-06',
-  '/renew/road-worthiness': '2026-10-22',
-  '/renew/drivers-license': '2026-10-22',
-  '/renew/insurance': '2026-10-22',
+  '/': '2026-11-07',
+  '/renew/vehicle-license': '2026-11-07',
+  '/renew/road-worthiness': '2026-11-07',
+  '/renew/drivers-license': '2026-11-07',
+  '/renew/insurance': '2026-11-07',
+  '/states/lagos': '2026-11-07',
+  '/states/ogun': '2026-11-07',
+  '/states/oyo': '2026-11-07',
+  '/states/osun': '2026-11-07',
+  '/states/edo': '2026-11-07',
+  '/states/rivers': '2026-11-07',
   '/faq': '2026-10-22',
   '/guides': '2026-10-22',
-  '/blogs': '2026-10-22',
+  '/blogs': '2026-11-07',
 }
 
 // Vercel's build image ships no Chrome shared libraries, so the browser
@@ -164,7 +170,9 @@ async function main() {
     // moved. Routes keep a real date here; bump it when you change that page.
     const urls = routes
       .map((route) => {
-        const lastmod = ROUTE_LASTMOD[route] || DEFAULT_LASTMOD
+        let lastmod = ROUTE_LASTMOD[route]
+        if (!lastmod && route.startsWith('/blog/')) lastmod = ROUTE_LASTMOD['/blogs'] || DEFAULT_LASTMOD
+        if (!lastmod) lastmod = DEFAULT_LASTMOD
         return `  <url>\n    <loc>${SITE_ORIGIN}${route}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
       })
       .join('\n')

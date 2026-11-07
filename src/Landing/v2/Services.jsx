@@ -1,4 +1,5 @@
 import { useRef, useEffect, forwardRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useScroll, motion } from 'framer-motion'
 import TiltCard from './TiltCard'
 import doc1 from '../../assets/v2/doc-1.webp'
@@ -11,10 +12,10 @@ import doc7 from '../../assets/v2/doc-7.webp'
 import doc3 from '../../assets/v2/doc-3.webp'
 
 const CARDS = [
-  { id: 1, bg: '#fef0ff', color: '#79617b', title: ['Renew', 'Vehicle License'], desc: 'Fast renewals and official updates without visiting the licensing office.', img: doc1, style: { height: 470, width: 356 } },
+  { id: 1, bg: '#fef0ff', color: '#79617b', title: ['Renew', 'Vehicle License'], desc: 'Fast renewals and official updates without visiting the licensing office.', img: doc1, style: { height: 470, width: 356 }, to: '/renew/vehicle-license' },
   { id: 2, bg: '#ebf5ff', color: '#616c7b', title: ['Get ', 'Plate Number'], desc: 'Standard, custom, or replacement number plates processed seamlessly.', img: plateCard, style: { height: 470, width: 410 } },
-  { id: 3, bg: '#f0fffa', color: '#617b73', title: ['Road ', 'Worthiness'], desc: 'Official roadworthiness certification and inspection booking.', img: roadWorthy1, img2: roadWorthy2, style: { height: 470, width: 350 } },
-  { id: 4, bg: '#eee', color: '#595959', title: ['Third Party Insurance'], desc: 'Official roadworthiness certification and inspection booking.', img: doc6, style: { height: 470, width: 340 } },
+  { id: 3, bg: '#f0fffa', color: '#617b73', title: ['Road ', 'Worthiness'], desc: 'Official roadworthiness certification and inspection booking.', img: roadWorthy1, img2: roadWorthy2, style: { height: 470, width: 350 }, to: '/renew/road-worthiness' },
+  { id: 4, bg: '#eee', color: '#595959', title: ['Third Party Insurance'], desc: 'Renew third-party motor insurance and stay covered on Nigerian roads.', img: doc6, style: { height: 470, width: 340 }, to: '/renew/insurance' },
   { id: 5, bg: '#fff0f0', color: '#7b6161', title: ['Proof of ', 'Ownership'], desc: 'Central motor registry and official ownership documentation.', img: doc2, style: { height: 470, width: 316 } },
   { id: 6, bg: '#fffcf0', color: '#7b7061', title: ['Other ', 'Documents'], desc: 'Tint permits, hackney permits, and local government papers.', img: doc7, img2: doc3, style: { height: 470, width: 362 } },
 ]
@@ -163,6 +164,15 @@ function renderCard(card) {
         <p style={{ fontWeight: 300, fontSize: 14, lineHeight: '23px', color: card.color, height: 55 }}>
           {card.desc}
         </p>
+        {card.to ? (
+          <Link
+            to={card.to}
+            className="pointer-events-auto"
+            style={{ fontWeight: 600, fontSize: 13, color: '#2389e3', marginTop: 6 }}
+          >
+            Learn more →
+          </Link>
+        ) : null}
       </div>
       {card.id === 1 ? (
         <div className="absolute flex items-center justify-center" style={{ left: 63, top: 255, width: 357, height: 222 }}>

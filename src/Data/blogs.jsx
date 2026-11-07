@@ -347,6 +347,104 @@ Want the full mechanical deep-dive? How A Car Works explains the hydraulic syste
       },
     ],
   },
+  {
+    id: 11,
+    title: "How Much Does It Cost to Renew a Vehicle Licence in Nigeria (2026)?",
+    excerpt: "A practical guide to vehicle licence renewal costs in Nigeria — what the 4 core documents cover, why prices vary by car and state, and how to see your exact total before you pay.",
+    content: `One of the most common questions drivers ask is simple: how much will it cost to renew my vehicle licence? The honest answer is that it depends — on your vehicle type, engine size, the state you renew in, and which documents you are renewing at the same time.
+
+What you are usually paying for
+In Nigeria, most drivers renew a bundle of vehicle papers together because they expire on similar cycles and are checked together at road stops. The 4 core documents are:
+- Vehicle licence (the annual road tax for the vehicle)
+- Road worthiness certificate (confirmed after a vehicle inspection)
+- Third-party motor insurance (the legal minimum cover)
+- Proof of ownership
+
+Commercial vehicles may also need a hackney permit. Your driver’s licence is different — it is tied to you (the person), issued through the FRSC, and renewed on its own schedule.
+
+Typical cost ranges (estimates)
+Because fees vary, it helps to think in “from” estimates rather than a single nationwide price:
+- Many saloon cars and SUVs: often from around ₦33,000 for the 4 core documents
+- Pickups, buses and other commercial vehicles: often from around ₦36,000 (a hackney permit may apply)
+- Trucks and lorries: often from around ₦40,000 (a hackney permit may apply)
+
+These are planning estimates, not a fixed quote. The final amount can increase or decrease at checkout based on your vehicle type, engine size, your state of renewal and the exact documents you select. Always confirm the itemised total before you pay.
+
+Why the price varies so much
+- Vehicle type and engine size/category: different categories attract different statutory charges.
+- State of renewal: vehicle licensing is administered at the state level, and processes/fees can differ.
+- Road worthiness inspection: road worthiness usually involves a physical inspection, which affects timing and can affect the overall cost.
+- Insurance: third-party premiums vary by vehicle and insurer; comprehensive cover costs more.
+
+How to avoid surprises
+1. Renew the documents you actually need together, so you see one clear, itemised total.
+2. Check what is included (for example, whether proof of ownership and insurance are part of the bundle).
+3. Confirm the amount before paying — never rely on last year’s figure.
+
+If you want a step-by-step breakdown and a quick way to start your renewal, Motoka’s vehicle licence renewal guide shows the process and lets you see your exact total at checkout before you approve payment.`,
+    image: coverVehicleLicence,
+    date: "Nov 7, 2026",
+  },
+  {
+    id: 12,
+    title: "Vehicle Licence Expired in Nigeria? Fines, Risks and What to Do Next",
+    excerpt: "If your vehicle licence or road worthiness has expired, here’s what it means on Nigerian roads, the risks at checkpoints, and the fastest way to get back in order.",
+    content: `Realising your vehicle licence has expired usually happens at the worst time — at a checkpoint, or the night before a long drive. The key thing to know is that an expired licence is fixable, but driving on expired papers carries real risk.
+
+Is there a grace period?
+In practice, you should treat an expired vehicle licence or road worthiness certificate as invalid immediately. Enforcement checks focus on whether your papers are current, and “I’ll renew it next week” rarely helps at a stop.
+
+What can happen if you’re stopped
+- Fines or penalties for driving with expired documents (amounts vary by offence and by state).
+- Delays while officers verify your records.
+- In more serious cases, the vehicle can be impounded until the issue is resolved, which adds cost and downtime.
+
+The exact penalty depends on what has expired (vehicle licence, road worthiness, insurance) and the circumstances, so the safest move is to avoid driving the vehicle until it’s renewed where possible — or renew immediately.
+
+What to do right now
+1. Confirm which documents are expired. Vehicle licence, road worthiness and insurance expire on different dates; check each one.
+2. Gather the basics. Your plate number is usually enough to start a renewal lookup.
+3. Renew as soon as possible. Expired documents can still be renewed — you don’t start from scratch — but delays increase your risk of fines or impoundment.
+4. Don’t forget road worthiness may need an inspection. If road worthiness is expired, you may need to present the vehicle for inspection before the certificate is issued.
+5. Keep proof once renewed. Save the receipt/certificate (digital is fine) so you can show it if asked.
+
+How to prevent it next time
+Most expired-paper problems come from timing, not intent. Set reminders well ahead of each expiry date and keep your vehicle licence, road worthiness and insurance dates in one place. Motoka tracks each document separately and sends reminders weeks in advance, and you can renew online with the cost shown clearly before you pay.`,
+    image: coverPlate,
+    date: "Nov 7, 2026",
+  },
+  {
+    id: 13,
+    title: "How to Renew Your Vehicle Licence Online in Lagos, Ogun, Oyo and Other States",
+    excerpt: "Renewing vehicle papers in Nigeria is handled state by state. Here’s how online renewal works in Lagos and other states, what you’ll need, and where inspections still apply.",
+    content: `“Can I renew my vehicle licence online?” is a common question — and the answer is usually yes, you can start online, but the exact process depends on your state and whether an inspection is required.
+
+Renewal is state-based (not one national portal)
+Nigeria does not run a single nationwide portal for vehicle licence renewal. Each state administers vehicle licensing through its own channels (motor vehicle administration/licensing authority and revenue systems), and the steps can differ:
+- Lagos: renewals are commonly handled through the AutoReg/MVAA ecosystem and state revenue channels, and there may be identity requirements (such as a Payer ID/NIN, depending on current rules).
+- Other states (e.g. Ogun, Oyo, Osun, Edo, Rivers): processing runs through the state’s motor vehicle licensing and Board of Internal Revenue channels for your registration area.
+
+Because the “right” office or portal depends on where the vehicle is registered, many drivers prefer a service that routes the renewal through the proper channel for their state.
+
+What you’ll typically need
+- Your plate number (to locate the vehicle record).
+- The documents you want to renew: vehicle licence and, often, road worthiness and third-party insurance.
+- Payment. Fees vary by vehicle type, engine size and state, so confirm the itemised total before paying.
+
+When you still need to show up
+Road worthiness usually requires a physical vehicle inspection at an approved centre (VIO/VIS or a state-approved testing centre, depending on the state). Even if you start the process online, you may need to present the vehicle for inspection before the road worthiness certificate is issued.
+
+A simple way to do it
+1. Confirm your state of registration/renewal.
+2. Select the documents due (vehicle licence, road worthiness, insurance, and any others).
+3. Check the estimated, itemised cost and confirm the exact total at checkout.
+4. Complete any required inspection step if road worthiness applies.
+5. Save your renewed documents and set reminders for the next expiry.
+
+Motoka lets you start your renewal online, routes it through the appropriate licensed channel for your state, and shows the cost clearly before you pay — so you spend less time figuring out portals and queues.`,
+    image: coverInspection,
+    date: "Nov 7, 2026",
+  },
 ];
 
 export default blogData

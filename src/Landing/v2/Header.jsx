@@ -12,7 +12,8 @@ import { useIsAuthenticated } from '../../utils/authStorage'
 const NAV_LINKS = [
   { label: 'Home', to: '/#top', match: ['/'], exact: true },
   { label: 'About', to: '/about', match: ['/about'] },
-  { label: 'Service', to: '/#covers' },
+  // Money-page hub: descriptive internal link (and stays lit on renew/state pages).
+  { label: 'Renew', to: '/renew/vehicle-license', match: ['/renew', '/states'] },
   // The index lives at /blogs but posts at /blog/:slug, so Blog needs both
   // prefixes to stay lit while reading a post.
   { label: 'Blog', to: '/blogs', match: ['/blogs', '/blog'] },
