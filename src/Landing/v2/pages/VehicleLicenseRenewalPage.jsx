@@ -23,9 +23,9 @@ export default function VehicleLicenseRenewalPage() {
       service={{
         name: 'Vehicle licence renewal',
         serviceType: 'Vehicle document renewal',
-        priceRange: '12000-70000',
+        priceRange: '33000-70000',
       }}
-      lastUpdated="6 November 2026"
+      lastUpdated="7 November 2026"
       author="the Motoka Renewals Team"
       steps={[
         {
@@ -46,20 +46,34 @@ export default function VehicleLicenseRenewalPage() {
         },
       ]}
       table={{
-        title: 'What vehicle licence renewal costs',
+        title: 'Estimated cost to renew your vehicle papers (4 documents)',
         caption:
-          'Indicative statutory fees (government charges only, before any service fee). Exact amounts vary by state and vehicle category — Motoka shows your precise quote at checkout after the plate lookup.',
-        head: ['Vehicle category', 'Vehicle licence', 'Roadworthiness', 'Typical annual total'],
+          'Covers the 4 core documents: Vehicle Licence, Road Worthiness, Third-Party Insurance and Proof of Ownership. Prices are shown as “from” because the final amount changes with your engine size and car type (and your state).',
+        head: ['Vehicle type', 'What’s included', 'Estimated price (from)'],
         rows: [
-          ['Private saloon (below 2.0L)', '₦12,500', '₦7,500', '₦20,000'],
-          ['Private SUV / 4x4 (2.0L+)', '₦22,500', '₦7,500', '₦30,000'],
-          ['Commercial bus (≤15 seats)', '₦18,500', '₦12,500', '₦37,500 (+ hackney permit)'],
-          ['Commercial truck / lorry', '₦32,500', '₦12,500', '₦51,500 (+ hackney permit)'],
-          ['Motorcycle', '₦5,500', '₦3,500', '₦12,000'],
-          ['Tricycle (keke)', '₦8,500', '₦4,500', '₦16,000 (+ hackney permit)'],
+          [
+            'Saloon cars (e.g. Corolla, Yaris, Camry, Accord)',
+            'Vehicle Licence + Road Worthiness + Third-Party Insurance + Proof of Ownership',
+            'From ₦33,000',
+          ],
+          [
+            'SUVs / Jeeps / Space buses',
+            'Vehicle Licence + Road Worthiness + Third-Party Insurance + Proof of Ownership',
+            'From ₦33,000',
+          ],
+          [
+            'Pickup / bus / commercial vehicle',
+            'Vehicle Licence + Road Worthiness + Third-Party Insurance + Proof of Ownership (+ Hackney Permit where required)',
+            'From ₦36,000',
+          ],
+          [
+            'Truck / lorry',
+            'Vehicle Licence + Road Worthiness + Third-Party Insurance + Proof of Ownership (+ Hackney Permit where required)',
+            'From ₦40,000',
+          ],
         ],
         note:
-          'Figures reflect published Lagos (LIRS/MVAA) rates and are a guide for other states. Commercial vehicles add a hackney permit where applicable. Proof of ownership and plate number are paid once and are not renewed annually.',
+          'Disclaimer: these prices are estimates and may increase or decrease at checkout based on your vehicle type, engine size, state of renewal and the documents you select. Your exact total is confirmed before you pay.',
       }}
       sections={[
         {
@@ -129,8 +143,8 @@ export default function VehicleLicenseRenewalPage() {
           a: 'Most renewals complete within 24–48 hours of payment, depending on your state licensing office. Renewals that need a physical roadworthiness inspection take as long as the inspection slot you book.',
         },
         {
-          q: 'How much does it cost to renew a vehicle licence in Nigeria?',
-          a: 'Statutory fees vary by state and vehicle category — roughly ₦12,000 to ₦50,000+ a year for the licence and roadworthiness combined (see the table above for indicative bands). Motoka adds a clearly shown service fee and gives your exact total at checkout after the plate lookup.',
+          q: 'How much does it cost to renew vehicle papers in Nigeria?',
+          a: 'It depends on your vehicle type, engine size, state and the documents you select. As an estimate, renewing the 4 core documents (Vehicle Licence, Road Worthiness, Third-Party Insurance and Proof of Ownership) starts from around ₦33,000 for most saloon cars and SUVs, and from around ₦36,000–₦40,000 for commercial vehicles and trucks (commercial vehicles may also need a Hackney Permit). These are estimates and may increase or decrease at checkout — Motoka shows your exact, itemised total before you pay.',
         },
         {
           q: 'Can I renew without creating an account?',
