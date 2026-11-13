@@ -91,9 +91,18 @@ import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
 import Terms from "./pages/Terms.jsx";
 import HowItWorks from "./pages/HowItWorks.jsx";
+import BusinessLanding from "./pages/BusinessLanding.jsx";
 import DriverGuides from "./pages/DriverGuides.jsx";
 import LicenseReminder from "./pages/LicenseReminder.jsx";
 import RenewVehicleLicence from "./pages/RenewVehicleLicence.jsx";
+import BusinessLayout from "./business/BusinessLayout.jsx";
+import BusinessOverview from "./business/pages/BusinessOverview.jsx";
+import BusinessVehicles from "./business/pages/BusinessVehicles.jsx";
+import BusinessDocuments from "./business/pages/BusinessDocuments.jsx";
+import BusinessRenewals from "./business/pages/BusinessRenewals.jsx";
+import BusinessDrivers from "./business/pages/BusinessDrivers.jsx";
+import BusinessPayments from "./business/pages/BusinessPayments.jsx";
+import BusinessReports from "./business/pages/BusinessReports.jsx";
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
@@ -225,6 +234,7 @@ export default function App() {
             <Route path="mo" element={<MoPage />} />
             <Route path="ladipo-marketplace" element={<LadipoMarketingPage />} />
             <Route path="save-ahead-wallet" element={<WalletMarketingPage />} />
+            <Route path="for-fleets" element={<BusinessLanding />} />
           </Route>
 
           {/* Auth Routes */}
@@ -363,6 +373,20 @@ export default function App() {
           {/* Guest renewal flow — public, no auth required */}
           <Route path="guest/renewal/callback" element={<GuestRenewalCallback />} />
           <Route path="guest/renewal/receipt" element={<GuestRenewalReceipt />} />
+
+          {/* Motoka Business — public, self-contained fleet preview.
+              Demo data only for now; deliberately absent from the prerender
+              route list and sitemap so it stays out of search results. */}
+          <Route path="business" element={<BusinessLayout />}>
+            <Route index element={<BusinessOverview />} />
+            <Route path="vehicles" element={<BusinessVehicles />} />
+            <Route path="documents" element={<BusinessDocuments />} />
+            <Route path="renewals" element={<BusinessRenewals />} />
+            <Route path="drivers" element={<BusinessDrivers />} />
+            <Route path="payments" element={<BusinessPayments />} />
+            <Route path="reports" element={<BusinessReports />} />
+            <Route path="*" element={<Navigate to="/business" replace />} />
+          </Route>
 
           {/* Admin Routes */}
           <Route path="admin/*" element={<AdminRoutes />} />
