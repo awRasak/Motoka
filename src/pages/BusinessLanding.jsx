@@ -60,17 +60,17 @@ function Hero() {
   return (
     <section style={{ position: "relative", backgroundColor: "#0A1F3A", backgroundImage: "radial-gradient(900px 460px at 50% -8%, rgba(35,137,227,.42), transparent 70%), linear-gradient(180deg, #0A1F3A 0%, #0A1F3A 30%, #1A6FC4 100%)", paddingTop: 96, paddingBottom: 0, overflow: "hidden" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", paddingLeft: 24, paddingRight: 24, textAlign: "center" }}>
-        <h1 style={{ fontSize: "clamp(38px, 5.2vw, 60px)", lineHeight: 1.07, letterSpacing: "-0.03em", fontWeight: 800, color: "#fff", maxWidth: 820, margin: "0 auto 20px" }}>
+        <h1 className="biz-hero-anim biz-hero-anim-1" style={{ fontSize: "clamp(38px, 5.2vw, 60px)", lineHeight: 1.07, letterSpacing: "-0.03em", fontWeight: 700, color: "#fff", maxWidth: 820, margin: "0 auto 20px", textShadow: "none" }}>
           Modern compliance for fleets that never stop moving
         </h1>
-        <p style={{ margin: "0 auto 30px", fontSize: "clamp(16px, 1.6vw, 19px)", lineHeight: 1.55, fontWeight: 500, color: SKY_SOFT, maxWidth: 620 }}>
+        <p className="biz-hero-anim biz-hero-anim-2" style={{ margin: "0 auto 30px", fontSize: "clamp(16px, 1.6vw, 19px)", lineHeight: 1.55, fontWeight: 400, color: SKY_SOFT, maxWidth: 620, textShadow: "none" }}>
           Track every licence, insurance and roadworthiness date across your fleet. Renew in bulk and keep verified documents in one place.
         </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
-          <Link to="/auth/signup" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: NAVY, color: "#fff", fontWeight: 700, fontSize: 16, lineHeight: 1, padding: "15px 26px", borderRadius: 999, border: "1px solid transparent" }}>Create account</Link>
-          <Link to="/contact" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: "#fff", color: NAVY, fontWeight: 700, fontSize: 16, lineHeight: 1, padding: "15px 26px", borderRadius: 999, border: "1px solid transparent" }}>Talk to sales</Link>
+        <div className="biz-hero-anim biz-hero-anim-3" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+          <Link to="/auth/signup" className="biz-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: NAVY, color: "#fff", fontWeight: 600, fontSize: 16, lineHeight: 1, padding: "15px 26px", borderRadius: 999, border: "1px solid transparent", boxShadow: "none" }}>Create account</Link>
+          <Link to="/contact" className="biz-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: "#fff", color: NAVY, fontWeight: 600, fontSize: 16, lineHeight: 1, padding: "15px 26px", borderRadius: 999, border: "1px solid transparent", boxShadow: "none" }}>Talk to sales</Link>
         </div>
-        <p style={{ margin: "16px 0 0", fontSize: 13, fontWeight: 500, color: "#D9E8F7" }}>Motoka is a service provider, not a government agency.</p>
+        <p className="biz-hero-anim biz-hero-anim-4" style={{ margin: "16px 0 0", fontSize: 13, fontWeight: 400, color: "#D9E8F7", textShadow: "none" }}>Motoka is a service provider, not a government agency.</p>
       </div>
 
       <div style={{ maxWidth: 1100, margin: "40px auto 0", paddingLeft: 24, paddingRight: 24, position: "relative", zIndex: 2 }}>
@@ -444,6 +444,17 @@ export default function BusinessLanding() {
         description="Track every licence, insurance and roadworthiness date across your fleet. Renew in bulk, keep verified documents in one place, and get expiry alerts that escalate."
         path="/for-fleets"
       />
+      <style>{`
+        @keyframes bizHeroIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+        .biz-hero-anim { animation: bizHeroIn .8s cubic-bezier(.2,.7,.2,1) both; }
+        .biz-hero-anim-1 { animation-delay: .1s; }
+        .biz-hero-anim-2 { animation-delay: .25s; }
+        .biz-hero-anim-3 { animation-delay: .4s; }
+        .biz-hero-anim-4 { animation-delay: .55s; }
+        .biz-btn { transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, opacity .2s ease; }
+        .biz-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px -8px rgba(0,0,0,.45); }
+        .biz-btn:active { transform: translateY(0); }
+      `}</style>
       <Hero />
       <FeaturesSection />
       <HowYouWorkSection />

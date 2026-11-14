@@ -36,6 +36,18 @@ export default function Header() {
   // The fleet landing carries the business mark; every other marketing page
   // keeps the consumer Motoka mark.
   const isBusinessLanding = pathname === '/for-fleets' || pathname.startsWith('/for-fleets/')
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    if (!isBusinessLanding) {
+      setScrolled(false)
+      return
+    }
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isBusinessLanding])
 
   useEffect(() => {
     if (!open) return
@@ -50,11 +62,21 @@ export default function Header() {
   }, [open])
 
   return (
-    <div className="bg-white sticky top-0 z-[70]">
-      <div
-        className="flex h-[63px] items-center justify-between w-full"
-        style={{ paddingLeft: 'var(--landing-gutter, 40px)', paddingRight: 'var(--landing-gutter, 40px)' }}
-      >
+    <>
+      <style>{`
+        @keyframes bizHeaderIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+        .biz-header-anim { animation: bizHeaderIn .6s cubic-bezier(.2,.7,.2,1) both; }
+        .biz-nav-link { transition: color .2s ease, transform .2s ease, opacity .2s ease; }
+        .biz-nav-link:hover { transform: translateY(-1px); opacity: 1; }
+        .biz-btn { transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, opacity .2s ease; }
+        .biz-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -8px rgba(0,0,0,.4); }
+        .biz-btn:active { transform: translateY(0); }
+      `}</style>
+      <div className={isBusinessLanding ? `sticky top-0 z-[70] transition-colors duration-300 biz-header-anim ${scrolled ? 'bg-[#0A1F3A]/90 backdrop-blur-md' : 'bg-transparent'}` : 'bg-white sticky top-0 z-[70]'}>
+        <div
+          className="flex h-[63px] items-center justify-between w-full"
+          style={{ paddingLeft: 'var(--landing-gutter, 40px)', paddingRight: 'var(--landing-gutter, 40px)' }}
+        >
         <div className="flex gap-[47px] items-center">
           <Link
             to={isBusinessLanding ? '/for-fleets' : '/#top'}
@@ -79,10 +101,10 @@ export default function Header() {
                 gridRow: 1,
                 marginLeft: isBusinessLanding ? 52.07 : 44.07,
                 marginTop: isBusinessLanding ? 3.92 : 1.508,
-                fontWeight: 600,
+                fontWeight: 500,
                 fontSize: 20.894,
                 lineHeight: '32.163px',
-                color: '#05243f',
+                color: isBusinessLanding ? '#fff' : '#05243f',
                 whiteSpace: 'nowrap',
               }}
             >
@@ -109,8 +131,10 @@ export default function Header() {
                   }`}
                 >
                   <span
-                    className={`text-[14px] leading-normal whitespace-nowrap transition-colors duration-200 ${
-                      active ? 'font-medium text-[#05243f]' : 'font-normal text-[#697c8c]'
+                    className={`biz-nav-link text-[14px] leading-normal whitespace-nowrap transition-colors duration-200 ${
+                      active
+                        ? isBusinessLanding ? 'font-medium text-white' : 'font-medium text-[#05243f]'
+                        : isBusinessLanding ? 'font-normal text-white/75 hover:text-white' : 'font-normal text-[#697c8c]'
                     }`}
                   >
                     {l.label}
@@ -135,7 +159,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => navigate('/auth/login')}
-                className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap cursor-pointer transition-opacity hover:opacity-75"
+                className={`font-medium ${isBusinessLanding ? 'text-white/90 hover:text-white biz-btn' : 'text-[#2389e3]'} text-[14px] leading-normal whitespace-nowrap cursor-pointer transition-opacity hover:opacity-75`}
               >
                 Login
               </button>
@@ -144,7 +168,7 @@ export default function Header() {
                 onClick={() => navigate('/auth/signup')}
                 className="bg-[#f4faff] border border-[#2389e3] flex h-[38px] items-center justify-center overflow-clip px-[24px] py-[14px] rounded-[90px] w-[92px] cursor-pointer transition-colors hover:bg-[#e4f1ff]"
               >
-                <span className="font-semibold text-[#2389e3] text-[14px] leading-normal whitespace-nowrap">
+                <span className={`font-medium ${isBusinessLanding ? 'text-[#0A1F3A]' : 'text-[#2389e3]'} text-[14px] leading-normal whitespace-nowrap`}>
                   Register
                 </span>
               </button>
@@ -255,5 +279,6 @@ export default function Header() {
         </div>
       </div>
     </div>
+    </>
   )
 }
