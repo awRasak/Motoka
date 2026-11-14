@@ -29,7 +29,8 @@
   .biz-app .app{display:flex;min-height:100vh}
 
   .biz-app .rail{width:var(--biz-rail);flex:none;background:var(--biz-card);border-right:1px solid var(--biz-line);display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0;position:sticky;top:0;height:100vh}
-  .biz-app .rail-logo{width:40px;height:40px;border-radius:4px;background:var(--biz-ink);color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .biz-app .rail-logo{width:40px;height:40px;border-radius:4px;background:var(--biz-ink);color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden}
+  .biz-app .rail-logo img{display:block;width:100%;height:100%;object-fit:cover}
   .biz-app .rail-btn{width:44px;height:44px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--biz-muted);position:relative;background:transparent;border:none;cursor:pointer;flex:none}
   .biz-app .rail-btn:hover{background:var(--biz-bg);color:var(--biz-ink)}
   .biz-app .rail-btn:focus-visible{outline:3px solid var(--biz-accent);outline-offset:2px}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import logoMark from '../../assets/v2/logo-mark.svg'
+import businessLogo from '../../assets/business/business-logo.png'
 import { useIsAuthenticated } from '../../utils/authStorage'
 
 // The prototype shipped these as inert labels. Pointed at the routes the
@@ -32,6 +33,9 @@ export default function Header() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const isAuth = useIsAuthenticated()
+  // The fleet landing carries the business mark; every other marketing page
+  // keeps the consumer Motoka mark.
+  const isBusinessLanding = pathname === '/for-fleets' || pathname.startsWith('/for-fleets/')
 
   useEffect(() => {
     if (!open) return
@@ -53,18 +57,28 @@ export default function Header() {
       >
         <div className="flex gap-[47px] items-center">
           <Link
-            to="/#top"
-            aria-label="Motoka home"
+            to={isBusinessLanding ? '/for-fleets' : '/#top'}
+            aria-label={isBusinessLanding ? 'Motoka Business home' : 'Motoka home'}
             className="inline-grid place-items-start"
             style={{ gridTemplateColumns: 'max-content', gridTemplateRows: 'max-content', lineHeight: 0 }}
           >
-            <img src={logoMark} alt="" style={{ width: 27.6, height: 30.9, gridColumn: 1, gridRow: 1 }} />
+            <img
+              src={isBusinessLanding ? businessLogo : logoMark}
+              alt=""
+              style={{
+                width: isBusinessLanding ? 40 : 27.6,
+                height: isBusinessLanding ? 40 : 30.9,
+                gridColumn: 1,
+                gridRow: 1,
+                borderRadius: isBusinessLanding ? 8 : 0,
+              }}
+            />
             <span
               style={{
                 gridColumn: 1,
                 gridRow: 1,
-                marginLeft: 44.07,
-                marginTop: 1.508,
+                marginLeft: isBusinessLanding ? 52.07 : 44.07,
+                marginTop: isBusinessLanding ? 3.92 : 1.508,
                 fontWeight: 600,
                 fontSize: 20.894,
                 lineHeight: '32.163px',

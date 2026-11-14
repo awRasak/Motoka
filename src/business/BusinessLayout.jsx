@@ -6,6 +6,7 @@ import BizIconSprite from './components/BizIconSprite.jsx';
 import BizSearchContext from './components/BizSearchContext.jsx';
 import { BUSINESS, BUSINESS_NAV } from './routes.js';
 import { FLEET } from './data/businessData.js';
+import businessLogo from '../assets/business/business-logo.png';
 import './business.css';
 
 const ALERTS = [
@@ -55,7 +56,7 @@ export default function BusinessLayout() {
       <div className="app">
         <nav className="rail" aria-label="Main">
           <Link className="rail-logo" to={BUSINESS.overview} aria-label="Motoka Business overview">
-            M
+            <img src={businessLogo} alt="" aria-hidden="true" />
           </Link>
           {BUSINESS_NAV.map((item) => (
             <NavLink
