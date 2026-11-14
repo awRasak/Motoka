@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Seo from "../components/Seo";
+import heroImage from "../assets/business/hero-image.jpg";
 
 // Merchant / fleet landing page — ported from the design mockup at
 // `motoka business/preview/fleet-landing.html` plus its design tokens
@@ -57,7 +58,7 @@ const LEAD = { margin: "0 0 40px", fontSize: 18, lineHeight: 1.6, color: MUTED, 
 
 function Hero() {
   return (
-    <section style={{ backgroundColor: "#0A1F3A", backgroundImage: "radial-gradient(900px 460px at 50% -8%, rgba(35,137,227,.42), transparent 70%), linear-gradient(180deg, #0A1F3A 0%, #0A1F3A 30%, #1A6FC4 100%)", paddingTop: 96, paddingBottom: 32 }}>
+    <section style={{ position: "relative", backgroundColor: "#0A1F3A", backgroundImage: "radial-gradient(900px 460px at 50% -8%, rgba(35,137,227,.42), transparent 70%), linear-gradient(180deg, #0A1F3A 0%, #0A1F3A 30%, #1A6FC4 100%)", paddingTop: 96, paddingBottom: 0, overflow: "hidden" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", paddingLeft: 24, paddingRight: 24, textAlign: "center" }}>
         <h1 style={{ fontSize: "clamp(38px, 5.2vw, 60px)", lineHeight: 1.07, letterSpacing: "-0.03em", fontWeight: 800, color: "#fff", maxWidth: 820, margin: "0 auto 20px" }}>
           Modern compliance for fleets that never stop moving
@@ -72,37 +73,15 @@ function Hero() {
         <p style={{ margin: "16px 0 0", fontSize: 13, fontWeight: 500, color: "#D9E8F7" }}>Motoka is a service provider, not a government agency.</p>
       </div>
 
-      <div style={{ maxWidth: 960, margin: "32px auto 0", paddingLeft: 24, paddingRight: 24 }}>
-        <div style={{ backgroundColor: "#fff", borderRadius: "28px 28px 0 0", padding: "24px 28px 28px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
-            <b style={{ fontSize: 18, color: INK }}>Fleet overview</b>
-            <Pill tone="neutral">Sample view</Pill>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12, marginBottom: 16 }}>
-            <div style={{ borderRadius: 14, padding: 16, backgroundColor: OK_BG, color: OK_INK }}>
-              <strong style={{ display: "block", fontSize: 28, lineHeight: 1.1, fontWeight: 800 }}>42</strong>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>Compliant</span>
-            </div>
-            <div style={{ borderRadius: 14, padding: 16, backgroundColor: WARN_BG, color: WARN_INK }}>
-              <strong style={{ display: "block", fontSize: 28, lineHeight: 1.1, fontWeight: 800 }}>6</strong>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>Expiring soon</span>
-            </div>
-            <div style={{ borderRadius: 14, padding: 16, backgroundColor: BAD_BG, color: BAD_INK }}>
-              <strong style={{ display: "block", fontSize: 28, lineHeight: 1.1, fontWeight: 800 }}>3</strong>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>Expired</span>
-            </div>
-            <div style={{ borderRadius: 14, padding: 16, backgroundColor: SOFT, color: INK }}>
-              <strong style={{ display: "block", fontSize: 28, lineHeight: 1.1, fontWeight: 800 }}>NGN 1.24M</strong>
-              <span style={{ fontSize: 14, fontWeight: 500, color: MUTED }}>Due this month</span>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <MockRow tone="bad" left={<b style={{ fontWeight: 800, color: INK }}>LSD-482-XY</b>} right={<Pill tone="bad">Expired</Pill>} />
-            <MockRow tone="warn" left={<b style={{ fontWeight: 800, color: INK }}>KJA-119-AA</b>} right={<Pill tone="warn">Due in 12 days</Pill>} />
-            <MockRow tone="ok" left={<b style={{ fontWeight: 800, color: INK }}>EKY-733-KJ</b>} right={<Pill tone="ok">Valid</Pill>} />
-          </div>
-        </div>
+      <div style={{ maxWidth: 1100, margin: "40px auto 0", paddingLeft: 24, paddingRight: 24, position: "relative", zIndex: 2 }}>
+        <img
+          src={heroImage}
+          alt="Motoka Business dashboard preview"
+          style={{ width: "100%", height: "auto", display: "block", borderRadius: "24px 24px 0 0", boxShadow: "0 -24px 60px -12px rgba(0,0,0,.45)" }}
+        />
       </div>
+
+      <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 200, background: "linear-gradient(to bottom, transparent, #fff)", pointerEvents: "none", zIndex: 1 }} />
     </section>
   );
 }
