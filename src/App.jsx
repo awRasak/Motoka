@@ -237,8 +237,10 @@ export default function App() {
             <Route path="mo" element={<MoPage />} />
             <Route path="ladipo-marketplace" element={<LadipoMarketingPage />} />
             <Route path="save-ahead-wallet" element={<WalletMarketingPage />} />
-            <Route path="for-fleets" element={<BusinessLanding />} />
           </Route>
+
+          {/* Motoka Business landing — standalone, uses its own chrome from the approved mockup. */}
+          <Route path="for-fleets" element={<BusinessLanding />} />
 
           {/* Auth Routes */}
           <Route element={<BlogLayout />} >
