@@ -520,3 +520,9 @@
     html{scroll-behavior:auto}
     .biz-landing, .biz-landing *,.biz-landing *::before,.biz-landing *::after{transition:none !important}
   }
+
+/* ---------- hero image (grey.co-style product screenshot) ---------- */
+.biz-landing .hero { position: relative; overflow: hidden; }
+.biz-landing .hero-image-wrap { max-width: 1100px; margin: 40px auto 0; padding: 0 24px; position: relative; z-index: 2; }
+.biz-landing .hero-image { width: 100%; height: auto; display: block; border-radius: 24px 24px 0 0; box-shadow: 0 -24px 60px -12px rgba(0,0,0,.45); }
+.biz-landing .hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 180px; background: linear-gradient(to bottom, transparent, #fff); pointer-events: none; z-index: 1; }

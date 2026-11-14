@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import useV2Chrome from '../Landing/v2/useV2Chrome';
 import '../business/landing.css';
+import heroImage from '../assets/business/hero-image.jpg';
 
 // The approved mockup (motoka business/preview/fleet-landing.html) is the source
 // of truth for this page. Its body markup is injected verbatim so the design
@@ -421,6 +422,8 @@ const RAW_BODY = `<header class="site-header">
 </footer>`;
 
 function wire(html) {
+  const heroImg = `<div class="hero-image-wrap"><img src="${heroImage}" alt="Motoka Business dashboard preview" class="hero-image"></div>`;
+  html = html.replace(/<div class="overview-card"[\s\S]*?<\/div>\n(?=\s*<\/div>\n\s*<\/section>)/, heroImg);
   return html
     .replace(/href="#register"/g, 'href="/business/signup"')
     .replace(/href="#login"/g, 'href="/business/login"')
