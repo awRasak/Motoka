@@ -103,6 +103,9 @@ import BusinessRenewals from "./business/pages/BusinessRenewals.jsx";
 import BusinessDrivers from "./business/pages/BusinessDrivers.jsx";
 import BusinessPayments from "./business/pages/BusinessPayments.jsx";
 import BusinessReports from "./business/pages/BusinessReports.jsx";
+import BusinessAuthLayout from "./business/pages/BusinessAuthLayout.jsx";
+import BusinessSignIn from "./business/pages/BusinessSignIn.jsx";
+import BusinessSignUp from "./business/pages/BusinessSignUp.jsx";
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
@@ -386,6 +389,14 @@ export default function App() {
             <Route path="payments" element={<BusinessPayments />} />
             <Route path="reports" element={<BusinessReports />} />
             <Route path="*" element={<Navigate to="/business" replace />} />
+          </Route>
+
+          {/* Motoka Business auth — lightweight demo auth for the fleet portal. */}
+          <Route path="business/login" element={<BusinessAuthLayout />}>
+            <Route index element={<BusinessSignIn />} />
+          </Route>
+          <Route path="business/signup" element={<BusinessAuthLayout />}>
+            <Route index element={<BusinessSignUp />} />
           </Route>
 
           {/* Admin Routes */}

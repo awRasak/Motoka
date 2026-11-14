@@ -67,7 +67,7 @@ function Hero() {
           Track every licence, insurance and roadworthiness date across your fleet. Renew in bulk and keep verified documents in one place.
         </p>
         <div className="biz-hero-anim biz-hero-anim-3" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
-          <Link to="/auth/signup" className="biz-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: NAVY, color: "#fff", fontWeight: 600, fontSize: 16, lineHeight: 1, padding: "15px 26px", borderRadius: 999, border: "1px solid transparent", boxShadow: "none" }}>Create account</Link>
+          <Link to="/business/signup" className="biz-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: NAVY, color: "#fff", fontWeight: 600, fontSize: 16, lineHeight: 1, padding: "15px 26px", borderRadius: 999, border: "1px solid transparent", boxShadow: "none" }}>Create account</Link>
           <Link to="/contact" className="biz-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: "#fff", color: NAVY, fontWeight: 600, fontSize: 16, lineHeight: 1, padding: "15px 26px", borderRadius: 999, border: "1px solid transparent", boxShadow: "none" }}>Talk to sales</Link>
         </div>
         <p className="biz-hero-anim biz-hero-anim-4" style={{ margin: "16px 0 0", fontSize: 13, fontWeight: 400, color: "#D9E8F7", textShadow: "none" }}>Motoka is a service provider, not a government agency.</p>
