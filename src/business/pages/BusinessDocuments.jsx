@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import BizPageTitle from '../components/BizPageTitle.jsx';
@@ -28,7 +29,7 @@ export default function BusinessDocuments() {
       <div className="page-main">
         <div className="stat-row">
           {DOC_SUMMARY.map((summary) => (
-            <section className="card" key={summary.label}>
+            <Link className="card" to={summary.to} key={summary.label}>
               <div className="card-head" style={{ margin: 0 }}>
                 <h2>{summary.label}</h2>
                 <span className="cap">{summary.valid}</span>
@@ -42,7 +43,7 @@ export default function BusinessDocuments() {
               <p className="cap" style={{ marginTop: 12 }}>
                 Expiring in 30 days: {summary.expiring}
               </p>
-            </section>
+            </Link>
           ))}
         </div>
 

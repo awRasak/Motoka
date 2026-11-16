@@ -99,17 +99,17 @@ export default function BusinessLayout() {
           <BizSearchContext.Provider value={searchValue}>
             <main className="main">
               <header className="header">
-                <label className="search">
-                  <BizIcon name="search" />
-                  <input
-                    type="search"
-                    aria-label="Search plate, driver or document"
-                    placeholder="Search plate, driver or document"
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                  />
-                </label>
-                <div className="header-right">
+                <div className="header-right" style={{ marginLeft: 'auto', width: '100%', justifyContent: 'flex-end' }}>
+                  <label className="search">
+                    <BizIcon name="search" />
+                    <input
+                      type="search"
+                      aria-label="Search plate, driver or document"
+                      placeholder="Search plate, driver or document"
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                    />
+                  </label>
                   <button
                     className="pill-btn"
                     type="button"

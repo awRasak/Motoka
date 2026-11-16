@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import BizPageTitle from '../components/BizPageTitle.jsx';
 import { matchesQuery, useBizSearch } from '../components/BizSearchContext.jsx';
 import { downloadCsv } from '../utils/download.js';
-import { VEHICLE_FILTERS, VEHICLES } from '../data/businessData.js';
+import { VEHICLE_FILTERS, VEHICLES, TOTAL_VEHICLES } from '../data/businessData.js';
+import AddVehicleModal from '../components/AddVehicleModal.jsx';
 
 const FILTER_TONE = {
   compliant: 'good',
@@ -13,7 +15,10 @@ const FILTER_TONE = {
 
 export default function BusinessVehicles() {
   const { query } = useBizSearch();
-  const [filter, setFilter] = useState('all');
+  const [searchParams] = useSearchParams();
+  const initial = searchParams.get('filter') || 'all';
+  const [filter, setFilter] = useState(initial);
+  const [addOpen, setAddOpen] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -78,7 +83,7 @@ export default function BusinessVehicles() {
             <button
               className="btn btn-primary"
               type="button"
-              onClick={() => toast('Vehicle onboarding connects to the live fleet API next.')}
+              onClick={() => setAddOpen(true)}
             >
               Add vehicle
             </button>
@@ -122,11 +127,12 @@ export default function BusinessVehicles() {
             </tbody>
           </table>
           <div className="table-foot">
-            <span>Showing {filtered.length} of 48 vehicles</span>
+            <span>Showing {filtered.length} of {TOTAL_VEHICLES} vehicles</span>
             <span>Page 1 of 5</span>
           </div>
         </div>
       </div>
+      <AddVehicleModal open={addOpen} onClose={() => setAddOpen(false)} />
     </>
   );
 }

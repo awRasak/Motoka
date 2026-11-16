@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import BizPageTitle from '../components/BizPageTitle.jsx';
+import AddVehicleModal from '../components/AddVehicleModal.jsx';
+import BulkAddVehicleModal from '../components/BulkAddVehicleModal.jsx';
 import BizExpiriesChart from '../components/BizExpiriesChart.jsx';
 import { matchesQuery, useBizSearch } from '../components/BizSearchContext.jsx';
 import { BUSINESS } from '../routes.js';
@@ -32,6 +34,8 @@ export default function BusinessOverview() {
     ACTION_ITEMS.map((item) => ({ ...item, id: queueId(item), queued: false })),
   );
   const [selected, setSelected] = useState(() => new Set());
+  const [addOpen, setAddOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const visibleItems = useMemo(
     () =>
@@ -76,17 +80,17 @@ export default function BusinessOverview() {
         title="Fleet overview"
         subtitle={`Good afternoon, ${FLEET.manager.split(' ')[0]}. 9 items need action today across ${FLEET.company}.`}
       >
-        <Link to={BUSINESS.vehicles} className="btn btn-ghost">
+        <button type="button" className="btn btn-ghost" onClick={() => setAddOpen(true)}>
           Add vehicles
-        </Link>
-        <Link to={BUSINESS.renewals} className="btn btn-primary">
+        </button>
+        <button type="button" className="btn btn-primary" onClick={() => setBulkOpen(true)}>
           Start bulk renewal
-        </Link>
+        </button>
       </BizPageTitle>
 
       <section className="kpis" aria-label="Key figures">
         {KPIS.map((kpi) => (
-          <div className="card kpi" key={kpi.label}>
+          <Link className="card kpi" to={kpi.to} key={kpi.label}>
             <span className="kpi-label">{kpi.label}</span>
             <div>
               <div className="kpi-value">{kpi.value}</div>
@@ -94,7 +98,7 @@ export default function BusinessOverview() {
                 {kpi.tone ? <span className={`status ${kpi.tone}`}>{kpi.note}</span> : kpi.note}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </section>
 
@@ -318,6 +322,9 @@ export default function BusinessOverview() {
           </div>
         </article>
       </section>
+
+      <AddVehicleModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <BulkAddVehicleModal open={bulkOpen} onClose={() => setBulkOpen(false)} />
     </>
   );
 }

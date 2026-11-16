@@ -11,11 +11,14 @@ export const FLEET = {
   dateRange: '1 Oct – 4 Nov 2026',
 };
 
+export const TOTAL_VEHICLES = 48;
+export const TOTAL_DRIVERS = 46;
+
 export const KPIS = [
-  { label: 'Total vehicles', value: '48', note: 'Across Lagos, Ibadan and Abuja' },
-  { label: 'Expiring in 30 days', value: '6', note: 'Next one on 10 Nov', tone: 'warn' },
-  { label: 'Expired', value: '3', note: 'Oldest expired 12 Oct', tone: 'bad' },
-  { label: 'Due this month', value: '₦1,284,500', note: '9 renewals · fees at cost' },
+  { label: 'Total vehicles', value: '48', note: 'Across Lagos, Ibadan and Abuja', to: '/business/vehicles' },
+  { label: 'Expiring in 30 days', value: '6', note: 'Next one on 10 Nov', tone: 'warn', to: '/business/vehicles?filter=expiring' },
+  { label: 'Expired', value: '3', note: 'Oldest expired 12 Oct', tone: 'bad', to: '/business/vehicles?filter=expired' },
+  { label: 'Due this month', value: '₦1,284,500', note: '9 renewals · fees at cost', to: '/business/renewals' },
 ];
 
 export const COMPLIANCE = {
@@ -109,10 +112,10 @@ export const VEHICLE_FILTERS = [
 ];
 
 export const DOC_SUMMARY = [
-  { label: 'Vehicle licence', valid: '44 of 48 valid', percent: 92, tone: 'good', expiring: 2 },
-  { label: 'Insurance', valid: '42 of 48 valid', percent: 88, tone: 'warn', expiring: 3 },
-  { label: 'Roadworthiness', valid: '39 of 48 valid', percent: 81, tone: 'warn', expiring: 4 },
-  { label: 'Hackney permits', valid: '9 of 12 valid', percent: 75, tone: 'bad', expiring: 2 },
+  { label: 'Vehicle licence', valid: '44 of 48 valid', percent: 92, tone: 'good', expiring: 2, to: '/business/documents' },
+  { label: 'Insurance', valid: '42 of 48 valid', percent: 88, tone: 'warn', expiring: 3, to: '/business/documents' },
+  { label: 'Roadworthiness', valid: '39 of 48 valid', percent: 81, tone: 'warn', expiring: 4, to: '/business/documents' },
+  { label: 'Hackney permits', valid: '9 of 12 valid', percent: 75, tone: 'bad', expiring: 2, to: '/business/documents' },
 ];
 
 export const DOCUMENTS = [
@@ -168,9 +171,9 @@ export const RENEWAL_COLUMNS = [
 ];
 
 export const DRIVER_KPIS = [
-  { label: 'Active drivers', value: '46', note: '2 vehicles without a driver' },
-  { label: 'Licences expiring in 60 days', value: '2', note: 'Next on 20 Nov', tone: 'warn' },
-  { label: 'Licences expired', value: '1', note: 'Kunle Adebayo', tone: 'bad' },
+  { label: 'Active drivers', value: '46', note: '2 vehicles without a driver', to: '/business/drivers' },
+  { label: 'Licences expiring in 60 days', value: '2', note: 'Next on 20 Nov', tone: 'warn', to: '/business/drivers?filter=warn' },
+  { label: 'Licences expired', value: '1', note: 'Kunle Adebayo', tone: 'bad', to: '/business/drivers?filter=bad' },
 ];
 
 export const DRIVERS = [

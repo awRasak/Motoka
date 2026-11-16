@@ -28,11 +28,11 @@
   /* ---------- shell ---------- */
   .biz-app .app{display:flex;min-height:100vh}
 
-  .biz-app .rail{width:var(--biz-rail);flex:none;background:var(--biz-card);border-right:1px solid var(--biz-line);display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0;position:sticky;top:0;height:100vh}
-  .biz-app .rail-logo{width:40px;height:40px;border-radius:4px;background:var(--biz-ink);color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden}
+  .biz-app .rail{width:var(--biz-rail);flex:none;background:var(--biz-ink);border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0;position:sticky;top:0;height:100vh}
+  .biz-app .rail-logo{width:40px;height:40px;border-radius:4px;background:#fff;color:var(--biz-ink);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden}
   .biz-app .rail-logo img{display:block;width:100%;height:100%;object-fit:cover}
-  .biz-app .rail-btn{width:44px;height:44px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--biz-muted);position:relative;background:transparent;border:none;cursor:pointer;flex:none}
-  .biz-app .rail-btn:hover{background:var(--biz-bg);color:var(--biz-ink)}
+  .biz-app .rail-btn{width:44px;height:44px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);position:relative;background:transparent;border:none;cursor:pointer;flex:none}
+  .biz-app .rail-btn:hover{background:rgba(255,255,255,.1);color:#fff}
   .biz-app .rail-btn:focus-visible{outline:3px solid var(--biz-accent);outline-offset:2px}
   .biz-app .rail-btn.on{background:var(--biz-accent);color:#fff}
   .biz-app .rail-btn .badge{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--biz-bad);border:2px solid #fff}
@@ -41,7 +41,7 @@
   .biz-app .rail-spacer{flex:1}
 
   .biz-app .content{flex:1;min-width:0;display:flex;flex-direction:column}
-  .biz-app .main{padding:24px 32px 36px;display:flex;flex-direction:column;gap:20px;min-width:0}
+  .biz-app .main{padding:16px 32px 36px;display:flex;flex-direction:column;gap:16px;min-width:0}
 
   /* ---------- header ---------- */
   .biz-app .header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
@@ -99,10 +99,11 @@
 
   /* ---------- KPI strip ---------- */
   .biz-app .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-  .biz-app .kpi{justify-content:space-between;gap:14px;padding:20px}
+  .biz-app .kpi{justify-content:space-between;gap:14px;padding:20px;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease;text-decoration:none;color:inherit}
   .biz-app .kpi-label{font-size:13px;font-weight:600;color:var(--biz-text);display:flex;align-items:center;gap:8px}
   .biz-app .kpi-value{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
   .biz-app .kpi-note{font-size:12px;color:var(--biz-muted)}
+  .biz-app .kpi:hover{transform:translateY(-2px);box-shadow:0 8px 20px -6px rgba(11,31,58,.12)}
 
   /* ---------- bento ---------- */
   .biz-app .bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;align-items:stretch}
@@ -114,7 +115,7 @@
   .biz-app .hero-num{font-size:56px;font-weight:800;letter-spacing:-.03em;line-height:1}
   .biz-app .hero-sub{font-size:14px;color:var(--biz-text);margin-top:8px;font-weight:500}
   .biz-app .hero-mid{flex:1;display:flex;align-items:center;gap:20px;margin:20px 0}
-  .biz-app .ring{width:112px;height:112px;flex:none}
+  .biz-app .ring{width:112px;height:112px;flex:none;outline:none;border:0}
   .biz-app .legend{display:flex;flex-direction:column;gap:12px;flex:1;min-width:0}
   .biz-app .leg{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px;font-weight:600;color:var(--biz-text)}
   .biz-app .leg span{display:flex;align-items:center;gap:8px}
@@ -179,7 +180,7 @@
     .biz-app .rail{position:fixed;left:0;right:0;bottom:0;top:auto;height:64px;width:100%;flex-direction:row;justify-content:space-around;padding:0 10px;border-right:0;border-top:1px solid var(--biz-line);z-index:30}
     .biz-app .rail-logo,.biz-app .rail-spacer,.biz-app .rail-extra{display:none}
     .biz-app .rail-btn::after{display:none}
-    .biz-app .main{padding:18px}
+    .biz-app .main{padding:12px 18px}
     .biz-app .title-row h1{font-size:26px}
     .biz-app .me-text{display:none}
     .biz-app .search{width:100%;flex-basis:100%;order:3}
