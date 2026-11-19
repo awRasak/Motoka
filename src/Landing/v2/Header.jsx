@@ -158,14 +158,14 @@ export default function Header() {
             <>
               <button
                 type="button"
-                onClick={() => navigate('/auth/login')}
+                onClick={() => navigate(isBusinessLanding ? '/business/login' : '/auth/login')}
                 className={`font-medium ${isBusinessLanding ? 'text-white/90 hover:text-white biz-btn' : 'text-[#2389e3]'} text-[14px] leading-normal whitespace-nowrap cursor-pointer transition-opacity hover:opacity-75`}
               >
                 Login
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/auth/signup')}
+                onClick={() => navigate(isBusinessLanding ? '/business/signup' : '/auth/signup')}
                 className="bg-[#f4faff] border border-[#2389e3] flex h-[38px] items-center justify-center overflow-clip px-[24px] py-[14px] rounded-[90px] w-[92px] cursor-pointer transition-colors hover:bg-[#e4f1ff]"
               >
                 <span className={`font-medium ${isBusinessLanding ? 'text-[#0A1F3A]' : 'text-[#2389e3]'} text-[14px] leading-normal whitespace-nowrap`}>
@@ -259,7 +259,7 @@ export default function Header() {
               <>
                 <button
                   type="button"
-                  onClick={() => { setOpen(false); navigate('/auth/signup') }}
+                  onClick={() => { setOpen(false); navigate(isBusinessLanding ? '/business/signup' : '/auth/signup') }}
                   className="bg-[#f4faff] border border-[#2389e3] flex items-center justify-center w-full transition-colors hover:bg-[#e4f1ff]"
                   style={{ height: 44, borderRadius: 90 }}
                 >
@@ -267,7 +267,7 @@ export default function Header() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setOpen(false); navigate('/auth/login') }}
+                  onClick={() => { setOpen(false); navigate(isBusinessLanding ? '/business/login' : '/auth/login') }}
                   className="flex items-center justify-center w-full rounded-full transition-colors hover:bg-[#f4faff]"
                   style={{ height: 44 }}
                 >
