@@ -1,12 +1,17 @@
 import { useParams, Navigate, Link } from 'react-router-dom'
 import ServicePageTemplate from '../ServicePageTemplate'
-import { getStateBySlug } from '../../../Data/states'
+import { getStateBySlug, STATES } from '../../../Data/states'
 
 export default function StatePage() {
   const { slug } = useParams()
   const state = getStateBySlug(slug)
 
   if (!state) return <Navigate to="/" replace />
+
+  const related = STATES.filter((s) => s.slug !== state.slug).map((s) => ({
+    title: `Renew in ${s.name}`,
+    path: `/states/${s.slug}`,
+  }))
 
   return (
     <ServicePageTemplate
@@ -18,9 +23,9 @@ export default function StatePage() {
       subcopy={state.intro}
       breadcrumbs={[
         { name: 'Home', path: '/' },
-        { name: 'States', path: `/states/${state.slug}` },
         { name: state.name, path: `/states/${state.slug}` },
       ]}
+      related={related}
       service={{
         name: `Vehicle papers renewal in ${state.name}`,
         serviceType: 'Vehicle document renewal',

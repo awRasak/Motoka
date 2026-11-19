@@ -10,14 +10,15 @@ import EverythingSection from "./v2/EverythingSection";
 import WhyUs from "./v2/WhyUs";
 import Mission from "./v2/Mission";
 import FAQ from "./v2/FAQ";
+import { FAQS } from "./v2/faqData";
 import Waitlist from "./v2/Waitlist";
 import Footer from "./v2/Footer";
 import ChatWidget from "./v2/ChatWidget";
-import { ORGANIZATION, WEBSITE } from "../utils/schema";
+import { ORGANIZATION, WEBSITE, faqSchema } from "../utils/schema";
 
 // Module scope so the identity is stable — Seo re-appends the script whenever
 // this changes.
-const JSON_LD = [ORGANIZATION, WEBSITE];
+const JSON_LD = [ORGANIZATION, WEBSITE, faqSchema(FAQS)];
 
 function LandingV2() {
   const location = useLocation();

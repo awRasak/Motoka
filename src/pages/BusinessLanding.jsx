@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { faqSchema } from '../utils/schema';
 import useV2Chrome from '../Landing/v2/useV2Chrome';
 import '../business/landing.css';
 import heroImage from '../assets/business/hero-image.jpg';
@@ -421,6 +422,17 @@ const RAW_BODY = `<header class="site-header">
   </div>
 </footer>`;
 
+// The FAQ section is baked into the injected markup, so mirror it here for
+// FAQPage structured data (the mockup's copy is the source of truth).
+const BUSINESS_FAQS = [
+  { q: 'Can I start without business documents?', a: 'Yes. Add vehicles and see your fleet snapshot straight away. We verify your business when you make your first payment.' },
+  { q: 'How are documents verified?', a: "Each renewal is checked against the issuing agency's own records before it appears in your wallet." },
+  { q: 'Is there a monthly fee?', a: 'Government fees are passed through at cost and itemised before you pay. Contact our sales team for pricing.' },
+  { q: 'How long does a renewal take?', a: 'Renewal turnaround depends on the document and state. You can follow live status in the app.' },
+  { q: 'Can drivers see documents without seeing payments?', a: 'Yes. Drivers only see the documents for their assigned vehicle.' },
+];
+const BUSINESS_JSON_LD = [faqSchema(BUSINESS_FAQS)];
+
 function wire(html) {
   const heroImg = `<div class="hero-image-wrap"><img src="${heroImage}" alt="Motoka Business dashboard preview" class="hero-image"></div>`;
   html = html.replace(/<div class="overview-card"[\s\S]*?<\/div>\n(?=\s*<\/div>\n\s*<\/section>)/, heroImg);
@@ -487,6 +499,7 @@ export default function BusinessLanding() {
         title="Motoka for Fleets — Fleet compliance, renewals and documents"
         description="Track every licence, insurance and roadworthiness date across your fleet. Renew in bulk, keep verified documents in one place, and get expiry alerts that escalate."
         path="/for-fleets"
+        jsonLd={BUSINESS_JSON_LD}
       />
       <div className="biz-landing" ref={ref} dangerouslySetInnerHTML={{ __html: wire(RAW_BODY) }} />
     </>

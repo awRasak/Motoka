@@ -35,6 +35,7 @@ export default function ServicePageTemplate({
   author,
   breadcrumbs,
   service,
+  related,
   ctaText = 'Renew Now',
   ctaTo = '/#top',
 }) {
@@ -187,6 +188,26 @@ export default function ServicePageTemplate({
                   <p style={{ color: '#64748b', lineHeight: 1.6 }}>{b.description}</p>
                 </div>
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {related?.length > 0 && (
+        <section style={{ paddingLeft: 'clamp(24px, 7.9vw, 114px)', paddingRight: 'clamp(24px, 7.9vw, 114px)', paddingTop: 80, paddingBottom: 80 }}>
+          <h2 style={{ fontWeight: 500, fontSize: 26, color: '#05243f', marginBottom: 24 }}>
+            Vehicle licence renewal in other states
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {related.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="rounded-full border px-4 py-2 text-sm font-medium hover:brightness-110"
+                style={{ borderColor: 'rgba(35,137,227,.35)', color: '#2389e3' }}
+              >
+                {item.title}
+              </Link>
             ))}
           </div>
         </section>

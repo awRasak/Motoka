@@ -3,8 +3,21 @@ import { useParams, Link } from "react-router-dom";
 import blogData from "../Data/blogs";
 import { computeSlug, findPostBySlug } from "../utils/computeSlug";
 import Seo from "../components/Seo";
-import { blogPostingSchema } from "../utils/schema";
+import { blogPostingSchema, breadcrumbSchema } from "../utils/schema";
+import { STATES } from "../Data/states";
 
+// Blog content is plain text with the odd HTML fragment; a raw slice(0, 160)
+// used to end mid-word and leak markup into meta descriptions.
+function cleanDescription(content, max = 160) {
+  const text = String(content || "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+  return stop > max * 0.6 ? cut.slice(0, stop + 1) : `${cut.trimEnd()}…`;
+}
 
 export default function BlogPage() {
   const { slug } = useParams();
@@ -20,21 +33,32 @@ export default function BlogPage() {
   // to that old URL, leaving both variants indexed and competing. Pointing at
   // the computed slug consolidates them onto one.
   const canonicalPath = blog ? `/blog/${computeSlug(blog.title)}` : `/blog/${slug}`;
+  const description = cleanDescription(blog?.content);
+  const parsedDate = blog ? new Date(blog.date) : null;
+  const publishedTime =
+    parsedDate && !Number.isNaN(parsedDate.getTime())
+      ? parsedDate.toISOString()
+      : undefined;
 
   const jsonLd = useMemo(
     () =>
       blog
         ? [
+            breadcrumbSchema([
+              { name: "Home", path: "/" },
+              { name: "Blog", path: "/blogs" },
+              { name: blog.title, path: canonicalPath },
+            ]),
             blogPostingSchema({
               title: blog.title,
-              description: blog.content.slice(0, 160),
+              description,
               path: canonicalPath,
               date: blog.date,
               image: blog.image,
             }),
           ]
         : undefined,
-    [blog, canonicalPath],
+    [blog, canonicalPath, description],
   );
 
   if (!blog) {
@@ -46,11 +70,24 @@ export default function BlogPage() {
       <div className="max-w-3xl mx-auto px-4">
         <Seo
           title={blog.title}
-          description={blog.content.slice(0, 160)}
+          description={description}
           path={canonicalPath}
           image={blog.image}
+          imageAlt={blog.title}
+          type="article"
+          publishedTime={publishedTime}
+          modifiedTime={publishedTime}
           jsonLd={jsonLd}
         />
+        {/* Visible breadcrumbs mirror the BreadcrumbList schema and give
+            crawlers another internal-link path into the hub and states. */}
+        <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap gap-2 text-xs text-gray-500">
+          <Link to="/" className="hover:text-[#2389E3]">Home</Link>
+          <span aria-hidden="true">/</span>
+          <Link to="/blogs" className="hover:text-[#2389E3]">Blog</Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-gray-700">{blog.title}</span>
+        </nav>
         {/* Image */}
         <img
           src={blog.image}
@@ -121,6 +158,26 @@ export default function BlogPage() {
             </ul>
           </div>
         )}
+        {/* Every post links to the state pages. They are otherwise only
+            reachable from the footer, so this spreads internal link equity to
+            the local-intent pages. */}
+        <div className="mb-12 rounded-2xl border border-gray-100 bg-gray-50 p-6">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Vehicle licence rules by state
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {STATES.map((state) => (
+              <Link
+                key={state.slug}
+                to={`/states/${state.slug}`}
+                className="rounded-full border border-[#2389E3]/30 px-3 py-1.5 text-xs font-medium text-[#2389E3] hover:bg-[#2389E3]/10"
+              >
+                {state.name} vehicle licence renewal
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <div className="flex justify-between gap-4 border-t pt-6">
 
           {/* Previous */}

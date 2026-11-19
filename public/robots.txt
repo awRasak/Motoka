@@ -22,6 +22,7 @@ Disallow: /receipt
 Disallow: /cart
 Disallow: /checkout
 Disallow: /successful
+Disallow: /business
 
 # Never index anything carrying a payment reference
 Disallow: /*?reference=

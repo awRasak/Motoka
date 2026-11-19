@@ -7,6 +7,7 @@ import BizSearchContext from './components/BizSearchContext.jsx';
 import { BUSINESS, BUSINESS_NAV } from './routes.js';
 import { FLEET } from './data/businessData.js';
 import businessLogo from '../assets/business/business-logo.png';
+import Seo from '../components/Seo.jsx';
 import './business.css';
 
 const ALERTS = [
@@ -97,6 +98,12 @@ export default function BusinessLayout() {
 
         <div className="content">
           <BizSearchContext.Provider value={searchValue}>
+            <Seo
+              title="Motoka Business — Fleet Workspace Preview"
+              description="A preview of the Motoka Business fleet workspace."
+              path="/business"
+              noindex
+            />
             <main className="main">
               <header className="header">
                 <div className="header-right" style={{ marginLeft: 'auto', width: '100%', justifyContent: 'flex-end' }}>

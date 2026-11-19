@@ -13,10 +13,25 @@ const PUBLISHER = {
   url: absoluteUrl("/"),
 };
 
+const SOCIALS = [
+  "https://www.instagram.com/trymotoka",
+  "https://x.com/trymotoka",
+  "https://www.tiktok.com/@trymotoka1",
+];
+
 export const ORGANIZATION = {
   ...PUBLISHER,
   logo: absoluteUrl("/icons/icon-512.png"),
   areaServed: "NG",
+  email: "support@motoka.com",
+  sameAs: SOCIALS,
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "support@motoka.com",
+    contactType: "customer support",
+    areaServed: "NG",
+    availableLanguage: "en",
+  },
   description:
     "Motoka renews vehicle licences, insurance, roadworthiness and driver's licences online in Nigeria through a licensed, MVAA-certified agent network.",
 };
@@ -25,6 +40,7 @@ export const WEBSITE = {
   "@type": "WebSite",
   name: "Motoka",
   url: absoluteUrl("/"),
+  inLanguage: "en-NG",
   publisher: PUBLISHER,
 };
 
@@ -97,19 +113,23 @@ export function serviceSchema({ name, description, path, serviceType, priceRange
   };
 }
 
-export function blogPostingSchema({ title, description, path, date, image }) {
+export function blogPostingSchema({ title, description, path, date, image, author }) {
   // Posts carry a display date like "Mar 20, 2026". Anything Date cannot read
   // is left off rather than emitted as an invalid datePublished.
   const published = new Date(date);
   const dated = date && !Number.isNaN(published.getTime());
+  const iso = dated ? published.toISOString().slice(0, 10) : undefined;
 
   return {
     "@type": "BlogPosting",
     headline: title,
     description,
     url: absoluteUrl(path),
-    ...(dated ? { datePublished: published.toISOString().slice(0, 10) } : {}),
+    mainEntityOfPage: { "@type": "WebPage", "@id": absoluteUrl(path) },
+    author: { "@type": "Organization", name: author || "Motoka Renewals Team" },
+    ...(iso ? { datePublished: iso, dateModified: iso } : {}),
     ...(image ? { image: absoluteUrl(image) } : {}),
     publisher: PUBLISHER,
+    inLanguage: "en-NG",
   };
 }

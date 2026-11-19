@@ -15,9 +15,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Motoka" />
-    <!-- Default title/description for the first HTML paint. React Helmet
-         overwrites these (and sets canonical) per route so /guides is not
-         treated as a duplicate of /. 301s from motoka.ng / non-www still
+    <!-- Default title/description for the first HTML paint and for crawlers
+         that only read static HTML. The per-route Seo component overwrites
+         these in an effect (and sets canonical + social tags), so /guides is
+         not treated as a duplicate of /. 301s from motoka.ng / non-www still
          need setting up in the Vercel dashboard. -->
     <title>Motoka — Renew Your Vehicle Licence & Documents Online in Nigeria</title>
     <meta

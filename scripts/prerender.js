@@ -1,3 +1,4 @@
+/* global process */
 // Runs after `vite build`. This is a plain CSR React SPA — dist/index.html
 // has no real content in <body>, just a script tag. A real browser is fine
 // with that. A crawler that doesn't execute JS is not, and neither is any
@@ -49,6 +50,9 @@ const STATIC_ROUTES = [
   '/ladipo-marketplace',
   '/save-ahead-wallet',
   '/blogs',
+  '/for-fleets',
+  '/terms',
+  '/ladipo',
 ]
 
 // Content-change dates for sitemap <lastmod>. Anything not listed falls back
@@ -70,6 +74,9 @@ const ROUTE_LASTMOD = {
   '/faq': '2026-10-22',
   '/guides': '2026-10-22',
   '/blogs': '2026-11-07',
+  '/for-fleets': '2026-11-19',
+  '/terms': '2026-10-22',
+  '/ladipo': '2026-10-22',
 }
 
 // Vercel's build image ships no Chrome shared libraries, so the browser
