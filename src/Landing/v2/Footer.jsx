@@ -37,6 +37,9 @@ const COLUMNS = [
       { label: 'FAQ', to: '/faq' },
       { label: 'About Motoka', to: '/about' },
       { label: 'Contact Us', to: '/contact' },
+      { label: 'Privacy Policy', to: '/privacy' },
+      { label: 'Terms of Service', to: '/terms' },
+      { label: 'Delete Account', to: '/delete-account' },
     ],
   },
 ]
