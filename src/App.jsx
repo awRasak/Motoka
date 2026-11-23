@@ -94,6 +94,8 @@ import HowItWorks from "./pages/HowItWorks.jsx";
 import BusinessLanding from "./pages/BusinessLanding.jsx";
 import DriverGuides from "./pages/DriverGuides.jsx";
 import LicenseReminder from "./pages/LicenseReminder.jsx";
+import Privacy from "./pages/Privacy.jsx";
+import DeleteAccount from "./pages/DeleteAccount.jsx";
 import RenewVehicleLicence from "./pages/RenewVehicleLicence.jsx";
 import BusinessLayout from "./business/BusinessLayout.jsx";
 import BusinessOverview from "./business/pages/BusinessOverview.jsx";
@@ -237,6 +239,8 @@ export default function App() {
             <Route path="mo" element={<MoPage />} />
             <Route path="ladipo-marketplace" element={<LadipoMarketingPage />} />
             <Route path="save-ahead-wallet" element={<WalletMarketingPage />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="delete-account" element={<DeleteAccount />} />
           </Route>
 
           {/* Motoka Business landing — standalone, uses its own chrome from the approved mockup. */}
