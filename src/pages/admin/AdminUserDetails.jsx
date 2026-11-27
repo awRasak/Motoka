@@ -14,6 +14,8 @@ import {
   BanknotesIcon,
   PlusIcon,
   ExclamationTriangleIcon,
+  ArrowDownLeftIcon,
+  ArrowUpRightIcon,
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../../config/supabaseClient';
@@ -39,6 +41,12 @@ const AdminUserDetails = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [showAddCarModal, setShowAddCarModal] = useState(false);
+
+  const [wallet, setWallet] = useState(null);
+  const [ledger, setLedger] = useState([]);
+  const [ledgerTotal, setLedgerTotal] = useState(0);
+  const [ledgerPage, setLedgerPage] = useState(1);
+  const [walletLoading, setWalletLoading] = useState(false);
 
   const getToken = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -88,6 +96,47 @@ const AdminUserDetails = () => {
   useEffect(() => {
     fetchUserDetails();
   }, [fetchUserDetails]);
+
+  const naira = (kobo) =>
+    new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format((Number(kobo) || 0) / 100);
+
+  const REASON_LABEL = {
+    funding: 'Wallet funding',
+    admin_adjustment: 'Admin adjustment',
+    renewal: 'Renewal payment',
+    refund: 'Refund',
+  };
+
+  const fetchWallet = useCallback(async (page = 1) => {
+    try {
+      setWalletLoading(true);
+      const token = await getToken();
+      if (!token) return;
+      const response = await fetch(
+        `${config.getApiBaseUrl()}/admin/wallets/${userId}/ledger?page=${page}&limit=25`,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+      );
+      const data = await response.json();
+      if (data.status) {
+        setWallet(data.data.wallet);
+        if (page === 1) setLedger(data.data.entries || []);
+        else setLedger((prev) => [...prev, ...(data.data.entries || [])]);
+        setLedgerTotal(data.data.pagination?.total || 0);
+        setLedgerPage(page);
+      } else {
+        toast.error(data.message || 'Failed to load wallet');
+      }
+    } catch (error) {
+      console.error('Error fetching wallet:', error);
+      toast.error('Failed to load wallet');
+    } finally {
+      setWalletLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchWallet(1);
+  }, [fetchWallet]);
 
   const handleBack = () => navigate('/admin/users');
 
@@ -352,6 +401,74 @@ const AdminUserDetails = () => {
           color="gray"
         />
       </div>
+
+      {/* Wallet & Transaction History */}
+      <Card className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-semibold text-gray-900">Wallet</h2>
+          {wallet && (
+            <StatusBadge tone={wallet.status === 'frozen' ? 'red' : 'green'}>
+              {wallet.status === 'frozen' ? 'Frozen' : 'Active'}
+            </StatusBadge>
+          )}
+        </div>
+        {walletLoading && !wallet ? (
+          <PageLoader />
+        ) : (
+          <>
+            <div className="rounded-xl bg-gradient-to-br from-[#05243F] to-[#0A3B66] p-5 text-white mb-4">
+              <p className="text-xs text-white/60">Balance</p>
+              <p className="mt-1 text-3xl font-semibold">{naira(wallet?.balance_kobo)}</p>
+              {wallet?.currency && (
+                <p className="mt-1 text-xs text-white/50">{wallet.currency}</p>
+              )}
+            </div>
+            <p className="mb-2 text-sm font-semibold text-gray-900">Transaction history</p>
+            {ledger.length === 0 ? (
+              <EmptyState
+                icon={BanknotesIcon}
+                title="No transactions"
+                body="Wallet activity will appear here."
+              />
+            ) : (
+              <>
+                <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-100">
+                  {ledger.map((e) => {
+                    const credit = e.direction === 'credit';
+                    return (
+                      <li key={e.id} className="flex items-center gap-3 px-3 py-2.5">
+                        <span className={`flex h-8 w-8 items-center justify-center rounded-full ${credit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                          {credit ? <ArrowDownLeftIcon className="h-4 w-4" /> : <ArrowUpRightIcon className="h-4 w-4" />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900">{REASON_LABEL[e.reason] || e.reason}</p>
+                          {e.note && <p className="truncate text-xs text-gray-500">{e.note}</p>}
+                          <p className="text-[11px] text-gray-400">{new Date(e.created_at).toLocaleString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-sm font-semibold ${credit ? 'text-green-600' : 'text-gray-900'}`}>
+                            {credit ? '+' : '−'}{naira(e.amount_kobo)}
+                          </p>
+                          <p className="text-[11px] text-gray-400">{naira(e.balance_after)}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {ledger.length < ledgerTotal && (
+                  <button
+                    onClick={() => fetchWallet(ledgerPage + 1)}
+                    disabled={walletLoading}
+                    className="mt-3 w-full rounded-lg border border-gray-200 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    {walletLoading ? 'Loading…' : `Load more (${ledger.length} of ${ledgerTotal})`}
+                  </button>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </Card>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
